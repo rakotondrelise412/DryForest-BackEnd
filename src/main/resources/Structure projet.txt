@@ -1,0 +1,106 @@
+dryforest/
+├── .gitattributes
+├── .gitignore
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+├── main/
+│   ├── java/org/ong/dryforest
+│   │   ├── config
+│   │   │   ├── SecurityConfig.java
+│   │   │   ├── SyncProperties.java
+│   │   ├── controller
+│   │   ├── dto
+│   │   ├── entity
+│   │   ├── mapper
+│   │   ├── repository
+│   │   ├── security
+│   │   ├── service
+│   │   ├── DryforestApplication.java
+│   ├── resources
+
+dryforest-web/
+├── .angular/
+├── .vscode/
+├── node_modules/
+├── public/
+├── src/
+│   ├── app/
+│   │  ├── components/
+│   │  ├── core/
+│   │  │  ├── guards/
+│   │  │  ├── interceptors/
+│   │  │  ├── services/
+│   │  ├── features/
+│   │  │  ├── dashboard/
+│   │  │  │  ├── dashboard.component.ts
+│   │  │  │  ├── dashboard.component.html
+│   │  │  │  ├── dashboard.component.css
+│   │  │  │  ├── dashboard.routes.ts
+│   │  │  │  ├── persistent.component.ts
+│   │  │  │  ├── blog.component.ts
+│   │  │  │  ├── links.component.ts
+│   │  │  ├── settings/
+│   │  │  │  ├── perennative.component.ts
+│   │  │  │  ├── links-settings.component.ts
+│   │  │  │  ├── size-perennative.component.ts
+│   │  ├── shared/
+│   │  │  ├── layout/
+│   │  │  │  ├── main-layout/
+│   │  │  │  │  ├── main-layout.component.ts
+│   │  │  │  │  ├── main-layout.component.html
+│   │  │  │  │  ├── main-layout.component.css
+│   │  │  │  ├── sidebar/
+│   │  │  │  │  ├── sidebar.component.ts
+│   │  │  │  │  ├── sidebar.component.html
+│   │  │  │  │  ├── sidebar.component.css
+│   │  │  ├── pipes/
+│   │  │  ├── ui/
+│   │  ├── models/
+│   │  ├── app.components.ts
+│   │  ├── app.components.html
+│   │  ├── app.components.css
+│   │  ├── app.config.ts
+│   │  ├── app.css
+│   │  ├── app.routes.ts
+│   │  ├── app.spec.ts
+│   │  ├── app.ts
+│   ├── assets/
+│   │  ├── images/
+│   │  ├── icons/
+│   ├── environments/
+│   │  ├── environment.ts
+│   │  ├── environment.prod.ts
+│   ├── index.html
+│   ├── main.ts
+│   ├── styles.css
+├──.editorconfig
+├──.gitattributes
+├──.gitignore
+├── angular.json
+├── package-lock.json
+├── package.json
+├── README
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.spec.json
+
+Creation des donnes pour tous les tables.
+Creation des fonctions services et controller.
+Creation du structures Angular pour faire l'affichage.
+Integration
+
+
+Nom de l'espece dans l'affichage
+Recherche multi-critère:
+    creation vue
+    creation fonction repository
+    creation fonction service
+    creation controler
+recuperation dans l'angular
+
+
+
+j'ai supprimer la fonctionalité qui recupere le plantation-block parce je n'ai pas trouver d'où viens l'erreur. Donc j'ai mon accien code qui recupere et affiche juste les plantations. Oui, ca a marché avant que fais la recuperation des plantation-block.
+Maintenant, je veux faire une recherche multi-critere qui constitue les critère suivante: plantation-block ou sub-plot ou date de plantation ou par espèce.
+C'est pour ca que j'ai besoin de la liste des plantation-block.
