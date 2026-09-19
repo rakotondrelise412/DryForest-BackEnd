@@ -9,10 +9,7 @@ import org.ong.dryforest.dto.person.PersonWebDTO;
 import org.ong.dryforest.service.person.PersonService;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
@@ -58,6 +55,21 @@ public class PersonController {
                 PersonMapper.toDTOList(persons);
 
         return ResponseEntity.ok(personsDTO);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePerson(
+            @PathVariable int id,
+            @RequestBody PersonWebDTO personDTO){
+        try {
+            Person updatedPerson = personService.updatePerson(id, personDTO);
+            return ResponseEntity.ok(
+                    PersonMapper.toWebDTO(updatedPerson)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(e.getMessage());
+        }
     }
 
 }

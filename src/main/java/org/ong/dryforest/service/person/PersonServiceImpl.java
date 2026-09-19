@@ -3,9 +3,16 @@ package org.ong.dryforest.service.person;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.ong.dryforest.dto.person.PersonWebDTO;
+import org.ong.dryforest.entity.Gender;
 import org.ong.dryforest.entity.Person;
+import org.ong.dryforest.entity.Role;
+import org.ong.dryforest.entity.Site;
+import org.ong.dryforest.repository.GenderRepository;
 import org.ong.dryforest.repository.PersonRepository;
 
+import org.ong.dryforest.repository.RoleRepository;
+import org.ong.dryforest.repository.SiteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,6 +21,15 @@ import org.springframework.dao.DataIntegrityViolationException;
 public class PersonServiceImpl implements PersonService {
     @Autowired
     private PersonRepository personRepository;
+
+    @Autowired
+    private GenderRepository genderRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private SiteRepository siteRepository;
 
     @Override
     public Person findPersonById(int id_person) {
@@ -46,8 +62,47 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Person updatePerson(Person person) {
-        findPersonById(person.getId());
+    public Person updatePerson(int id, PersonWebDTO personDTO) {
+
+        Person person = findPersonById(id);
+
+        person.setLast_name(personDTO.getLast_name());
+        person.setFirst_name(personDTO.getFirst_name());
+        person.setEmail(personDTO.getEmail());
+        person.setPhone_number(personDTO.getPhone_number());
+        person.setAddress(personDTO.getAddress());
+
+        if (personDTO.getGender() != null) {
+            int idGender = personDTO.getGender().getId();
+
+            Gender gender = genderRepository.findById(idGender)
+                    .orElseThrow(() ->
+                            new RuntimeException("Gender '" + idGender + "' introuvable"));
+
+            person.setGender(gender);
+        }
+
+        if (personDTO.getRole() != null) {
+            int idRole = personDTO.getRole().getId();
+
+            Role role = roleRepository.findById(idRole)
+                    .orElseThrow(() ->
+                            new RuntimeException("Role '" + idRole + "' introuvable"));
+
+            person.setRole(role);
+        }
+
+        if (personDTO.getSite() != null) {
+            int idSite = personDTO.getSite().getId();
+
+            Site site = siteRepository.findById(idSite)
+                    .orElseThrow(() ->
+                            new RuntimeException("Site '" + idSite + "' introuvable"));
+
+            person.setSite(site);
+        } else {
+            person.setSite(null);
+        }
 
         return personRepository.save(person);
     }

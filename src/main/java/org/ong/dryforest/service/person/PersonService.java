@@ -3,6 +3,7 @@ package org.ong.dryforest.service.person;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.ong.dryforest.dto.person.PersonWebDTO;
 import org.ong.dryforest.entity.Person;
 
 public interface PersonService {
@@ -17,7 +18,7 @@ public interface PersonService {
     
     Person createPerson(Person person);
 
-    Person updatePerson(Person person);
+    Person updatePerson(int id, PersonWebDTO personDTO);
 
     void deletePerson(int id_person);
 

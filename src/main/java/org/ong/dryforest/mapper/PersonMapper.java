@@ -12,6 +12,7 @@ public class PersonMapper {
 
 
     public static PersonWebDTO toWebDTO(Person person) {
+
         PersonWebDTO personDTO = new PersonWebDTO();
 
         personDTO.setId(person.getId());
@@ -20,26 +21,48 @@ public class PersonMapper {
         personDTO.setEmail(person.getEmail());
         personDTO.setPhone_number(person.getPhone_number());
         personDTO.setAddress(person.getAddress());
+
         personDTO.set_deleted(person.isDeleted());
         personDTO.setCreated_at(person.getCreatedAt());
         personDTO.setUpdated_at(person.getUpdatedAt());
+
         personDTO.setGender(person.getGender());
         personDTO.setRole(person.getRole());
+
         if (person.getSite() != null) {
-            personDTO.setSite(SiteMapper.toWebDTO(person.getSite()));
+            personDTO.setSite(
+                    SiteMapper.toWebDTO(person.getSite())
+            );
+        } else {
+            personDTO.setSite(null);
         }
-        
+
         return personDTO;
     }
 
-    public static List<PersonWebDTO> toDTOList(List<Person> persons) {
-        List<PersonWebDTO> personsDTO = new ArrayList<>();
-        
-        personsDTO = persons.stream()
-                     .map(PersonMapper::toWebDTO)
-                     .collect(Collectors.toList());
 
-        return personsDTO;
+    public static List<PersonWebDTO> toDTOList(List<Person> persons) {
+
+        return persons.stream()
+                .map(PersonMapper::toWebDTO)
+                .collect(Collectors.toList());
     }
 
+
+    public static Person toEntity(PersonWebDTO personDTO) {
+
+        Person person = new Person();
+
+        person.setId(personDTO.getId());
+
+        person.setLast_name(personDTO.getLast_name());
+        person.setFirst_name(personDTO.getFirst_name());
+        person.setEmail(personDTO.getEmail());
+        person.setPhone_number(personDTO.getPhone_number());
+        person.setAddress(personDTO.getAddress());
+        person.setGender(personDTO.getGender());
+        person.setRole(personDTO.getRole());
+
+        return person;
+    }
 }
