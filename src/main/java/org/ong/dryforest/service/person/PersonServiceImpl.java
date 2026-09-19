@@ -53,11 +53,78 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Person createPerson(Person person) {
+    public List<Person> findAllActivePersons() {
+        return personRepository.findAllByIsDeletedFalse();
+    }
+
+    @Override
+    public Person createPerson(PersonWebDTO dto) {
+
         try {
+
+            Person person = new Person();
+
+            person.setLast_name(dto.getLast_name());
+            person.setFirst_name(dto.getFirst_name());
+            person.setEmail(dto.getEmail());
+            person.setPhone_number(dto.getPhone_number());
+            person.setAddress(dto.getAddress());
+
+
+            if (dto.getGender() != null) {
+
+                int idGender = dto.getGender().getId();
+
+                Gender gender = genderRepository
+                        .findById(idGender)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Gender '" + idGender + "' introuvable"
+                                )
+                        );
+
+                person.setGender(gender);
+            }
+
+
+            if (dto.getRole() != null) {
+
+                int idRole = dto.getRole().getId();
+
+                Role role = roleRepository
+                        .findById(idRole)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Role '" + idRole + "' introuvable"
+                                )
+                        );
+
+                person.setRole(role);
+            }
+
+
+            if (dto.getSite() != null) {
+
+                int idSite = dto.getSite().getId();
+
+                Site site = siteRepository
+                        .findById(idSite)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Site '" + idSite + "' introuvable"
+                                )
+                        );
+
+                person.setSite(site);
+            }
+
             return personRepository.save(person);
+
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Personne déjà existant");
+
+            throw new IllegalArgumentException(
+                    "Personne déjà existante ou données invalides"
+            );
         }
     }
 
@@ -107,15 +174,20 @@ public class PersonServiceImpl implements PersonService {
         return personRepository.save(person);
     }
 
+
     @Override
     public void deletePerson(int id_person) {
+
         Person person = findPersonById(id_person);
 
         try {
             personRepository.delete(person);
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("Impossible de supprimer cette personne");
+            throw new IllegalStateException(
+                    "Impossible de supprimer cette personne"
+            );
         }
     }
- 
+
+
 }

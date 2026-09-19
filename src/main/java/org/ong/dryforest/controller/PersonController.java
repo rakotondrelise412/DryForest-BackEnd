@@ -8,6 +8,7 @@ import org.ong.dryforest.mapper.PersonMapper;
 import org.ong.dryforest.dto.person.PersonWebDTO;
 import org.ong.dryforest.service.person.PersonService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,26 @@ public class PersonController {
         return ResponseEntity.ok(personsDTO);
     }
 
+    @PostMapping
+    public ResponseEntity<?> createPerson(
+            @RequestBody PersonWebDTO personDTO) {
+
+        try {
+            Person createdPerson =
+                    personService.createPerson(personDTO);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(PersonMapper.toWebDTO(createdPerson));
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(e.getMessage());
+        }
+    }
+
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePerson(
             @PathVariable int id,
@@ -66,6 +87,20 @@ public class PersonController {
             return ResponseEntity.ok(
                     PersonMapper.toWebDTO(updatedPerson)
             );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePerson(@PathVariable int id) {
+
+        try {
+            personService.deletePerson(id);
+
+            return ResponseEntity.noContent().build();
+
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(e.getMessage());

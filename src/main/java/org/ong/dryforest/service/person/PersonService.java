@@ -7,7 +7,7 @@ import org.ong.dryforest.dto.person.PersonWebDTO;
 import org.ong.dryforest.entity.Person;
 
 public interface PersonService {
-    
+
     Person findPersonById(int id_person);
 
     List<Person> findAllPersons();
@@ -15,11 +15,13 @@ public interface PersonService {
     List<Person> findAllPersonsUpdatedSince(LocalDateTime last_sync);
 
     List<Person> findAllPersonsByRole(int id_role);
-    
-    Person createPerson(Person person);
+
+    Person createPerson(PersonWebDTO personDTO);
 
     Person updatePerson(int id, PersonWebDTO personDTO);
 
     void deletePerson(int id_person);
+
+    List<Person> findAllActivePersons();
 
 }
