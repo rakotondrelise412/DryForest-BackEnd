@@ -70,7 +70,7 @@ public class SpeciesZoneNeedServiceImpl implements SpeciesZoneNeedService{
         SpeciesZoneNeed speciesZoneNeed = new SpeciesZoneNeed();
 
         speciesZoneNeed.setUuid(UUID.fromString((String)speciesZoneNeedMapping.get("uuid")));
-        speciesZoneNeed.setSpecies(speciesService.findSpeciesById(((Number)speciesZoneNeedMapping.get("id_species")).intValue()));
+        speciesZoneNeed.setSpecies(speciesService.findSpeciesEntityById(((Number)speciesZoneNeedMapping.get("id_species")).intValue()));
         speciesZoneNeed.setZoneNeed(zoneNeedService.findById(((Number)speciesZoneNeedMapping.get("id_zone_need")).intValue()));
         speciesZoneNeed.setCreatedAt(LocalDateTime.parse((String)speciesZoneNeedMapping.get("created_at")));
         speciesZoneNeed.setUpdatedAt(LocalDateTime.parse((String)speciesZoneNeedMapping.get("updated_at")));

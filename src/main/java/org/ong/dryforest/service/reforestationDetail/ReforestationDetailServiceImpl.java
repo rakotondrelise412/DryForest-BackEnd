@@ -90,7 +90,7 @@ public class ReforestationDetailServiceImpl implements ReforestationDetailServic
         reforestationDetail.setUpdatedAt(LocalDateTime.parse((String)reforestationDetailMapping.get("updated_at")));
         reforestationDetail.set_synced((boolean)reforestationDetailMapping.get("is_synced"));
         reforestationDetail.setReforestation(reforestationService.findById(((Number)reforestationDetailMapping.get("id_reforestation")).intValue()));
-        reforestationDetail.setSpecies(speciesService.findSpeciesById(((Number)reforestationDetailMapping.get("id_species")).intValue()));
+        reforestationDetail.setSpecies(speciesService.findSpeciesEntityById(((Number)reforestationDetailMapping.get("id_species")).intValue()));
 
         return reforestationDetail;
     }

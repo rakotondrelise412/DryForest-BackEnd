@@ -1,22 +1,28 @@
 package org.ong.dryforest.service.species;
 
+import org.ong.dryforest.dto.species.SpeciesTypeDTO;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.ong.dryforest.entity.SpeciesType;
-
 public interface SpeciesTypeService {
-    
-    SpeciesType findSpeciesTypeById(int id_species_type);
 
-    List<SpeciesType> findAllSpeciesTypes();
+    List<SpeciesTypeDTO> findAllSpeciesTypes();
 
-    List<SpeciesType> findAllTypesUpdatedSince(LocalDateTime last_sync);
+    SpeciesTypeDTO findSpeciesTypeById(int id);
 
-    SpeciesType CreateSpeciesType(SpeciesType speciesType);
+    List<SpeciesTypeDTO> findAllTypesUpdatedSince(
+            LocalDateTime last_sync
+    );
 
-    SpeciesType UpdateSpeciesType(SpeciesType speciesType);
+    SpeciesTypeDTO createSpeciesType(
+            SpeciesTypeDTO dto
+    );
 
-    void deleteSpeciesType(SpeciesType speciesType);
+    SpeciesTypeDTO updateSpeciesType(
+            int id,
+            SpeciesTypeDTO dto
+    );
 
+    void deleteSpeciesType(int id);
 }

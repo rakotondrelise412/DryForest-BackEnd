@@ -121,9 +121,8 @@ public class PersonServiceImpl implements PersonService {
             return personRepository.save(person);
 
         } catch (DataIntegrityViolationException e) {
-
             throw new IllegalArgumentException(
-                    "Personne déjà existante ou données invalides"
+                    e.getMostSpecificCause().getMessage()
             );
         }
     }
@@ -184,7 +183,8 @@ public class PersonServiceImpl implements PersonService {
             personRepository.delete(person);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException(
-                    "Impossible de supprimer cette personne"
+                    "Impossible de supprimer cette personne : "
+                            + e.getMostSpecificCause().getMessage()
             );
         }
     }

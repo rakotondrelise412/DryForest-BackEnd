@@ -1,27 +1,28 @@
 package org.ong.dryforest.service.species;
 
+import org.ong.dryforest.dto.species.SpeciesDTO;
+import org.ong.dryforest.entity.Species;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.ong.dryforest.entity.Species;
-
 public interface SpeciesService {
 
-    Species findSpeciesById(int id_species);
+    List<SpeciesDTO> findAllSpecies();
 
-    List<Species> findAllSpecies();
+    SpeciesDTO findSpeciesById(int id);
 
-    List<Species> findAllSpeciesUpdatedSince(LocalDateTime last_sync);
+    Species findSpeciesEntityById(int id);
 
-    List<Species> findAllSpeciesById(List<Integer> id_species);
+    List<SpeciesDTO> findAllSpeciesByType(int id_species_type);
 
-    List<Species> findAllSpeciesByType(int id_species_type);
+    List<SpeciesDTO> findAllSpeciesById(List<Integer> ids);
 
-    Species createSpecies(Species species);
+    List<SpeciesDTO> findAllSpeciesUpdatedSince(LocalDateTime last_sync);
 
-    Species updateSpecies(Species species);
+    SpeciesDTO createSpecies(SpeciesDTO dto);
 
-    void deleteSpecies(Species species);
+    SpeciesDTO updateSpecies(int id, SpeciesDTO dto);
 
-    
+    void deleteSpecies(int id);
 }

@@ -1,71 +1,231 @@
 package org.ong.dryforest.service.species;
 
+import lombok.RequiredArgsConstructor;
+import org.ong.dryforest.dto.species.SpeciesDTO;
+import org.ong.dryforest.entity.Species;
+import org.ong.dryforest.entity.SpeciesType;
+import org.ong.dryforest.mapper.SpeciesMapper;
+import org.ong.dryforest.repository.SpeciesRepository;
+import org.ong.dryforest.repository.SpeciesTypeRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.ong.dryforest.entity.Species;
-import org.ong.dryforest.repository.SpeciesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
 @Service
-public class SpeciesServiceImpl implements SpeciesService{
-    @Autowired
-    private SpeciesRepository speciesRepository;
+@RequiredArgsConstructor
+@Transactional
+public class SpeciesServiceImpl implements SpeciesService {
 
+    private final SpeciesRepository speciesRepository;
+    private final SpeciesTypeRepository speciesTypeRepository;
+
+    // =========================
+    // GET ALL
+    // =========================
     @Override
-    public Species findSpeciesById(int id_species) {
-        return speciesRepository.findByIdAndIsDeletedFalse(id_species)
-                .orElseThrow(() -> new RuntimeException("Espèce '" + id_species + "' introuvable"));
+    @Transactional(readOnly = true)
+    public List<SpeciesDTO> findAllSpecies() {
+
+        return SpeciesMapper.toMobileDTOList(
+                speciesRepository.findAllByIsDeletedFalse()
+        );
+    }
+
+    // =========================
+    // GET BY ID
+    // =========================
+    @Override
+    @Transactional(readOnly = true)
+    public SpeciesDTO findSpeciesById(int id) {
+
+        Species species =
+                speciesRepository.findByIdAndIsDeletedFalse(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Espèce '" + id + "' introuvable"
+                                )
+                        );
+
+        return SpeciesMapper.toMobileDTO(species);
+    }
+
+    // =========================
+    // GET BY TYPE
+    // =========================
+    @Override
+    @Transactional(readOnly = true)
+    public List<SpeciesDTO> findAllSpeciesByType(
+            int id_species_type
+    ) {
+
+        return SpeciesMapper.toMobileDTOList(
+                speciesRepository
+                        .findAllByType_IdAndIsDeletedFalse(
+                                id_species_type
+                        )
+        );
+    }
+
+    // =========================
+    // GET BY IDS
+    // =========================
+    @Override
+    @Transactional(readOnly = true)
+    public List<SpeciesDTO> findAllSpeciesById(
+            List<Integer> ids
+    ) {
+
+        return SpeciesMapper.toMobileDTOList(
+                speciesRepository.findAllById(ids)
+        );
     }
 
     @Override
-    public List<Species> findAllSpecies() {
-        return speciesRepository.findAllByIsDeletedFalse();
+    public Species findSpeciesEntityById(int id) {
+        return speciesRepository
+                .findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "Espèce '" + id + "' introuvable"
+                ));
     }
 
+    // =========================
+    // UPDATED SINCE
+    // =========================
     @Override
-    public List<Species> findAllSpeciesUpdatedSince(LocalDateTime last_sync) {
-        return speciesRepository.findAllUpdatedSince(last_sync);
+    @Transactional(readOnly = true)
+    public List<SpeciesDTO> findAllSpeciesUpdatedSince(
+            LocalDateTime last_sync
+    ) {
+
+        return SpeciesMapper.toMobileDTOList(
+                speciesRepository.findAllUpdatedSince(last_sync)
+        );
     }
 
+    // =========================
+    // CREATE
+    // =========================
     @Override
-    public List<Species> findAllSpeciesById(List<Integer> id_species) {
-        return speciesRepository.findAllById(id_species); 
-    }
+    public SpeciesDTO createSpecies(
+            SpeciesDTO dto
+    ) {
 
-    @Override
-    public List<Species> findAllSpeciesByType(int id_species_type) {
-        return speciesRepository.findAllByType_IdAndIsDeletedFalse(id_species_type);
-    }
+        SpeciesType speciesType =
+                speciesTypeRepository
+                        .findByIdAndIsDeletedFalse(
+                                dto.getId_species_type()
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Type d'espèce '"
+                                                + dto.getId_species_type()
+                                                + "' introuvable"
+                                )
+                        );
 
-    @Override
-    public Species createSpecies(Species species) {
+        Species species =
+                SpeciesMapper.toEntity(
+                        dto,
+                        speciesType
+                );
+
         try {
-            return speciesRepository.save(species);
+
+            Species saved =
+                    speciesRepository.save(species);
+
+            return SpeciesMapper.toMobileDTO(saved);
+
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Espèce déjà existant");
+
+            throw new IllegalArgumentException(
+                    "Espèce déjà existante"
+            );
         }
     }
 
+    // =========================
+    // UPDATE
+    // =========================
     @Override
-    public Species updateSpecies(Species species) {
-        findSpeciesById(species.getId());
+    public SpeciesDTO updateSpecies(
+            int id,
+            SpeciesDTO dto
+    ) {
 
-        return speciesRepository.save(species);
-    }
+        Species existingSpecies =
+                speciesRepository
+                        .findByIdAndIsDeletedFalse(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Espèce '" + id
+                                                + "' introuvable"
+                                )
+                        );
 
-    @Override
-    public void deleteSpecies(Species species) {
-        findSpeciesById(species.getId());
+        SpeciesType speciesType =
+                speciesTypeRepository
+                        .findByIdAndIsDeletedFalse(
+                                dto.getId_species_type()
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Type d'espèce '"
+                                                + dto.getId_species_type()
+                                                + "' introuvable"
+                                )
+                        );
+
+        SpeciesMapper.updateEntity(
+                existingSpecies,
+                dto,
+                speciesType
+        );
 
         try {
+
+            Species updated =
+                    speciesRepository.save(existingSpecies);
+
+            return SpeciesMapper.toMobileDTO(updated);
+
+        } catch (DataIntegrityViolationException e) {
+
+            throw new IllegalArgumentException(
+                    "Espèce déjà existante"
+            );
+        }
+    }
+
+    // =========================
+    // DELETE
+    // =========================
+    @Override
+    public void deleteSpecies(int id) {
+
+        Species species =
+                speciesRepository
+                        .findByIdAndIsDeletedFalse(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Espèce '" + id
+                                                + "' introuvable"
+                                )
+                        );
+
+        try {
+
             speciesRepository.delete(species);
+
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Impossible de supprimer cette espèce");
+
+            throw new IllegalStateException(
+                    "Impossible de supprimer cette espèce"
+            );
         }
     }
-
-    
 }

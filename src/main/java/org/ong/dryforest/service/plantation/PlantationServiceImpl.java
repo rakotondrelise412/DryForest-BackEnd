@@ -176,7 +176,7 @@ public class PlantationServiceImpl implements PlantationService {
             double biomasse = calculateDryAGB(plantationDTO.getDiameter(), plantationDTO.getHeight(), speciesService.findSpeciesById(plantationDTO.getId_species()).getDensity());
             plantation.setCarbon_sequestered(calculateCarbon(biomasse));
             
-            plantation.setSpecies(speciesService.findSpeciesById(plantationDTO.getId_species()));
+            plantation.setSpecies(speciesService.findSpeciesEntityById(plantationDTO.getId_species()));
             plantation.setReforestation(reforestationService.findById(plantationDTO.getId_reforestation()));
             plantation.setSubPlot(subPlotService.findById(plantationDTO.getId_sub_plot()));
             plantation.setStatus(false);

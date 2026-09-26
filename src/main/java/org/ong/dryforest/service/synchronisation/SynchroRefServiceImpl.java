@@ -486,9 +486,9 @@ public class SynchroRefServiceImpl implements SynchroRefService{
             case "person"
                 -> PersonMapper.toDTOList(personService.findAllPersonsUpdatedSince(last_sync));
             case "species_type"
-                -> SpeciesTypeMapper.toDTOList(speciesTypeService.findAllTypesUpdatedSince(last_sync));
+                -> (speciesTypeService.findAllTypesUpdatedSince(last_sync));
             case "species" 
-                -> SpeciesMapper.toDTOList(speciesService.findAllSpeciesUpdatedSince(last_sync));
+                -> (speciesService.findAllSpeciesUpdatedSince(last_sync));
             case "severity" 
                 -> SeverityMapper.toDTOList(severityService.findAllSeveritiesUpdatedSince(last_sync));
             case "type_zone"
