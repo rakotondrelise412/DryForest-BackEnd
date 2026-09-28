@@ -42,7 +42,7 @@ public class SpeciesTypeController {
     }
 
     // =========================
-    // CREATE KO
+    // CREATE ok
     // =========================
     @PostMapping
     public ResponseEntity<SpeciesTypeDTO> create(
@@ -73,7 +73,7 @@ public class SpeciesTypeController {
     }
 
     // =========================
-    // DELETE KO
+    // DELETE ok
     // =========================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
@@ -86,7 +86,7 @@ public class SpeciesTypeController {
     }
 
     // =========================
-    // SYNCHRONISATION non testé
+    // SYNCHRONISATION ok
     // =========================
     @GetMapping("/updated-since")
     public ResponseEntity<List<SpeciesTypeDTO>>

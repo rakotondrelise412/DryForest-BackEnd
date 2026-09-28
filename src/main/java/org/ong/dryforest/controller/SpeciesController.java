@@ -57,7 +57,7 @@ public class SpeciesController {
     }
 
     // =========================
-    // GET BY IDS  KO
+    // GET BY IDS  ok exemple sur postman: ttp://localhost:8082/api/species/by-ids sur body [1, 3, 5, 8]
     // =========================
     @PostMapping("/by-ids")
     public ResponseEntity<List<SpeciesDTO>> getByIds(
@@ -70,7 +70,25 @@ public class SpeciesController {
     }
 
     // =========================
-    // CREATE non KO
+    // SYNCHRONISATION ok: exemple: http://localhost:8082/api/species/updated-since?last_sync=2026-09-27T18:00:00
+    //Il permet de demander :
+    //« Donne-moi uniquement les espèces qui ont été modifiées depuis ma dernière synchronisation. »
+    // =========================
+    @GetMapping("/updated-since")
+    public ResponseEntity<List<SpeciesDTO>> getUpdatedSince(
+            @RequestParam("last_sync")
+            LocalDateTime last_sync
+    ) {
+
+        return ResponseEntity.ok(
+                speciesService.findAllSpeciesUpdatedSince(
+                        last_sync
+                )
+        );
+    }
+
+    // =========================
+    // CREATE ok
     // =========================
     @PostMapping
     public ResponseEntity<SpeciesDTO> create(
@@ -99,7 +117,7 @@ public class SpeciesController {
     }
 
     // =========================
-    // DELETE KO
+    // DELETE ok
     // =========================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
@@ -111,19 +129,4 @@ public class SpeciesController {
         return ResponseEntity.noContent().build();
     }
 
-    // =========================
-    // SYNCHRONISATION non testé
-    // =========================
-    @GetMapping("/updated-since")
-    public ResponseEntity<List<SpeciesDTO>> getUpdatedSince(
-            @RequestParam("last_sync")
-            LocalDateTime last_sync
-    ) {
-
-        return ResponseEntity.ok(
-                speciesService.findAllSpeciesUpdatedSince(
-                        last_sync
-                )
-        );
-    }
 }

@@ -2,13 +2,13 @@ package org.ong.dryforest.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.MappedSuperclass;
 
 @Getter
 @Setter
@@ -26,14 +26,21 @@ public abstract class SyncEntity {
 
     @PrePersist
     protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+
         if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-            updatedAt = LocalDateTime.now();
+            createdAt = now;
         }
+
+        if (updatedAt == null) {
+            updatedAt = now;
+        }
+
+        isDeleted = false;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        if (updatedAt == null) updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 }
