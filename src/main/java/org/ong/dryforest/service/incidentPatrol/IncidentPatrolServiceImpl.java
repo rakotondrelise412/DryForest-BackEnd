@@ -15,9 +15,7 @@ import org.ong.dryforest.service.user.UserService;
 import org.ong.dryforest.service.zone.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @Service
 public class IncidentPatrolServiceImpl implements IncidentPatrolService{
@@ -94,7 +92,7 @@ public class IncidentPatrolServiceImpl implements IncidentPatrolService{
         incidentPatrol.setPatrolGroup(patrolGroupService.findById(((Number)incidentPatrolMapping.get("id_patrol_group")).intValue()));
         incidentPatrol.setUsers(userService.findUsersById(((Number)incidentPatrolMapping.get("id_user")).intValue()));
         incidentPatrol.setZone(zoneService.findById(((Number)incidentPatrolMapping.get("id_zone")).intValue()));
-        incidentPatrol.setSeverity(severityService.findSeverityById(((Number)incidentPatrolMapping.get("id_severity")).intValue()));
+        incidentPatrol.setSeverity(severityService.findSeverityEntityById(((Number)incidentPatrolMapping.get("id_severity")).intValue()));
         incidentPatrol.setTypeIncidentPatrol(typeIncidentPatrolService.findById(((Number)incidentPatrolMapping.get("id_incident_patrol_type")).intValue()));
 
         return incidentPatrol;

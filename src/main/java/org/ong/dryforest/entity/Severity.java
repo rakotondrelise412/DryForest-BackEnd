@@ -1,17 +1,15 @@
 package org.ong.dryforest.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
@@ -20,11 +18,12 @@ import jakarta.persistence.GenerationType;
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "severity")
 public class Severity extends SyncEntity {
+
     @Id
-    @Column(name = "id_severity")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_severity")
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 }

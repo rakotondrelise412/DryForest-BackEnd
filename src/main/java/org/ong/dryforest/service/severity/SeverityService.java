@@ -1,22 +1,45 @@
 package org.ong.dryforest.service.severity;
 
+import org.ong.dryforest.dto.severity.SeverityDTO;
+import org.ong.dryforest.entity.Severity;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.ong.dryforest.entity.Severity;
-
 public interface SeverityService {
 
-    Severity findSeverityById(int id_severity);
+    // ==========================================
+    // ENTITY
+    // Utilisé par les autres entities/services
+    // ==========================================
 
-    List<Severity> findAllSeverities();
+    Severity findSeverityEntityById(int id);
 
-    List<Severity> findAllSeveritiesUpdatedSince(LocalDateTime last_sync);
+    // ==========================================
+    // DTO
+    // Utilisé par les API
+    // ==========================================
 
-    Severity createSeverity(Severity severity);
+    SeverityDTO findSeverityById(int id);
 
-    Severity updateSeverity(Severity severity);
+    List<SeverityDTO> findAllSeverities();
 
-    void deleteSeverity(Severity severity);
-    
+    List<SeverityDTO> findAllSeveritiesUpdatedSince(
+            LocalDateTime lastSync
+    );
+
+    // ==========================================
+    // CRUD
+    // ==========================================
+
+    SeverityDTO createSeverity(
+            SeverityDTO dto
+    );
+
+    SeverityDTO updateSeverity(
+            int id,
+            SeverityDTO dto
+    );
+
+    void deleteSeverity(int id);
 }
