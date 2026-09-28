@@ -9,7 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SpeciesZoneNeedRepository extends JpaRepository<SpeciesZoneNeed, Integer>{
+public interface SpeciesZoneNeedRepository
+        extends JpaRepository<SpeciesZoneNeed, Integer> {
+
     boolean existsByUuidAndIsDeletedFalse(UUID uuid);
 
     Optional<SpeciesZoneNeed> findByUuidAndIsDeletedFalse(UUID uuid);
