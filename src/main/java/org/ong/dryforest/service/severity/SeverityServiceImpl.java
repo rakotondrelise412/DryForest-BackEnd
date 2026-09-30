@@ -19,10 +19,6 @@ public class SeverityServiceImpl implements SeverityService {
 
     private final SeverityRepository severityRepository;
 
-    // =====================================================
-    // ENTITY : utilisé par IncidentPatrol, etc.
-    // =====================================================
-
     @Override
     @Transactional(readOnly = true)
     public Severity findSeverityEntityById(int id) {
@@ -38,9 +34,6 @@ public class SeverityServiceImpl implements SeverityService {
                 );
     }
 
-    // =====================================================
-    // GET BY ID : retourne DTO
-    // =====================================================
 
     @Override
     @Transactional(readOnly = true)
@@ -52,9 +45,6 @@ public class SeverityServiceImpl implements SeverityService {
         return SeverityMapper.toDTO(severity);
     }
 
-    // =====================================================
-    // GET ALL : retourne DTO
-    // =====================================================
 
     @Override
     @Transactional(readOnly = true)
@@ -66,9 +56,6 @@ public class SeverityServiceImpl implements SeverityService {
         return SeverityMapper.toDTOList(severities);
     }
 
-    // =====================================================
-    // SYNC : retourne DTO
-    // =====================================================
 
     @Override
     @Transactional(readOnly = true)
@@ -83,9 +70,6 @@ public class SeverityServiceImpl implements SeverityService {
         return SeverityMapper.toDTOList(severities);
     }
 
-    // =====================================================
-    // CREATE
-    // =====================================================
 
     @Override
     public SeverityDTO createSeverity(
@@ -139,9 +123,6 @@ public class SeverityServiceImpl implements SeverityService {
         }
     }
 
-    // =====================================================
-    // UPDATE
-    // =====================================================
 
     @Override
     public SeverityDTO updateSeverity(
@@ -196,9 +177,6 @@ public class SeverityServiceImpl implements SeverityService {
         return SeverityMapper.toDTO(updated);
     }
 
-    // =====================================================
-    // DELETE : SOFT DELETE
-    // =====================================================
 
     @Override
     public void deleteSeverity(int id) {

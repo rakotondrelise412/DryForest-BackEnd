@@ -1,21 +1,31 @@
 package org.ong.dryforest.dto.role;
 
 public class RoleDTO {
+
     private int id;
     private String name;
 
-    public RoleDTO() {}
+    public RoleDTO() {
+    }
 
-    public RoleDTO(int id, String name){
+    public RoleDTO(int id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public int getId(){ return this.id; }
+    public int getId() {
+        return id;
+    }
 
-    public void setID(int id){ this.id = id; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getName() { return this.name; }
+    public String getName() {
+        return name;
+    }
 
-    public void setName(String name){ this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
 }

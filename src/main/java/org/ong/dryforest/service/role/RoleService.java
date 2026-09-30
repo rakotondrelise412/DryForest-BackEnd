@@ -1,9 +1,9 @@
 package org.ong.dryforest.service.role;
 
+import org.ong.dryforest.entity.Role;
+
 import java.time.LocalDateTime;
 import java.util.List;
-
-import org.ong.dryforest.entity.Role;
 
 public interface RoleService {
 
@@ -11,12 +11,11 @@ public interface RoleService {
 
     Role findById(int id);
 
-    List<Role> findAllRoleUpdatedSince(LocalDateTime last_sync);
+    List<Role> findAllRoleUpdatedSince(LocalDateTime lastSync);
 
     Role createRole(Role role);
 
     Role updateRole(Role role);
 
     void deleteRole(Role role);
-    
 }

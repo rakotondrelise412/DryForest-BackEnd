@@ -49,9 +49,4 @@ public class TypeIncidentPatrolServiceImpl implements TypeIncidentPatrolService{
         }
     }
 
-
-    // @Override
-    // public TypeIncidentPatrol findByUuidIncidentPatrol(UUID uuid){
-    //     return typeIncidentPatrolRepository.findByUuidAndIsDeletedFalse(uuid).orElseThrow(() -> new RuntimeException("Type d'incident introuvable avec l'id : " + uuid));
-    // }
 }

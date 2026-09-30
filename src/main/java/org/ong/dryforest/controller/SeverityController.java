@@ -18,10 +18,6 @@ public class SeverityController {
 
     private final SeverityService severityService;
 
-    // =========================================================
-    // GET ALL
-    // =========================================================
-
     @GetMapping
     public ResponseEntity<List<SeverityDTO>> getAllSeverities() {
 
@@ -30,9 +26,6 @@ public class SeverityController {
         );
     }
 
-    // =========================================================
-    // GET BY ID
-    // =========================================================
 
     @GetMapping("/{id}")
     public ResponseEntity<SeverityDTO> getSeverityById(
@@ -43,10 +36,6 @@ public class SeverityController {
                 severityService.findSeverityById(id)
         );
     }
-
-    // =========================================================
-    // GET UPDATED SINCE
-    // =========================================================
 
     @GetMapping("/sync")
     public ResponseEntity<List<SeverityDTO>> sync(
@@ -64,10 +53,6 @@ public class SeverityController {
     }
 
 
-    // =========================================================
-    // CREATE
-    // =========================================================
-
     @PostMapping
     public ResponseEntity<SeverityDTO> createSeverity(
             @RequestBody SeverityDTO dto
@@ -81,9 +66,6 @@ public class SeverityController {
                 .body(created);
     }
 
-    // =========================================================
-    // UPDATE
-    // =========================================================
 
     @PutMapping("/{id}")
     public ResponseEntity<SeverityDTO> updateSeverity(
@@ -99,10 +81,6 @@ public class SeverityController {
 
         return ResponseEntity.ok(updated);
     }
-
-    // =========================================================
-    // DELETE
-    // =========================================================
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSeverity(

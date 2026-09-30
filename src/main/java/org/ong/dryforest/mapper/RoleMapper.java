@@ -1,30 +1,45 @@
 package org.ong.dryforest.mapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.ong.dryforest.dto.role.RoleDTO;
 import org.ong.dryforest.entity.Role;
 
+import java.util.List;
+
 public class RoleMapper {
-    
-    public static RoleDTO toMobileDTO(Role role){
-        RoleDTO roleDTO = new RoleDTO();
 
-        roleDTO.setID(role.getId());
-        roleDTO.setName(role.getName());
-
-        return roleDTO;
+    private RoleMapper() {
     }
 
-    public static List<RoleDTO> toDTOList(List<Role> roles){
-        List<RoleDTO> roleDTO = new ArrayList<>();
+    public static RoleDTO toDTO(Role role) {
 
-        roleDTO = roles.stream()
-                    .map(RoleMapper::toMobileDTO)
-                    .collect(Collectors.toList());
-        
-        return roleDTO;
+        if (role == null) {
+            return null;
+        }
+
+        return new RoleDTO(
+                role.getId(),
+                role.getName()
+        );
+    }
+
+    public static List<RoleDTO> toDTOList(List<Role> roles) {
+
+        return roles.stream()
+                .map(RoleMapper::toDTO)
+                .toList();
+    }
+
+    public static Role toEntity(RoleDTO dto) {
+
+        if (dto == null) {
+            return null;
+        }
+
+        Role role = new Role();
+
+        role.setId(dto.getId());
+        role.setName(dto.getName());
+
+        return role;
     }
 }

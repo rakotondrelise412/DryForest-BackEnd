@@ -17,9 +17,6 @@ public class SpeciesTypeController {
 
     private final SpeciesTypeService speciesTypeService;
 
-    // =========================
-    // GET ALL Ok
-    // =========================
     @GetMapping
     public ResponseEntity<List<SpeciesTypeDTO>> getAll() {
 
@@ -28,9 +25,6 @@ public class SpeciesTypeController {
         );
     }
 
-    // =========================
-    // GET BY ID OK
-    // =========================
     @GetMapping("/{id}")
     public ResponseEntity<SpeciesTypeDTO> getById(
             @PathVariable int id
@@ -41,9 +35,6 @@ public class SpeciesTypeController {
         );
     }
 
-    // =========================
-    // CREATE ok
-    // =========================
     @PostMapping
     public ResponseEntity<SpeciesTypeDTO> create(
             @RequestBody SpeciesTypeDTO dto
@@ -57,9 +48,6 @@ public class SpeciesTypeController {
                 );
     }
 
-    // =========================
-    // UPDATE OK
-    // =========================
     @PutMapping("/{id}")
     public ResponseEntity<SpeciesTypeDTO> update(
             @PathVariable int id,
@@ -72,9 +60,6 @@ public class SpeciesTypeController {
         );
     }
 
-    // =========================
-    // DELETE ok
-    // =========================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable int id
@@ -85,9 +70,6 @@ public class SpeciesTypeController {
         return ResponseEntity.noContent().build();
     }
 
-    // =========================
-    // SYNCHRONISATION ok
-    // =========================
     @GetMapping("/updated-since")
     public ResponseEntity<List<SpeciesTypeDTO>>
     getUpdatedSince(

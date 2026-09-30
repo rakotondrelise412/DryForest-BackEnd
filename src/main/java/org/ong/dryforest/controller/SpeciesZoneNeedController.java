@@ -20,10 +20,6 @@ public class SpeciesZoneNeedController {
     private final SpeciesZoneNeedService speciesZoneNeedService;
 
 
-    // =========================================================
-    // GET ALL
-    // =========================================================
-
     @GetMapping
     public ResponseEntity<List<SpeciesZoneNeedDTO>> findAll() {
 
@@ -31,11 +27,6 @@ public class SpeciesZoneNeedController {
                 speciesZoneNeedService.findAllDTO()
         );
     }
-
-
-    // =========================================================
-    // GET BY ID
-    // =========================================================
 
     @GetMapping("/{id}")
     public ResponseEntity<SpeciesZoneNeedDTO> findById(
@@ -48,10 +39,6 @@ public class SpeciesZoneNeedController {
     }
 
 
-    // =========================================================
-    // GET BY UUID
-    // =========================================================
-
     @GetMapping("/uuid/{uuid}")
     public ResponseEntity<SpeciesZoneNeedDTO> findByUuid(
             @PathVariable UUID uuid
@@ -62,10 +49,6 @@ public class SpeciesZoneNeedController {
         );
     }
 
-
-    // =========================================================
-    // POST
-    // =========================================================
 
     @PostMapping
     public ResponseEntity<SpeciesZoneNeedDTO> create(
@@ -81,10 +64,6 @@ public class SpeciesZoneNeedController {
                 .body(created);
     }
 
-
-    // =========================================================
-    // PUT
-    // =========================================================
 
     @PutMapping("/{id}")
     public ResponseEntity<SpeciesZoneNeedDTO> update(
@@ -102,10 +81,6 @@ public class SpeciesZoneNeedController {
         return ResponseEntity.ok(updated);
     }
 
-
-    // =========================================================
-    // DELETE
-    // =========================================================
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(

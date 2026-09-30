@@ -20,9 +20,6 @@ public class SpeciesTypeServiceImpl
 
     private final SpeciesTypeRepository speciesTypeRepository;
 
-    // =========================
-    // GET ALL
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public List<SpeciesTypeDTO> findAllSpeciesTypes() {
@@ -33,9 +30,6 @@ public class SpeciesTypeServiceImpl
         );
     }
 
-    // =========================
-    // GET BY ID
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public SpeciesTypeDTO findSpeciesTypeById(
@@ -57,9 +51,6 @@ public class SpeciesTypeServiceImpl
                 .toMobileDTO(speciesType);
     }
 
-    // =========================
-    // UPDATED SINCE
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public List<SpeciesTypeDTO> findAllTypesUpdatedSince(
@@ -72,9 +63,6 @@ public class SpeciesTypeServiceImpl
         );
     }
 
-    // =========================
-    // CREATE
-    // =========================
     @Override
     public SpeciesTypeDTO createSpeciesType(
             SpeciesTypeDTO dto
@@ -101,9 +89,6 @@ public class SpeciesTypeServiceImpl
         }
     }
 
-    // =========================
-    // UPDATE
-    // =========================
     @Override
     public SpeciesTypeDTO updateSpeciesType(
             int id,
@@ -144,9 +129,6 @@ public class SpeciesTypeServiceImpl
         }
     }
 
-    // =========================
-    // DELETE
-    // =========================
     @Override
     public void deleteSpeciesType(int id) {
 

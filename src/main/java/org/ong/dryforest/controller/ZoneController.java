@@ -28,20 +28,6 @@ public class ZoneController {
     
     @Autowired
     private ZoneRepository zoneRepository;
-
-    // @GetMapping
-    // public ResponseEntity<List<ZoneMobileDTO>> findAll(){
-    //     List<ZoneMobileDTO> zoneMobileDTO = new ArrayList<>();
-    //     List<Zone> zones = zoneService.findAll();
-
-    //     if (zones != null && !zones.isEmpty()) {
-    //         zoneMobileDTO = zoneService.findAll().stream().map(ZoneMapper::toZoneMobileDTO).collect(Collectors.toList());
-    //     }
-
-    //     return ResponseEntity.ok(zoneMobileDTO);
-    // }
-
-
     @GetMapping
     public ResponseEntity<List<ZoneWebDTO>> findAll() {
         List<Object[]> rows = zoneRepository.findAllWithGeomAsGeoJson();
@@ -80,14 +66,6 @@ public class ZoneController {
     public double getTotalAreaProtected() {
         return zoneService.totalAreaProtected();
     }
-    
 
-    
-
-    // @PostMapping
-    // public ResponseEntity<Zone> save(@RequestBody ZoneDTO zone){
-    //     Zone newZone = zoneService.createZone(zone);
-    //     return ResponseEntity.status(201).body(newZone);
-    // }
 
 }

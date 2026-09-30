@@ -46,9 +46,5 @@ public class ReforestationController {
         return ResponseEntity.ok(data);
     }
 
-    // @PostMapping
-    // public ResponseEntity<?> create(@RequestBody ReforestationDTO reforestationDto) {
-    //     Reforestation saved = reforestationService.createReforestation(reforestationDto);
-    //     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-    // }
+
 }

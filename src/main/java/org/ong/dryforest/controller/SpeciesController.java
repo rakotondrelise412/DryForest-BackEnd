@@ -17,9 +17,6 @@ public class SpeciesController {
 
     private final SpeciesService speciesService;
 
-    // =========================
-    // GET ALL OK
-    // =========================
     @GetMapping
     public ResponseEntity<List<SpeciesDTO>> getAll() {
 
@@ -28,9 +25,6 @@ public class SpeciesController {
         );
     }
 
-    // =========================
-    // GET BY ID OK
-    // =========================
     @GetMapping("/{id}")
     public ResponseEntity<SpeciesDTO> getById(
             @PathVariable int id
@@ -41,9 +35,6 @@ public class SpeciesController {
         );
     }
 
-    // =========================
-    // GET BY TYPE OK
-    // =========================
     @GetMapping("/type/{id_species_type}")
     public ResponseEntity<List<SpeciesDTO>> getByType(
             @PathVariable int id_species_type
@@ -87,9 +78,6 @@ public class SpeciesController {
         );
     }
 
-    // =========================
-    // CREATE ok
-    // =========================
     @PostMapping
     public ResponseEntity<SpeciesDTO> create(
             @RequestBody SpeciesDTO dto
@@ -102,9 +90,6 @@ public class SpeciesController {
                 );
     }
 
-    // =========================
-    // UPDATE OK
-    // =========================
     @PutMapping("/{id}")
     public ResponseEntity<SpeciesDTO> update(
             @PathVariable int id,
@@ -116,9 +101,6 @@ public class SpeciesController {
         );
     }
 
-    // =========================
-    // DELETE ok
-    // =========================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable int id

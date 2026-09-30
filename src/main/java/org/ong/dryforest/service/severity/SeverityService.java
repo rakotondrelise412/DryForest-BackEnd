@@ -8,17 +8,7 @@ import java.util.List;
 
 public interface SeverityService {
 
-    // ==========================================
-    // ENTITY
-    // Utilisé par les autres entities/services
-    // ==========================================
-
     Severity findSeverityEntityById(int id);
-
-    // ==========================================
-    // DTO
-    // Utilisé par les API
-    // ==========================================
 
     SeverityDTO findSeverityById(int id);
 
@@ -27,10 +17,6 @@ public interface SeverityService {
     List<SeverityDTO> findAllSeveritiesUpdatedSince(
             LocalDateTime lastSync
     );
-
-    // ==========================================
-    // CRUD
-    // ==========================================
 
     SeverityDTO createSeverity(
             SeverityDTO dto

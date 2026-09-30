@@ -61,9 +61,4 @@ public class PlantationBlockController {
         return ResponseEntity.ok(plantationBlockWebDTO);
     }
 
-    // @PostMapping
-    // public ResponseEntity<PlantationBlock> save(@RequestBody PlantationBlockDTO plantationBlockDTO) throws Exception{
-    //     PlantationBlock plantationB = plantationBlockService.createPlantationBlock(plantationBlockDTO);
-    //     return ResponseEntity.status(201).body(plantationB);
-    // }
 }

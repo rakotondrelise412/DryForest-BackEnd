@@ -22,9 +22,6 @@ public class SpeciesServiceImpl implements SpeciesService {
     private final SpeciesRepository speciesRepository;
     private final SpeciesTypeRepository speciesTypeRepository;
 
-    // =========================
-    // GET ALL
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public List<SpeciesDTO> findAllSpecies() {
@@ -34,9 +31,6 @@ public class SpeciesServiceImpl implements SpeciesService {
         );
     }
 
-    // =========================
-    // GET BY ID
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public SpeciesDTO findSpeciesById(int id) {
@@ -52,9 +46,6 @@ public class SpeciesServiceImpl implements SpeciesService {
         return SpeciesMapper.toMobileDTO(species);
     }
 
-    // =========================
-    // GET BY TYPE
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public List<SpeciesDTO> findAllSpeciesByType(
@@ -69,9 +60,6 @@ public class SpeciesServiceImpl implements SpeciesService {
         );
     }
 
-    // =========================
-    // GET BY IDS
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public List<SpeciesDTO> findAllSpeciesById(
@@ -92,9 +80,6 @@ public class SpeciesServiceImpl implements SpeciesService {
                 ));
     }
 
-    // =========================
-    // UPDATED SINCE
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public List<SpeciesDTO> findAllSpeciesUpdatedSince(
@@ -106,9 +91,6 @@ public class SpeciesServiceImpl implements SpeciesService {
         );
     }
 
-    // =========================
-    // CREATE
-    // =========================
     @Override
     public SpeciesDTO createSpecies(
             SpeciesDTO dto
@@ -148,9 +130,6 @@ public class SpeciesServiceImpl implements SpeciesService {
         }
     }
 
-    // =========================
-    // UPDATE
-    // =========================
     @Override
     public SpeciesDTO updateSpecies(
             int id,
@@ -201,9 +180,6 @@ public class SpeciesServiceImpl implements SpeciesService {
         }
     }
 
-    // =========================
-    // DELETE
-    // =========================
     @Override
     public void deleteSpecies(int id) {
 
