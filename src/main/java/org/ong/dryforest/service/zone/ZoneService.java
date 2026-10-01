@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.ong.dryforest.dto.zone.ZoneDTO;
 import org.ong.dryforest.entity.Zone;
 
 public interface ZoneService {
-    // Zone createZone(ZoneDTO zone);
+
     Zone createZone(Zone zone);
+
+    Zone createZone(ZoneDTO zoneDTO);
 
     List<Zone> findAll();
 
@@ -24,7 +27,7 @@ public interface ZoneService {
 
     Zone mapToEntity(Map<String, Object> zoneMapping);
 
-    double totalAreaProtected();
+    Zone mapToEntity(ZoneDTO zoneDTO);
 
-    
+    double totalAreaProtected();
 }
