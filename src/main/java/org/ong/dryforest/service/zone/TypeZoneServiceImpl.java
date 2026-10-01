@@ -11,24 +11,28 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TypeZoneServiceImpl implements TypeZoneService {
+
     @Autowired
     TypeZoneRepository typeZoneRepository;
-    
+
     @Override
-    public TypeZone findById(int id_zone){
-        return typeZoneRepository.findByIdAndIsDeletedFalse(id_zone).orElseThrow(() -> new RuntimeException("id zone not found"));
+    public TypeZone findById(int id_zone) {
+        return typeZoneRepository.findByIdAndIsDeletedFalse(id_zone)
+                .orElseThrow(() -> new RuntimeException("id zone not found"));
     }
 
     @Override
-    public List<TypeZone> findAll(){ return typeZoneRepository.findAllByIsDeletedFalse(); }
+    public List<TypeZone> findAll() {
+        return typeZoneRepository.findAllByIsDeletedFalse();
+    }
 
     @Override
-    public List<TypeZone> findAllTypesUpdatedSince(LocalDateTime last_sync){
+    public List<TypeZone> findAllTypesUpdatedSince(LocalDateTime last_sync) {
         return typeZoneRepository.findAllUpdatedSince(last_sync);
     }
 
     @Override
-    public TypeZone createTypeZone(TypeZone typeZone){
+    public TypeZone createTypeZone(TypeZone typeZone) {
         try {
             return typeZoneRepository.save(typeZone);
         } catch (DataIntegrityViolationException e) {
@@ -37,19 +41,24 @@ public class TypeZoneServiceImpl implements TypeZoneService {
     }
 
     @Override
-    public TypeZone updateTypeZone(TypeZone typeZone){
+    public TypeZone updateTypeZone(TypeZone typeZone) {
         findById(typeZone.getId());
         return typeZoneRepository.save(typeZone);
     }
 
     @Override
-    public void deleteTypeZone(TypeZone typeZone){
+    public void deleteTypeZone(TypeZone typeZone) {
         try {
-            findById(typeZone.getId());
-            typeZoneRepository.save(typeZone);
+            TypeZone existing = findById(typeZone.getId());
+
+            existing.setDeleted(true);
+
+            typeZoneRepository.save(existing);
+
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("Impossible de supprimer ce type de la zone");
+            throw new IllegalStateException(
+                    "Impossible de supprimer ce type de la zone"
+            );
         }
     }
-
 }

@@ -18,5 +18,4 @@ public interface TypeZoneService {
     void deleteTypeZone(TypeZone typeZone);
 
     List<TypeZone> findAllTypesUpdatedSince(LocalDateTime last_sync);
-    
 }
