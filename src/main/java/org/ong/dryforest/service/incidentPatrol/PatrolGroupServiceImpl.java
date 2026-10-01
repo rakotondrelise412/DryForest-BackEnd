@@ -10,13 +10,15 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PatrolGroupServiceImpl implements PatrolGroupService{
-    
+public class PatrolGroupServiceImpl implements PatrolGroupService {
+
     @Autowired
     PatrolGroupRepository patrolGroupRepository;
 
     @Override
-    public List<PatrolGroup> findAll(){ return patrolGroupRepository.findAllByIsDeletedFalse(); }
+    public List<PatrolGroup> findAll() {
+        return patrolGroupRepository.findAllByIsDeletedFalse();
+    }
 
     @Override
     public List<PatrolGroup> findAllPatrolGroupUpdatedSince(LocalDateTime last_sync) {
@@ -24,32 +26,42 @@ public class PatrolGroupServiceImpl implements PatrolGroupService{
     }
 
     @Override
-    public PatrolGroup findById(int id_patrol_group){
-        return patrolGroupRepository.findByIdAndIsDeletedFalse(id_patrol_group).orElseThrow(() -> new RuntimeException("Patrol group not found"));
+    public PatrolGroup findById(int id_patrol_group) {
+        return patrolGroupRepository
+                .findByIdAndIsDeletedFalse(id_patrol_group)
+                .orElseThrow(() -> new RuntimeException("Patrol group not found"));
     }
 
     @Override
-    public PatrolGroup createPatrolGroup(PatrolGroup patrolGroup){
+    public PatrolGroup createPatrolGroup(PatrolGroup patrolGroup) {
         try {
             return patrolGroupRepository.save(patrolGroup);
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Groupe de patrouilleur déjà existant");
+            throw new IllegalArgumentException(
+                    "Groupe de patrouilleur déjà existant"
+            );
         }
     }
 
     @Override
-    public PatrolGroup updatePatrolGroup(PatrolGroup patrolGroup){
+    public PatrolGroup updatePatrolGroup(PatrolGroup patrolGroup) {
         findById(patrolGroup.getId());
         return patrolGroupRepository.save(patrolGroup);
     }
 
     @Override
-    public void deletePatrolGroup(PatrolGroup patrolGroup){
+    public void deletePatrolGroup(PatrolGroup patrolGroup) {
         try {
-            findById(patrolGroup.getId());
-            patrolGroupRepository.delete(patrolGroup);
+            PatrolGroup existing = findById(patrolGroup.getId());
+
+            existing.setDeleted(true);
+
+            patrolGroupRepository.save(existing);
+
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("Impossible de supprimer cette groupe de patrouille");
+            throw new IllegalStateException(
+                    "Impossible de supprimer ce groupe de patrouille"
+            );
         }
     }
 }
