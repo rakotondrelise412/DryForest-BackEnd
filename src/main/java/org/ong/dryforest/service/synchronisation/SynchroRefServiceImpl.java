@@ -252,7 +252,7 @@ public class SynchroRefServiceImpl implements SynchroRefService{
                         status = "updated";
                     }
                 } else {
-                    reforestationService.createReforestation(reforestation);
+                    reforestationService.saveReforestation(reforestation);
                     status = "created";
                 }
                 response.add(Map.of("uuid", reforestation.getUuid().toString(), "status", status));

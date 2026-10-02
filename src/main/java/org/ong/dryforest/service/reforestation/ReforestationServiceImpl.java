@@ -73,6 +73,14 @@ public class ReforestationServiceImpl
                 );
     }
 
+    @Override
+    public Reforestation saveReforestation(
+            Reforestation reforestation) {
+
+        return reforestationRepository.save(
+                reforestation
+        );
+    }
 
     @Override
     @Transactional

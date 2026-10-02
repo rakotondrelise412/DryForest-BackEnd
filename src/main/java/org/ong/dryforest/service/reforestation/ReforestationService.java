@@ -16,6 +16,9 @@ public interface ReforestationService {
 
     Reforestation findByUuid(UUID uuid);
 
+    Reforestation saveReforestation(
+            Reforestation reforestation);
+
     Reforestation createReforestationWithDetails(
             ReforestationDTO reforestationDTO);
 
