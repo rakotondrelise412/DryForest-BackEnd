@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,6 +48,7 @@ public class Reforestation extends SyncEntity{
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_zone", referencedColumnName = "id_zone")
+    @JsonIgnore
     private Zone zone;
 
     @OneToMany(mappedBy = "reforestation", cascade = CascadeType.ALL, orphanRemoval = true)

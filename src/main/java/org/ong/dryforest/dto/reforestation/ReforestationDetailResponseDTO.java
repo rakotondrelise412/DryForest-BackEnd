@@ -3,6 +3,7 @@ package org.ong.dryforest.dto.reforestation;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReforestationDetailDTO {
+public class ReforestationDetailResponseDTO {
 
     private int id_reforestation_detail;
 
@@ -26,5 +27,6 @@ public class ReforestationDetailDTO {
 
     private LocalDateTime updated_at;
 
-    private boolean is_synced;
+    @JsonProperty("is_synced")
+    private boolean synced;
 }

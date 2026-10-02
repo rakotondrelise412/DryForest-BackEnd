@@ -7,7 +7,9 @@ import java.util.UUID;
 import org.ong.dryforest.entity.ReforestationDetail;
 
 public interface ReforestationDetailService {
-    ReforestationDetail createReforestationDetail(ReforestationDetail reforestationDetail);
+
+    ReforestationDetail createReforestationDetail(
+            ReforestationDetail reforestationDetail);
 
     List<ReforestationDetail> findAll();
 
@@ -15,11 +17,14 @@ public interface ReforestationDetailService {
 
     ReforestationDetail findByUuid(UUID uuid);
 
-    ReforestationDetail updateReforestationDetail(ReforestationDetail reforestationDetail);
+    ReforestationDetail updateReforestationDetail(
+            ReforestationDetail reforestationDetail);
 
-    void deleteReforestationDetail(ReforestationDetail reforestationDetail);
+    void deleteReforestationDetail(
+            ReforestationDetail reforestationDetail);
 
     boolean existsByUuid(UUID uuid);
 
-    ReforestationDetail mapToEntity(Map<String, Object> reforestationDetailMapping);
+    ReforestationDetail mapToEntity(
+            Map<String, Object> reforestationDetailMapping);
 }

@@ -208,9 +208,6 @@ public class ZoneServiceImpl implements ZoneService {
         return zone;
     }
 
-    /**
-     * Conversion ZoneDTO -> Entity
-     */
     @Override
     public Zone mapToEntity(ZoneDTO zoneDTO) {
 
@@ -229,15 +226,6 @@ public class ZoneServiceImpl implements ZoneService {
         zone.setArea(
                 zoneDTO.getArea()
         );
-
-        /*
-         * Attention :
-         * zoneDTO.getGeom() est une Map GeoJSON.
-         * Elle ne peut pas être directement castée en Polygon.
-         *
-         * Si ton frontend envoie déjà un Polygon JTS,
-         * cette partie peut être adaptée.
-         */
 
         zone.setCreatedAt(
                 zoneDTO.getCreated_at()

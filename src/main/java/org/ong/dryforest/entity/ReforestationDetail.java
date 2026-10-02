@@ -2,6 +2,7 @@ package org.ong.dryforest.entity;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,9 +40,11 @@ public class ReforestationDetail extends SyncEntity{
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_reforestation", referencedColumnName = "id_reforestation")
+    @JsonIgnore
     private Reforestation reforestation;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_species", referencedColumnName = "id_species")
+    @JsonIgnore
     private Species species;
 }
