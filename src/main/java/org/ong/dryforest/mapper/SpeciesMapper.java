@@ -12,9 +12,6 @@ public class SpeciesMapper {
     private SpeciesMapper() {
     }
 
-    // =========================
-    // Entity -> Mobile DTO
-    // =========================
     public static SpeciesDTO toMobileDTO(Species species) {
 
         if (species == null) {
@@ -39,9 +36,6 @@ public class SpeciesMapper {
         return dto;
     }
 
-    // =========================
-    // Entity -> Web DTO
-    // =========================
     public static SpeciesWebDTO toWebDTO(Species species) {
 
         if (species == null) {
@@ -59,9 +53,6 @@ public class SpeciesMapper {
         return dto;
     }
 
-    // =========================
-    // DTO -> Entity
-    // =========================
     public static Species toEntity(
             SpeciesDTO dto,
             SpeciesType speciesType
@@ -83,9 +74,6 @@ public class SpeciesMapper {
         return species;
     }
 
-    // =========================
-    // Mise à jour Entity
-    // =========================
     public static void updateEntity(
             Species species,
             SpeciesDTO dto,
@@ -100,9 +88,6 @@ public class SpeciesMapper {
         species.setType(speciesType);
     }
 
-    // =========================
-    // List -> Mobile DTO
-    // =========================
     public static List<SpeciesDTO> toMobileDTOList(
             List<Species> species
     ) {
@@ -112,9 +97,6 @@ public class SpeciesMapper {
                 .toList();
     }
 
-    // =========================
-    // List -> Web DTO
-    // =========================
     public static List<SpeciesWebDTO> toWebDTOList(
             List<Species> species
     ) {

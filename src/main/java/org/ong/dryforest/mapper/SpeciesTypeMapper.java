@@ -11,9 +11,6 @@ public class SpeciesTypeMapper {
     private SpeciesTypeMapper() {
     }
 
-    // =========================
-    // Entity -> DTO
-    // =========================
     public static SpeciesTypeDTO toMobileDTO(
             SpeciesType speciesType
     ) {
@@ -31,9 +28,6 @@ public class SpeciesTypeMapper {
         return dto;
     }
 
-    // =========================
-    // Entity List -> DTO List
-    // =========================
     public static List<SpeciesTypeDTO> toDTOList(
             List<SpeciesType> speciesTypes
     ) {
@@ -43,9 +37,6 @@ public class SpeciesTypeMapper {
                 .collect(Collectors.toList());
     }
 
-    // =========================
-    // DTO -> Entity
-    // =========================
     public static SpeciesType toEntity(
             SpeciesTypeDTO dto
     ) {
@@ -64,9 +55,6 @@ public class SpeciesTypeMapper {
         return speciesType;
     }
 
-    // =========================
-    // Update Entity
-    // =========================
     public static void updateEntity(
             SpeciesType existing,
             SpeciesTypeDTO dto

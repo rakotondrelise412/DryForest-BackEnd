@@ -11,7 +11,6 @@ public class SeverityMapper {
     private SeverityMapper() {
     }
 
-    // Entity -> DTO
     public static SeverityDTO toDTO(Severity severity) {
 
         if (severity == null) {
@@ -26,7 +25,6 @@ public class SeverityMapper {
         return dto;
     }
 
-    // List<Entity> -> List<DTO>
     public static List<SeverityDTO> toDTOList(
             List<Severity> severities) {
 
@@ -35,7 +33,6 @@ public class SeverityMapper {
                 .collect(Collectors.toList());
     }
 
-    // DTO -> Entity
     public static Severity toEntity(SeverityDTO dto) {
 
         if (dto == null) {
@@ -50,7 +47,6 @@ public class SeverityMapper {
         return severity;
     }
 
-    // Mise à jour Entity avec DTO
     public static void updateEntity(
             Severity severity,
             SeverityDTO dto) {
