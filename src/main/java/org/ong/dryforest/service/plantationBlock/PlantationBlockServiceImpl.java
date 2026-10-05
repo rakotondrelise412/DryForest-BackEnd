@@ -1,134 +1,422 @@
 package org.ong.dryforest.service.plantationBlock;
 
+import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
+import org.ong.dryforest.dto.plantationBlock.PlantationBlockDTO;
+import org.ong.dryforest.entity.PlantationBlock;
+import org.ong.dryforest.entity.Zone;
+import org.ong.dryforest.repository.PlantationBlockRepository;
+import org.ong.dryforest.service.geometryService.GeometryService;
+import org.ong.dryforest.service.zone.ZoneService;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-
-import org.locationtech.jts.geom.Polygon;
-import org.ong.dryforest.entity.PlantationBlock;
-import org.ong.dryforest.repository.PlantationBlockRepository;
-import org.ong.dryforest.service.geometryService.GeometryService;
-// import org.ong.dryforest.service.subPlot.SubPlotServiceImpl;
-import org.ong.dryforest.service.zone.ZoneService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
 @Service
-public class PlantationBlockServiceImpl implements PlantationBlockService {
-    @Autowired
-    PlantationBlockRepository plantationBlockRepository;
-    // @Autowired
-    // SubPlotServiceImpl subPlotServiceImpl;
-    @Autowired
-    ZoneService zoneService;
-    @Autowired
-    GeometryService geometryService;
+@RequiredArgsConstructor
+public class PlantationBlockServiceImpl
+        implements PlantationBlockService {
+
+    private final PlantationBlockRepository plantationBlockRepository;
+    private final ZoneService zoneService;
+    private final GeometryService geometryService;
 
     @Override
-    public List<PlantationBlock> findAll() { return plantationBlockRepository.findAllByIsDeletedFalse(); }
-
-    @Override
-    public PlantationBlock findById(int id_plantationBlock){
-        return plantationBlockRepository.findByIdAndIsDeletedFalse(id_plantationBlock).orElseThrow(() -> new RuntimeException("Placeau '" + id_plantationBlock + "' introuvable"));
+    public List<PlantationBlock> findAll() {
+        return plantationBlockRepository
+                .findAllByIsDeletedFalse();
     }
 
     @Override
-    public PlantationBlock findByUuid(UUID uuid){
-        return plantationBlockRepository.findByUuidAndIsDeletedFalse(uuid).orElseThrow(() -> new RuntimeException("Pleaau '" + uuid + "' introuvable"));
+    public PlantationBlock findById(int id) {
+        return plantationBlockRepository
+                .findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Placeau '" + id + "' introuvable"
+                        )
+                );
     }
 
     @Override
-    public PlantationBlock createPlantationBlock(PlantationBlock plantationBlock){
+    public PlantationBlock findByUuid(UUID uuid) {
+        return plantationBlockRepository
+                .findByUuidAndIsDeletedFalse(uuid)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Placeau '" + uuid + "' introuvable"
+                        )
+                );
+    }
+
+    @Override
+    public PlantationBlock createPlantationBlock(
+            PlantationBlock plantationBlock) {
+
         try {
-            plantationBlock.set_synced(true);
-            return plantationBlockRepository.save(plantationBlock);
+            if (plantationBlock.getUuid() == null) {
+                plantationBlock.setUuid(
+                        UUID.randomUUID()
+                );
+            }
+
+            plantationBlock.setSynced(true);
+
+            return plantationBlockRepository.save(
+                    plantationBlock
+            );
+
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Placeau déjà existant");
+            throw new IllegalArgumentException(
+                    "Placeau déjà existant",
+                    e
+            );
         }
     }
 
     @Override
-    public PlantationBlock updatePlantationBlock(PlantationBlock plantationBlock){
-        findById(plantationBlock.getId());
-        return plantationBlockRepository.save(plantationBlock);
-    }
+    public PlantationBlock createPlantationBlock(
+            PlantationBlockDTO dto) {
 
-    @Override
-    public void deletedPlantationBlock(PlantationBlock plantationBlock){
-        try {
-            findById(plantationBlock.getId());
-            plantationBlockRepository.delete(plantationBlock);
-        } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("Impossible de supprimer ce placeau");
+        PlantationBlock plantationBlock =
+                new PlantationBlock();
+
+        if (dto.getUuid() != null) {
+            plantationBlock.setUuid(
+                    dto.getUuid()
+            );
+        } else {
+            plantationBlock.setUuid(
+                    UUID.randomUUID()
+            );
         }
+
+        plantationBlock.setName(
+                dto.getName()
+        );
+
+        plantationBlock.setWidth(
+                dto.getWidth()
+        );
+
+        plantationBlock.setLength(
+                dto.getLength()
+        );
+
+        plantationBlock.setNbSubPlot(
+                dto.getNbSubPlot()
+        );
+
+        if (dto.getIdZone() > 0) {
+            Zone zone =
+                    zoneService.findById(
+                            dto.getIdZone()
+                    );
+
+            plantationBlock.setZone(zone);
+        }
+
+        if (dto.getGeom() != null) {
+            try {
+                Geometry geometry =
+                        geometryService.parseGeoJson(
+                                dto.getGeom()
+                        );
+
+                if (!(geometry instanceof Polygon)) {
+                    throw new IllegalArgumentException(
+                            "La géométrie du placeau doit être un Polygon"
+                    );
+                }
+
+                plantationBlock.setGeom(
+                        (Polygon) geometry
+                );
+
+            } catch (Exception e) {
+                throw new IllegalArgumentException(
+                        "Géométrie du placeau invalide",
+                        e
+                );
+            }
+        }
+
+        plantationBlock.setSynced(
+                dto.isSynced()
+        );
+
+        if (dto.getCreatedAt() != null) {
+            plantationBlock.setCreatedAt(
+                    dto.getCreatedAt()
+            );
+        }
+
+        if (dto.getUpdatedAt() != null) {
+            plantationBlock.setUpdatedAt(
+                    dto.getUpdatedAt()
+            );
+        }
+
+        return createPlantationBlock(
+                plantationBlock
+        );
     }
 
     @Override
-    public boolean existsByUuid(UUID uuid){
-        return plantationBlockRepository.existsByUuidAndIsDeletedFalse(uuid);
+    public PlantationBlock updatePlantationBlock(
+            PlantationBlock plantationBlock) {
+
+        PlantationBlock existing =
+                findById(
+                        plantationBlock.getId()
+                );
+
+        if (plantationBlock.getUuid() == null) {
+            plantationBlock.setUuid(
+                    existing.getUuid()
+            );
+        }
+
+        return plantationBlockRepository.save(
+                plantationBlock
+        );
     }
 
+    @Override
+    public PlantationBlock updatePlantationBlock(
+            int id,
+            PlantationBlockDTO dto) {
+
+        PlantationBlock existing =
+                findById(id);
+
+        if (dto.getUuid() != null) {
+            existing.setUuid(
+                    dto.getUuid()
+            );
+        }
+
+        existing.setName(
+                dto.getName()
+        );
+
+        existing.setWidth(
+                dto.getWidth()
+        );
+
+        existing.setLength(
+                dto.getLength()
+        );
+
+        existing.setNbSubPlot(
+                dto.getNbSubPlot()
+        );
+
+        if (dto.getGeom() != null) {
+            try {
+                Geometry geometry =
+                        geometryService.parseGeoJson(
+                                dto.getGeom()
+                        );
+
+                if (!(geometry instanceof Polygon)) {
+                    throw new IllegalArgumentException(
+                            "La géométrie du placeau doit être un Polygon"
+                    );
+                }
+
+                existing.setGeom(
+                        (Polygon) geometry
+                );
+
+            } catch (Exception e) {
+                throw new IllegalArgumentException(
+                        "Géométrie du placeau invalide",
+                        e
+                );
+            }
+        }
+
+        if (dto.getIdZone() > 0) {
+            Zone zone =
+                    zoneService.findById(
+                            dto.getIdZone()
+                    );
+
+            existing.setZone(zone);
+        }
+
+        existing.setSynced(
+                dto.isSynced()
+        );
+
+        existing.setUpdatedAt(
+                LocalDateTime.now()
+        );
+
+        return plantationBlockRepository.save(
+                existing
+        );
+    }
 
     @Override
-    public PlantationBlock mapToEntity(Map<String, Object> plantationBlockMapping){
-        PlantationBlock plantationBlock = new PlantationBlock();
+    public void deletePlantationBlock(
+            PlantationBlock plantationBlock) {
 
-        plantationBlock.setUuid(UUID.fromString((String)plantationBlockMapping.get("uuid")));
-        plantationBlock.setName((String)plantationBlockMapping.get("name"));
-        plantationBlock.setWidth(((Number)plantationBlockMapping.get("width")).doubleValue());
-        plantationBlock.setLength(((Number)plantationBlockMapping.get("height")).doubleValue());
-        plantationBlock.setNb_sub_plot((Integer)plantationBlockMapping.get("nb_sub_plot"));
-        plantationBlock.setGeom((Polygon)plantationBlockMapping.get("geom"));
-        plantationBlock.setCreatedAt(LocalDateTime.parse((String)plantationBlockMapping.get("created_at")));
-        plantationBlock.setUpdatedAt(LocalDateTime.parse((String)plantationBlockMapping.get("updated_at")));
-        plantationBlock.set_synced((boolean)plantationBlockMapping.get("is_synced"));
-        plantationBlock.setZone(zoneService.findById(((Number)plantationBlockMapping.get("id_zone")).intValue()));
+        PlantationBlock existing =
+                findById(
+                        plantationBlock.getId()
+                );
+
+        existing.setDeleted(true);
+
+        existing.setUpdatedAt(
+                LocalDateTime.now()
+        );
+
+        plantationBlockRepository.save(
+                existing
+        );
+    }
+
+    @Override
+    public void deletePlantationBlock(int id) {
+
+        PlantationBlock existing =
+                findById(id);
+
+        existing.setDeleted(true);
+
+        existing.setUpdatedAt(
+                LocalDateTime.now()
+        );
+
+        plantationBlockRepository.save(
+                existing
+        );
+    }
+
+    @Override
+    public boolean existsByUuid(UUID uuid) {
+        return plantationBlockRepository
+                .existsByUuidAndIsDeletedFalse(uuid);
+    }
+
+    @Override
+    public PlantationBlock mapToEntity(
+            Map<String, Object> data) {
+
+        PlantationBlock plantationBlock =
+                new PlantationBlock();
+
+        Object uuid =
+                data.get("uuid");
+
+        if (uuid != null) {
+            plantationBlock.setUuid(
+                    UUID.fromString(
+                            uuid.toString()
+                    )
+            );
+        } else {
+            plantationBlock.setUuid(
+                    UUID.randomUUID()
+            );
+        }
+
+        plantationBlock.setName(
+                (String) data.get("name")
+        );
+
+        Object width =
+                data.get("width");
+
+        if (width != null) {
+            plantationBlock.setWidth(
+                    ((Number) width).doubleValue()
+            );
+        }
+
+        Object length =
+                data.get("length");
+
+        if (length == null) {
+            length = data.get("height");
+        }
+
+        if (length != null) {
+            plantationBlock.setLength(
+                    ((Number) length).doubleValue()
+            );
+        }
+
+        Object nbSubPlot =
+                data.get("nb_sub_plot");
+
+        if (nbSubPlot != null) {
+            plantationBlock.setNbSubPlot(
+                    ((Number) nbSubPlot).intValue()
+            );
+        }
+
+        Object geom =
+                data.get("geom");
+
+        if (geom instanceof Polygon) {
+            plantationBlock.setGeom(
+                    (Polygon) geom
+            );
+        }
+
+        Object createdAt =
+                data.get("created_at");
+
+        if (createdAt != null) {
+            plantationBlock.setCreatedAt(
+                    LocalDateTime.parse(
+                            createdAt.toString()
+                    )
+            );
+        }
+
+        Object updatedAt =
+                data.get("updated_at");
+
+        if (updatedAt != null) {
+            plantationBlock.setUpdatedAt(
+                    LocalDateTime.parse(
+                            updatedAt.toString()
+                    )
+            );
+        }
+
+        Object synced =
+                data.get("is_synced");
+
+        if (synced != null) {
+            plantationBlock.setSynced(
+                    Boolean.parseBoolean(
+                            synced.toString()
+                    )
+            );
+        }
+
+        Object idZone =
+                data.get("id_zone");
+
+        if (idZone != null) {
+            plantationBlock.setZone(
+                    zoneService.findById(
+                            ((Number) idZone).intValue()
+                    )
+            );
+        }
 
         return plantationBlock;
     }
-    
-    // @Override
-    // public PlantationBlock createPlantationBlock(PlantationBlockDTO plantationBlockDTO) throws Exception{
-    //     try {
-    //         PlantationBlock plantationB = new PlantationBlock();
-    //         if (plantationBlockDTO.getUuid() == null) {
-    //             plantationBlockDTO.setUuid(UUID.randomUUID());
-    //         }
-    //         plantationB.setUuid(plantationBlockDTO.getUuid());
-    //         plantationB.setName(plantationBlockDTO.getName());
-    //         plantationB.setWidth(plantationBlockDTO.getWidth());
-    //         plantationB.setHeight(plantationBlockDTO.getHeight());
-    //         plantationB.setNb_sub_plot(plantationBlockDTO.getNb_sub_plot());
-    //         Geometry geom = geometryService.parseGeoJson(plantationBlockDTO.getGeom());
-    //         plantationB.setGeom((Polygon)geom);
-    //         if (plantationBlockDTO.getCreated_at() == null) {
-    //             plantationBlockDTO.setCreated_at(LocalDateTime.now());
-    //         }
-    //         plantationB.setCreated_at(plantationBlockDTO.getCreated_at());
-    //         plantationB.setUpdated_at(plantationBlockDTO.getCreated_at());
-    //         if (plantationBlockDTO.getIs_synced() == false) {
-    //             plantationB.set_synced(true);
-    //         }
-    //         plantationB.set_synced(plantationBlockDTO.getIs_synced());
-    //         plantationB.setZone(zoneService.findById(plantationBlockDTO.getId_zone()));
-    //         PlantationBlock plantationBlock = plantationBlockRepository.save(plantationB);
-    //         int nb_sub_plot = plantationBlock.getNb_sub_plot();
-    //         for (int i = 0; i < nb_sub_plot; i++) {
-    //             SubPlot subPlot = new SubPlot();
-    //             subPlot.setName("Plct" + i+1);
-    //             subPlot.setWidth(plantationBlock.getWidth()/plantationBlock.getNb_sub_plot());
-    //             subPlot.setHeight(plantationBlock.getHeight()/2);
-    //             subPlot.setLocation(null);
-    //             subPlot.setPlantation_block(plantationBlock);
-
-    //             subPlotServiceImpl.createSubPlot(subPlot);
-    //         }
-    //         return plantationBlock;
-    //     } catch (DataIntegrityViolationException e) {
-    //         throw new IllegalArgumentException("Sub plot already exist");
-    //     }
-    // }
 }

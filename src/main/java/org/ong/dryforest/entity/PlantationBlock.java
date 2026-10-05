@@ -1,11 +1,5 @@
 package org.ong.dryforest.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import org.locationtech.jts.geom.Polygon;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,49 +11,64 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import org.locationtech.jts.geom.Polygon;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Table(name= "plantation_block")
+@Table(name = "plantation_block")
 public class PlantationBlock extends SyncEntity {
+
     @Id
-    @Column(name="id_plantation_block")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_plantation_block")
     private int id;
 
     @Column(name = "uuid", columnDefinition = "uuid")
     private UUID uuid;
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
-    @Column(name="width")
+    @Column(name = "width")
     private Double width;
 
-    @Column(name="length")
+    @Column(name = "length")
     private Double length;
 
     @Column(name = "nb_sub_plot")
-    private int nb_sub_plot;
-    
-    @Column(name="geom", columnDefinition = "GEOMETRY(polygon, 4326)")
+    private int nbSubPlot;
+
+    @Column(
+            name = "geom",
+            columnDefinition = "GEOMETRY(POLYGON, 4326)"
+    )
     private Polygon geom;
 
     @Column(name = "is_synced")
-    private boolean is_synced;
+    private boolean synced;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_zone", referencedColumnName = "id_zone")
+    @JoinColumn(
+            name = "id_zone",
+            referencedColumnName = "id_zone"
+    )
     private Zone zone;
 
-    @OneToMany(mappedBy = "plantation_block", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "plantationBlock",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<SubPlot> subPlots = new ArrayList<>();
-
 }

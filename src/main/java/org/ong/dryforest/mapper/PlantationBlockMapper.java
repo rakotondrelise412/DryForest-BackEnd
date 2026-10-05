@@ -6,50 +6,131 @@ import org.ong.dryforest.dto.plantationBlock.PlantationBlockWebDTO;
 import org.ong.dryforest.entity.PlantationBlock;
 import org.ong.dryforest.service.util.PolygonToMap;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 public class PlantationBlockMapper {
 
-    public static PlantationBlockMobileDTO toPlantationBlockMobileDTO(PlantationBlock plantationBlock){
-        
-        PlantationBlockMobileDTO plantationBlockMobileDTO = new PlantationBlockMobileDTO();
-
-        plantationBlockMobileDTO.setId_plantation_block(plantationBlock.getId());
-        plantationBlockMobileDTO.setName(plantationBlock.getName());
-        plantationBlockMobileDTO.setId_zone(plantationBlock.getZone().getId());
-
-        return plantationBlockMobileDTO;
+    private PlantationBlockMapper() {
     }
 
-    public static PlantationBlockWebDTO toPlantationBlockWebDTO(PlantationBlock plantationBlock){
-        PlantationBlockWebDTO plantationBlockWebDTO = new PlantationBlockWebDTO();
-        plantationBlockWebDTO.setId_plantation_block(plantationBlock.getId());
-        plantationBlockWebDTO.setName(plantationBlock.getName());
+    public static PlantationBlockMobileDTO toPlantationBlockMobileDTO(
+            PlantationBlock plantationBlock) {
 
-        return plantationBlockWebDTO;
-    }
+        PlantationBlockMobileDTO dto =
+                new PlantationBlockMobileDTO();
 
-    public static PlantationBlockDTO toPlantationBlockDTO(PlantationBlock plantationBlock){
-        PlantationBlockDTO plantationBlockDTO = new PlantationBlockDTO();
+        dto.setIdPlantationBlock(
+                plantationBlock.getId()
+        );
 
-        plantationBlockDTO.setId_plantation_block(plantationBlock.getId());
-        plantationBlockDTO.setUuid(plantationBlock.getUuid());
-        plantationBlockDTO.setName(plantationBlock.getName());
-        plantationBlockDTO.setWidth(plantationBlock.getWidth());
-        plantationBlockDTO.setLength(plantationBlock.getLength());
-        plantationBlockDTO.setNb_sub_plot(plantationBlock.getNb_sub_plot());
-
-        if (plantationBlock.getGeom() != null) {
-            plantationBlockDTO.setGeom(PolygonToMap.polygonToMap(plantationBlock.getGeom()));
-        }
-
-        plantationBlockDTO.setCreated_at(plantationBlock.getCreatedAt());
-        plantationBlockDTO.setUpdated_at(plantationBlock.getUpdatedAt());
-        plantationBlockDTO.set_synced(plantationBlock.is_synced());
-        plantationBlockDTO.set_deleted(plantationBlock.isDeleted());
+        dto.setName(
+                plantationBlock.getName()
+        );
 
         if (plantationBlock.getZone() != null) {
-            plantationBlockDTO.setId_zone(plantationBlock.getZone().getId());
+            dto.setIdZone(
+                    plantationBlock.getZone().getId()
+            );
         }
 
-        return plantationBlockDTO;
+        return dto;
+    }
+
+    public static PlantationBlockWebDTO toPlantationBlockWebDTO(
+            PlantationBlock plantationBlock) {
+
+        PlantationBlockWebDTO dto =
+                new PlantationBlockWebDTO();
+
+        dto.setIdPlantationBlock(
+                plantationBlock.getId()
+        );
+
+        dto.setName(
+                plantationBlock.getName()
+        );
+
+        return dto;
+    }
+
+    public static PlantationBlockDTO toPlantationBlockDTO(
+            PlantationBlock plantationBlock) {
+
+        PlantationBlockDTO dto =
+                new PlantationBlockDTO();
+
+        dto.setIdPlantationBlock(
+                plantationBlock.getId()
+        );
+
+        dto.setUuid(
+                plantationBlock.getUuid()
+        );
+
+        dto.setName(
+                plantationBlock.getName()
+        );
+
+        if (plantationBlock.getWidth() != null) {
+            dto.setWidth(
+                    plantationBlock.getWidth()
+            );
+        }
+
+        if (plantationBlock.getLength() != null) {
+            dto.setLength(
+                    plantationBlock.getLength()
+            );
+        }
+
+        dto.setNbSubPlot(
+                plantationBlock.getNbSubPlot()
+        );
+
+        if (plantationBlock.getZone() != null) {
+            dto.setIdZone(
+                    plantationBlock.getZone().getId()
+            );
+        }
+
+        if (plantationBlock.getGeom() != null) {
+            dto.setGeom(
+                    PolygonToMap.polygonToMap(
+                            plantationBlock.getGeom()
+                    )
+            );
+        }
+
+        dto.setCreatedAt(
+                plantationBlock.getCreatedAt()
+        );
+
+        dto.setUpdatedAt(
+                plantationBlock.getUpdatedAt()
+        );
+
+        dto.setSynced(
+                plantationBlock.isSynced()
+        );
+
+        dto.setDeleted(
+                plantationBlock.isDeleted()
+        );
+
+        if (plantationBlock.getSubPlots() != null) {
+            dto.setSubPlots(
+                    plantationBlock.getSubPlots()
+                            .stream()
+                            .map(SubPlotMapper::toSubPlotDTO)
+                            .collect(Collectors.toList())
+            );
+        } else {
+            dto.setSubPlots(
+                    new ArrayList<>()
+            );
+        }
+
+        return dto;
     }
 }

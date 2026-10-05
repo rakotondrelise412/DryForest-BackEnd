@@ -504,7 +504,7 @@ public class PlantationServiceImpl implements PlantationService {
             }
 
             SubPlot subPlot = p.getSubPlot();
-            PlantationBlock block = subPlot.getPlantation_block(); // adapte si ton getter a un autre nom
+            PlantationBlock block = subPlot.getPlantationBlock(); // adapte si ton getter a un autre nom
 
             if (block == null || block == null || subPlot == null || p.getSpecies() == null) {
                 continue;
