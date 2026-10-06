@@ -1,8 +1,6 @@
 package org.ong.dryforest.entity;
 
-import java.time.LocalDate;
-import java.util.UUID;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,16 +15,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.UUID;
+
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "plantation")
-public class Plantation extends SyncEntity{
+public class Plantation extends SyncEntity {
+
     @Id
-    @Column(name = "id_plantation")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_plantation")
     public int id;
 
     @Column(name = "uuid", columnDefinition = "uuid")
@@ -56,16 +58,27 @@ public class Plantation extends SyncEntity{
     @Column(name = "is_synced")
     private boolean is_synced;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_reforestation", referencedColumnName = "id_reforestation")
+    @JoinColumn(
+            name = "id_reforestation",
+            referencedColumnName = "id_reforestation"
+    )
     private Reforestation reforestation;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_species", referencedColumnName = "id_species")
+    @JoinColumn(
+            name = "id_species",
+            referencedColumnName = "id_species"
+    )
     private Species species;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_sub_plot", referencedColumnName = "id_sub_plot")
+    @JoinColumn(
+            name = "id_sub_plot",
+            referencedColumnName = "id_sub_plot"
+    )
     private SubPlot subPlot;
-    
 }

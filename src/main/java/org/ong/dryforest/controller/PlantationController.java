@@ -1,123 +1,292 @@
 package org.ong.dryforest.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.ong.dryforest.dto.plantation.PlantationDTO;
-import org.ong.dryforest.dto.plantation.PlantationMobileDTO;
-import org.ong.dryforest.dto.plantation.PlantationStatusByYearDTO;
-import org.ong.dryforest.dto.plantation.PlantationViewDTO;
-import org.ong.dryforest.dto.plantation.SurvivalRateDTO;
+import lombok.RequiredArgsConstructor;
+import org.ong.dryforest.dto.plantation.*;
 import org.ong.dryforest.dto.plantationBlock.PlantationBlockSurvivalRateDTO;
 import org.ong.dryforest.dto.species.SpeciesCarbonDTO;
 import org.ong.dryforest.entity.Plantation;
 import org.ong.dryforest.mapper.PlantationMapper;
 import org.ong.dryforest.service.plantation.PlantationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-
+import java.sql.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 @RestController
 @RequestMapping("/api/plantation")
+@RequiredArgsConstructor
 public class PlantationController {
 
-    @Autowired
-    private PlantationService plantationService;
+    private final PlantationService plantationService;
+
 
     @GetMapping
-    public ResponseEntity<List<PlantationMobileDTO>> findAll(){
-        List<PlantationMobileDTO> plantationMobileDTO = new ArrayList<>();
-        List<Plantation> plantations = plantationService.findAll();
+    public ResponseEntity<List<PlantationMobileDTO>> findAll() {
 
-        if (plantations != null && !plantations.isEmpty()) {
-            plantationMobileDTO = plantationService.findAll().stream().map(PlantationMapper::toPlantationMobileDTO).collect(Collectors.toList());
-        }
+        List<PlantationMobileDTO> result =
+                plantationService.findAll()
+                        .stream()
+                        .map(
+                                PlantationMapper
+                                        ::toPlantationMobileDTO
+                        )
+                        .toList();
 
-        return ResponseEntity.ok(plantationMobileDTO);
+        return ResponseEntity.ok(result);
     }
 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PlantationMobileDTO> findById(
+            @PathVariable int id
+    ) {
+
+        Plantation plantation =
+                plantationService.findById(id);
+
+        PlantationMobileDTO result =
+                PlantationMapper.toPlantationMobileDTO(
+                        plantation
+                );
+
+        return ResponseEntity.ok(result);
+    }
+
+
+    @GetMapping("/uuid/{uuid}")
+    public ResponseEntity<PlantationMobileDTO> findByUuid(
+            @PathVariable UUID uuid
+    ) {
+
+        Plantation plantation =
+                plantationService.findByUuid(uuid);
+
+        PlantationMobileDTO result =
+                PlantationMapper.toPlantationMobileDTO(
+                        plantation
+                );
+
+        return ResponseEntity.ok(result);
+    }
+
+    // ============================================================
+    // VIEWS
+    // ============================================================
+
     @GetMapping("/plantationsByPlantationBlock")
-    public ResponseEntity<List<PlantationViewDTO>> getAllByPlantationBlock(){
-        List<PlantationViewDTO> plantations = plantationService.getAllPlantations();
-        return ResponseEntity.ok(plantations);
+    public ResponseEntity<List<PlantationViewDTO>>
+    getAllByPlantationBlock() {
+
+        return ResponseEntity.ok(
+                plantationService.getAllPlantations()
+        );
     }
 
     @GetMapping("/plantationsByCriteria")
-    public ResponseEntity<List<PlantationViewDTO>> getAllByCriteria(
-        @RequestParam(name = "id_plantation_block", required = false) Integer id_plantation_block,
-        @RequestParam(name = "id_sub_plot", required = false) Integer id_sub_plot,
-        @RequestParam(name = "id_species", required = false) Integer id_species,
-        @RequestParam(name = "date_plantation", required = false) String date_plantation
-    ){
-        java.sql.Date sqlDate = null;
-        if (date_plantation != null && !date_plantation.isBlank()) {
+    public ResponseEntity<List<PlantationViewDTO>>
+    getAllByCriteria(
+
+            @RequestParam(
+                    name = "id_plantation_block",
+                    required = false
+            )
+            Integer idPlantationBlock,
+
+            @RequestParam(
+                    name = "id_sub_plot",
+                    required = false
+            )
+            Integer idSubPlot,
+
+            @RequestParam(
+                    name = "id_species",
+                    required = false
+            )
+            Integer idSpecies,
+
+            @RequestParam(
+                    name = "date_plantation",
+                    required = false
+            )
+            String datePlantation
+    ) {
+
+        Date sqlDate = null;
+
+        if (datePlantation != null &&
+                !datePlantation.isBlank()) {
+
             try {
-                // java.sql.Date.valueOf attend "yyyy-[m]m-[d]d"
-                sqlDate = java.sql.Date.valueOf(date_plantation);
-            } catch (IllegalArgumentException ex) {
-                // format invalide : renvoyer 400 plutôt qu'une 500 incompréhensible
-                return ResponseEntity.badRequest()
-                    .body(List.of()); // ou ResponseEntity.badRequest().build();
+
+                sqlDate =
+                        Date.valueOf(datePlantation);
+
+            } catch (IllegalArgumentException e) {
+
+                return ResponseEntity
+                        .badRequest()
+                        .body(List.of());
             }
         }
-        List<PlantationViewDTO> plantations = plantationService.getPlantationsByCriteria(id_plantation_block, id_sub_plot, id_species, sqlDate);
 
-        return ResponseEntity.ok(plantations);
+        return ResponseEntity.ok(
+                plantationService.getPlantationsByCriteria(
+                        idPlantationBlock,
+                        idSubPlot,
+                        idSpecies,
+                        sqlDate
+                )
+        );
     }
 
     @GetMapping("/plantationsByPlantationBlockById/{blockId}")
-    public ResponseEntity<List<PlantationViewDTO>> getAllByIdBlock(@PathVariable int blockId) {
-        return ResponseEntity.ok(plantationService.getPlantationsByIdPlantationBlock(blockId));
+    public ResponseEntity<List<PlantationViewDTO>>
+    getAllByIdBlock(
+            @PathVariable int blockId
+    ) {
+
+        return ResponseEntity.ok(
+                plantationService
+                        .getPlantationsByIdPlantationBlock(
+                                blockId
+                        )
+        );
     }
 
-    @GetMapping("/by_year_status")
-    public ResponseEntity<List<PlantationStatusByYearDTO>> getByYearStatus() {
-        List<PlantationStatusByYearDTO> result = plantationService.plantationStatusByYear();
+    @GetMapping("/plantationsByPlantationBlock/{blockId}/subPlot/{subPlotId}")
+    public ResponseEntity<List<PlantationViewDTO>>
+    getByBlockAndSubPlot(
+            @PathVariable int blockId,
+            @PathVariable int subPlotId
+    ) {
+
+        return ResponseEntity.ok(
+                plantationService
+                        .getPlantationsByBlockAndSubPlot(
+                                blockId,
+                                subPlotId
+                        )
+        );
+    }
+
+
+    @PostMapping
+    public ResponseEntity<PlantationMobileDTO> create(
+            @RequestBody PlantationDTO plantationDTO
+    ) {
+
+        Plantation saved =
+                plantationService.create(
+                        plantationDTO
+                );
+
+        PlantationMobileDTO result =
+                PlantationMapper.toPlantationMobileDTO(
+                        saved
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(result);
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PlantationMobileDTO> update(
+            @PathVariable int id,
+            @RequestBody PlantationDTO plantationDTO
+    ) {
+
+        Plantation updated =
+                plantationService.update(
+                        id,
+                        plantationDTO
+                );
+
+        PlantationMobileDTO result =
+                PlantationMapper.toPlantationMobileDTO(
+                        updated
+                );
+
         return ResponseEntity.ok(result);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable int id
+    ) {
+
+        plantationService.deleteById(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    // ============================================================
+    // STATISTICS
+    // ============================================================
+
+    @GetMapping("/by_year_status")
+    public ResponseEntity<List<PlantationStatusByYearDTO>>
+    getByYearStatus() {
+
+        return ResponseEntity.ok(
+                plantationService.plantationStatusByYear()
+        );
     }
 
     @GetMapping("/totalPlantationPerBlock")
-    public ResponseEntity<List<Map<String, Integer>>> getTotalPlantationPerBlock(){
-        List<Map<String, Integer>> plantatations = plantationService.getTotalPlantationByBlock();
-        return ResponseEntity.ok(plantatations);
+    public ResponseEntity<List<Map<String, Integer>>>
+    getTotalPlantationPerBlock() {
+
+        return ResponseEntity.ok(
+                plantationService
+                        .getTotalPlantationByBlock()
+        );
     }
 
     @GetMapping("/carbon_by_species")
-    public ResponseEntity<List<SpeciesCarbonDTO>> getCarbonBySpecies() {
-        List<SpeciesCarbonDTO> data = plantationService.getCarbonSequesteredBySpeciesNative();
-        return ResponseEntity.ok(data);
+    public ResponseEntity<List<SpeciesCarbonDTO>>
+    getCarbonBySpecies() {
+
+        return ResponseEntity.ok(
+                plantationService
+                        .getCarbonSequesteredBySpeciesNative()
+        );
     }
 
     @GetMapping("/survival_rate")
-    public ResponseEntity<List<SurvivalRateDTO>> getSurvivalRate() {
-        List<SurvivalRateDTO> survivalRate = plantationService.survivalRateByYear();
-        return ResponseEntity.ok(survivalRate);
+    public ResponseEntity<List<SurvivalRateDTO>>
+    getSurvivalRate() {
+
+        return ResponseEntity.ok(
+                plantationService
+                        .survivalRateByYear()
+        );
     }
 
     @GetMapping("/survival_global")
-    public ResponseEntity<SurvivalRateDTO> getSurvivalGlobal() {
-        SurvivalRateDTO dto = plantationService.survivalRateGlobal();
-        return ResponseEntity.ok(dto);
-    }
-    
-    @GetMapping("/survival_rate_by_block_subplot_species")
-    public ResponseEntity<List<PlantationBlockSurvivalRateDTO>> getSurvivalRateByBlockSubPlotAndSpecies() {
-        List<PlantationBlockSurvivalRateDTO> result = plantationService.getSurvivalRateBySpeciesBySubPlotAndBlock();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<SurvivalRateDTO>
+    getSurvivalGlobal() {
+
+        return ResponseEntity.ok(
+                plantationService
+                        .survivalRateGlobal()
+        );
     }
 
-    @PostMapping
-    public ResponseEntity<Plantation> create(@RequestBody PlantationDTO plantationDTO) {
-        Plantation saved = plantationService.create(plantationDTO);
-        return ResponseEntity.status(201).body(saved);
+    @GetMapping("/survival_rate_by_block_subplot_species")
+    public ResponseEntity<
+            List<PlantationBlockSurvivalRateDTO>
+            >
+    getSurvivalRateByBlockSubPlotAndSpecies() {
+
+        return ResponseEntity.ok(
+                plantationService
+                        .getSurvivalRateBySpeciesBySubPlotAndBlock()
+        );
     }
 }
