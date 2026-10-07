@@ -16,14 +16,10 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class PlantationMapper {
+public final class PlantationMapper {
 
     private PlantationMapper() {
     }
-
-    // ============================================================
-    // MOBILE
-    // ============================================================
 
     public static PlantationMobileDTO toPlantationMobileDTO(
             Plantation plantation
@@ -58,9 +54,6 @@ public class PlantationMapper {
         return dto;
     }
 
-    // ============================================================
-    // STATUS BY YEAR
-    // ============================================================
 
     public static PlantationStatusByYearDTO toPlantationStatusByYearDTO(
             Object[] row
@@ -83,8 +76,9 @@ public class PlantationMapper {
     }
 
     public static List<PlantationStatusByYearDTO>
-    toPlantationStatusByYearDTOList(List<Object[]> rows) {
-
+    toPlantationStatusByYearDTOList(
+            List<Object[]> rows
+    ) {
         if (rows == null || rows.isEmpty()) {
             return Collections.emptyList();
         }
@@ -95,45 +89,10 @@ public class PlantationMapper {
                 .collect(Collectors.toList());
     }
 
-    private static Integer safeToInteger(
-            Object[] row,
-            int index,
-            Integer defaultValue
+
+    public static PlantationViewDTO toPlantationViewDTO(
+            Object[] row
     ) {
-        if (row == null || index < 0 || index >= row.length) {
-            return defaultValue;
-        }
-
-        Object value = row[index];
-
-        if (value == null) {
-            return defaultValue;
-        }
-
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-
-        try {
-            String text = value.toString().trim();
-
-            if (text.isEmpty()) {
-                return defaultValue;
-            }
-
-            return Integer.valueOf(text);
-
-        } catch (Exception e) {
-            return defaultValue;
-        }
-    }
-
-    // ============================================================
-    // VIEW DTO
-    // ============================================================
-
-    public static PlantationViewDTO toPlantationViewDTO(Object[] row) {
-
         if (row == null) {
             return null;
         }
@@ -142,26 +101,65 @@ public class PlantationMapper {
 
         int i = 0;
 
-        dto.idPlantation = safeToIntegerObj(safeGet(row, i++));
-        dto.plantationUuid = safeToUUID(safeGet(row, i++));
-        dto.diameter = safeToBigDecimal(safeGet(row, i++));
-        dto.height = safeToBigDecimal(safeGet(row, i++));
-        dto.carbonSequestered = safeToBigDecimal(safeGet(row, i++));
-        dto.image = safeToString(safeGet(row, i++));
-        dto.datePlantation = safeToLocalDate(safeGet(row, i++));
-        dto.plantNumber = safeToString(safeGet(row, i++));
-        dto.plantationStatus = safeToBoolean(safeGet(row, i++));
-        dto.plantationCreatedAt = safeToLocalDateTime(safeGet(row, i++));
-        dto.plantationUpdatedAt = safeToLocalDateTime(safeGet(row, i++));
-        dto.plantationIsSynced = safeToBoolean(safeGet(row, i++));
-        dto.plantationIsDeleted = safeToBoolean(safeGet(row, i++));
-        dto.idSpecies = safeToIntegerObj(safeGet(row, i++));
-        dto.speciesName = safeToString(safeGet(row, i++));
-        dto.idSubPlot = safeToIntegerObj(safeGet(row, i++));
-        dto.idReforestation = safeToIntegerObj(safeGet(row, i++));
-        dto.subPlotName = safeToString(safeGet(row, i++));
-        dto.plantationBlockName = safeToString(safeGet(row, i++));
-        dto.idPlantationBlock = safeToIntegerObj(safeGet(row, i++));
+        dto.idPlantation =
+                safeToIntegerObj(safeGet(row, i++));
+
+        dto.plantationUuid =
+                safeToUUID(safeGet(row, i++));
+
+        dto.diameter =
+                safeToBigDecimal(safeGet(row, i++));
+
+        dto.height =
+                safeToBigDecimal(safeGet(row, i++));
+
+        dto.carbonSequestered =
+                safeToBigDecimal(safeGet(row, i++));
+
+        dto.image =
+                safeToString(safeGet(row, i++));
+
+        dto.datePlantation =
+                safeToLocalDate(safeGet(row, i++));
+
+        dto.plantNumber =
+                safeToString(safeGet(row, i++));
+
+        dto.plantationStatus =
+                safeToBoolean(safeGet(row, i++));
+
+        dto.plantationCreatedAt =
+                safeToLocalDateTime(safeGet(row, i++));
+
+        dto.plantationUpdatedAt =
+                safeToLocalDateTime(safeGet(row, i++));
+
+        dto.plantationIsSynced =
+                safeToBoolean(safeGet(row, i++));
+
+        dto.plantationIsDeleted =
+                safeToBoolean(safeGet(row, i++));
+
+        dto.idSpecies =
+                safeToIntegerObj(safeGet(row, i++));
+
+        dto.speciesName =
+                safeToString(safeGet(row, i++));
+
+        dto.idSubPlot =
+                safeToIntegerObj(safeGet(row, i++));
+
+        dto.idReforestation =
+                safeToIntegerObj(safeGet(row, i++));
+
+        dto.subPlotName =
+                safeToString(safeGet(row, i++));
+
+        dto.plantationBlockName =
+                safeToString(safeGet(row, i++));
+
+        dto.idPlantationBlock =
+                safeToIntegerObj(safeGet(row, i++));
 
         return dto;
     }
@@ -179,20 +177,52 @@ public class PlantationMapper {
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
-    // SAFE CONVERSION
-    // ============================================================
-
-    private static Object safeGet(Object[] row, int index) {
-        if (row == null || index < 0 || index >= row.length) {
+    private static Object safeGet(
+            Object[] row,
+            int index
+    ) {
+        if (row == null ||
+                index < 0 ||
+                index >= row.length) {
             return null;
         }
 
         return row[index];
     }
 
-    private static Integer safeToIntegerObj(Object value) {
+    private static Integer safeToInteger(
+            Object[] row,
+            int index,
+            Integer defaultValue
+    ) {
+        Object value = safeGet(row, index);
 
+        if (value == null) {
+            return defaultValue;
+        }
+
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+
+        try {
+            String text =
+                    value.toString().trim();
+
+            if (text.isEmpty()) {
+                return defaultValue;
+            }
+
+            return Integer.valueOf(text);
+
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    private static Integer safeToIntegerObj(
+            Object value
+    ) {
         if (value == null) {
             return null;
         }
@@ -202,14 +232,17 @@ public class PlantationMapper {
         }
 
         try {
-            return Integer.valueOf(value.toString().trim());
+            return Integer.valueOf(
+                    value.toString().trim()
+            );
         } catch (Exception e) {
             return null;
         }
     }
 
-    private static BigDecimal safeToBigDecimal(Object value) {
-
+    private static BigDecimal safeToBigDecimal(
+            Object value
+    ) {
         if (value == null) {
             return null;
         }
@@ -219,22 +252,31 @@ public class PlantationMapper {
         }
 
         if (value instanceof Number number) {
-            return BigDecimal.valueOf(number.doubleValue());
+            return BigDecimal.valueOf(
+                    number.doubleValue()
+            );
         }
 
         try {
-            return new BigDecimal(value.toString());
+            return new BigDecimal(
+                    value.toString().trim()
+            );
         } catch (Exception e) {
             return null;
         }
     }
 
-    private static String safeToString(Object value) {
-        return value == null ? null : value.toString();
+    private static String safeToString(
+            Object value
+    ) {
+        return value == null
+                ? null
+                : value.toString();
     }
 
-    private static Boolean safeToBoolean(Object value) {
-
+    private static Boolean safeToBoolean(
+            Object value
+    ) {
         if (value == null) {
             return null;
         }
@@ -243,9 +285,10 @@ public class PlantationMapper {
             return booleanValue;
         }
 
-        String valueString = value.toString()
-                .trim()
-                .toLowerCase();
+        String valueString =
+                value.toString()
+                        .trim()
+                        .toLowerCase();
 
         return switch (valueString) {
             case "true", "t", "1" -> true;
@@ -254,8 +297,9 @@ public class PlantationMapper {
         };
     }
 
-    private static UUID safeToUUID(Object value) {
-
+    private static UUID safeToUUID(
+            Object value
+    ) {
         if (value == null) {
             return null;
         }
@@ -265,14 +309,17 @@ public class PlantationMapper {
         }
 
         try {
-            return UUID.fromString(value.toString());
+            return UUID.fromString(
+                    value.toString().trim()
+            );
         } catch (Exception e) {
             return null;
         }
     }
 
-    private static LocalDate safeToLocalDate(Object value) {
-
+    private static LocalDate safeToLocalDate(
+            Object value
+    ) {
         if (value == null) {
             return null;
         }
@@ -282,18 +329,23 @@ public class PlantationMapper {
         }
 
         if (value instanceof Timestamp timestamp) {
-            return timestamp.toLocalDateTime().toLocalDate();
+            return timestamp
+                    .toLocalDateTime()
+                    .toLocalDate();
         }
 
         try {
-            return LocalDate.parse(value.toString());
+            return LocalDate.parse(
+                    value.toString().trim()
+            );
         } catch (Exception e) {
             return null;
         }
     }
 
-    private static LocalDateTime safeToLocalDateTime(Object value) {
-
+    private static LocalDateTime safeToLocalDateTime(
+            Object value
+    ) {
         if (value == null) {
             return null;
         }
@@ -303,12 +355,16 @@ public class PlantationMapper {
         }
 
         if (value instanceof Date date) {
-            return date.toLocalDate().atStartOfDay();
+            return date
+                    .toLocalDate()
+                    .atStartOfDay();
         }
 
         try {
             return LocalDateTime.parse(
-                    value.toString().replace(' ', 'T')
+                    value.toString()
+                            .trim()
+                            .replace(' ', 'T')
             );
         } catch (Exception e) {
             return null;

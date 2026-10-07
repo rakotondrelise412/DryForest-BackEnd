@@ -22,21 +22,30 @@ public interface PlantationService {
 
     Plantation create(PlantationDTO plantationDTO);
 
-    Plantation update(int id, PlantationDTO plantationDTO);
+    Plantation update(
+            int id,
+            PlantationDTO plantationDTO
+    );
 
     void deleteById(int id);
 
     List<Plantation> findAll();
 
-    Plantation findById(int id_plantation);
+    Plantation findById(int idPlantation);
 
     Plantation findByUuid(UUID uuid);
 
-    Plantation updatePlantation(Plantation plantation);
+    Plantation updatePlantation(
+            Plantation plantation
+    );
 
-    void deletePlantation(Plantation plantation);
+    void deletePlantation(
+            Plantation plantation
+    );
 
-    Plantation createPlantation(Plantation plantation);
+    Plantation createPlantation(
+            Plantation plantation
+    );
 
     boolean existsByUuid(UUID uuid);
 
@@ -44,24 +53,29 @@ public interface PlantationService {
     // SYNC
     // ============================================================
 
-    Plantation mapToEntity(Map<String, Object> plantationMapping);
+    Plantation mapToEntity(
+            Map<String, Object> plantationMapping
+    );
 
     // ============================================================
-    // VIEWS
+    // VUES
     // ============================================================
 
     List<PlantationViewDTO> getAllPlantations();
 
-    List<PlantationViewDTO> getPlantationsByIdPlantationBlock(
+    List<PlantationViewDTO>
+    getPlantationsByIdPlantationBlock(
             int blockId
     );
 
-    List<PlantationViewDTO> getPlantationsByBlockAndSubPlot(
+    List<PlantationViewDTO>
+    getPlantationsByBlockAndSubPlot(
             int blockId,
             int subPlotId
     );
 
-    List<PlantationViewDTO> getPlantationsByCriteria(
+    List<PlantationViewDTO>
+    getPlantationsByCriteria(
             Integer idPlantationBlock,
             Integer idSubPlot,
             Integer idSpecies,
@@ -69,16 +83,20 @@ public interface PlantationService {
     );
 
     // ============================================================
-    // STATISTICS
+    // STATISTIQUES
     // ============================================================
 
-    List<Map<String, Integer>> getTotalPlantationByBlock();
+    List<Map<String, Integer>>
+    getTotalPlantationByBlock();
 
-    List<PlantationStatusByYearDTO> plantationStatusByYear();
+    List<PlantationStatusByYearDTO>
+    plantationStatusByYear();
 
-    List<SpeciesCarbonDTO> getCarbonSequesteredBySpeciesNative();
+    List<SpeciesCarbonDTO>
+    getCarbonSequesteredBySpeciesNative();
 
-    List<SurvivalRateDTO> calculateSurvivalRateByYear(
+    List<SurvivalRateDTO>
+    calculateSurvivalRateByYear(
             List<PlantingMonitoring> plantingMonitorings
     );
 
@@ -87,9 +105,11 @@ public interface PlantationService {
             List<PlantingMonitoring> plantingMonitorings
     );
 
-    List<SurvivalRateDTO> survivalRateByYear();
+    List<SurvivalRateDTO>
+    survivalRateByYear();
 
-    SurvivalRateDTO survivalRateGlobal();
+    SurvivalRateDTO
+    survivalRateGlobal();
 
     List<PlantationBlockSurvivalRateDTO>
     getSurvivalRateBySpeciesBySubPlotAndBlock();

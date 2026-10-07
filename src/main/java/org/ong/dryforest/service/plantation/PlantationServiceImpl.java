@@ -1,6 +1,5 @@
 package org.ong.dryforest.service.plantation;
 
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.ong.dryforest.dto.plantation.PlantationDTO;
 import org.ong.dryforest.dto.plantation.PlantationStatusByYearDTO;
@@ -22,9 +21,9 @@ import org.ong.dryforest.service.subPlot.SubPlotService;
 import org.ong.dryforest.service.util.BlockStats;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +38,8 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PlantationServiceImpl implements PlantationService {
+public class PlantationServiceImpl
+        implements PlantationService {
 
     // ============================================================
     // CONSTANTES
@@ -47,10 +47,14 @@ public class PlantationServiceImpl implements PlantationService {
 
     private static final double CARBON_RATIO = 0.47;
 
+    private static final double AGB_COEFFICIENT = 0.0673;
+
+    private static final double AGB_EXPONENT = 0.976;
+
     private static final String PLANT_NUMBER_PREFIX = "Plt_";
 
     // ============================================================
-    // DEPENDENCIES
+    // DEPENDANCES
     // ============================================================
 
     private final PlantationRepository plantationRepository;
@@ -66,31 +70,28 @@ public class PlantationServiceImpl implements PlantationService {
     private final PlantingMonitoringRepository
             plantingMonitoringRepository;
 
-    // ============================================================
-    // READ
-    // ============================================================
 
     @Override
     @Transactional(readOnly = true)
     public List<Plantation> findAll() {
-
         return plantationRepository
                 .findAllByIsDeletedFalse();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Plantation findById(int id_plantation) {
+    public Plantation findById(int idPlantation) {
 
         return plantationRepository
-                .findByIdAndIsDeletedFalse(id_plantation)
+                .findByIdAndIsDeletedFalse(idPlantation)
                 .orElseThrow(() ->
                         new RuntimeException(
                                 "Plantation not found for id: "
-                                        + id_plantation
+                                        + idPlantation
                         )
                 );
     }
+
     @Override
     @Transactional(readOnly = true)
     public Plantation findByUuid(UUID uuid) {
@@ -112,65 +113,41 @@ public class PlantationServiceImpl implements PlantationService {
                 .existsByUuidAndIsDeletedFalse(uuid);
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
     @Override
     @Transactional
-    public Plantation create(PlantationDTO dto) {
+    public Plantation create(
+            PlantationDTO dto
+    ) {
 
         try {
 
-            Plantation plantation = new Plantation();
+            Plantation plantation =
+                    new Plantation();
 
-            // ----------------------------------------------------
-            // UUID
-            // ----------------------------------------------------
-
-            UUID uuid = dto.getUuid();
-
-            if (uuid == null) {
-                uuid = UUID.randomUUID();
-            }
+            UUID uuid =
+                    dto.getUuid() != null
+                            ? dto.getUuid()
+                            : UUID.randomUUID();
 
             plantation.setUuid(uuid);
 
-            // ----------------------------------------------------
-            // NUMERO PLANTATION
-            // ----------------------------------------------------
+            plantation.setPlant_number(
+                    generatePlantNumber()
+            );
 
-            String plantNumber =
-                    generatePlantNumber();
-
-            plantation.setPlant_number(plantNumber);
-
-            // ----------------------------------------------------
-            // DATES
-            // ----------------------------------------------------
-
-            LocalDateTime createdAt =
+            plantation.setCreatedAt(
                     dto.getCreatedAt() != null
                             ? dto.getCreatedAt()
-                            : LocalDateTime.now();
+                            : LocalDateTime.now()
+            );
 
-            LocalDateTime updatedAt =
+            plantation.setUpdatedAt(
                     dto.getUpdatedAt() != null
                             ? dto.getUpdatedAt()
-                            : LocalDateTime.now();
-
-            plantation.setCreatedAt(createdAt);
-            plantation.setUpdatedAt(updatedAt);
-
-            // ----------------------------------------------------
-            // SYNCHRONISATION
-            // ----------------------------------------------------
+                            : LocalDateTime.now()
+            );
 
             plantation.set_synced(true);
-
-            // ----------------------------------------------------
-            // INFORMATIONS PLANTATION
-            // ----------------------------------------------------
 
             plantation.setDate_plantation(
                     dto.getDate_plantation()
@@ -188,10 +165,6 @@ public class PlantationServiceImpl implements PlantationService {
                     dto.getImage()
             );
 
-            // ----------------------------------------------------
-            // SPECIES
-            // ----------------------------------------------------
-
             var species =
                     speciesService.findSpeciesEntityById(
                             dto.getId_species()
@@ -199,54 +172,34 @@ public class PlantationServiceImpl implements PlantationService {
 
             plantation.setSpecies(species);
 
-            // ----------------------------------------------------
-            // REFORESTATION
-            // ----------------------------------------------------
-
-            var reforestation =
+            plantation.setReforestation(
                     reforestationService.findById(
                             dto.getId_reforestation()
-                    );
+                    )
+            );
 
-            plantation.setReforestation(reforestation);
-
-            // ----------------------------------------------------
-            // SUB PLOT
-            // ----------------------------------------------------
-
-            var subPlot =
+            plantation.setSubPlot(
                     subPlotService.findById(
                             dto.getId_sub_plot()
-                    );
-
-            plantation.setSubPlot(subPlot);
-
-            // ----------------------------------------------------
-            // CARBONE
-            // ----------------------------------------------------
-
-            double biomass = calculateDryAGB(
-                    dto.getDiameter(),
-                    dto.getHeight(),
-                    species.getDensity()
+                    )
             );
 
             double carbon =
-                    calculateCarbon(biomass);
+                    calculateCarbonForPlantation(
+                            dto.getDiameter(),
+                            dto.getHeight(),
+                            species.getDensity()
+                    );
 
-            plantation.setCarbon_sequestered(carbon);
-
-            // ----------------------------------------------------
-            // STATUS
-            // ----------------------------------------------------
+            plantation.setCarbon_sequestered(
+                    carbon
+            );
 
             plantation.setStatus(false);
 
-            // ----------------------------------------------------
-            // SAVE
-            // ----------------------------------------------------
-
-            return plantationRepository.save(plantation);
+            return plantationRepository.save(
+                    plantation
+            );
 
         } catch (DataIntegrityViolationException e) {
 
@@ -257,13 +210,7 @@ public class PlantationServiceImpl implements PlantationService {
         }
     }
 
-    /**
-     * Génère automatiquement :
-     * Plt_1
-     * Plt_2
-     * Plt_3
-     * ...
-     */
+
     private String generatePlantNumber() {
 
         String lastNumber =
@@ -283,10 +230,10 @@ public class PlantationServiceImpl implements PlantationService {
                             ""
                     );
 
-            int next =
+            int nextNumber =
                     Integer.parseInt(number) + 1;
 
-            return PLANT_NUMBER_PREFIX + next;
+            return PLANT_NUMBER_PREFIX + nextNumber;
 
         } catch (NumberFormatException e) {
 
@@ -294,9 +241,6 @@ public class PlantationServiceImpl implements PlantationService {
         }
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
 
     @Override
     @Transactional
@@ -308,21 +252,10 @@ public class PlantationServiceImpl implements PlantationService {
         Plantation plantation =
                 findById(id);
 
-        // ----------------------------------------------------
-        // UUID
-        // ----------------------------------------------------
-
         if (dto.getUuid() != null) {
             plantation.setUuid(dto.getUuid());
         }
 
-        // ----------------------------------------------------
-        // Plant number
-        // ----------------------------------------------------
-
-        /*
-         * On ne régénère PAS plant_number lors d'un update.
-         */
         if (dto.getPlant_number() != null &&
                 !dto.getPlant_number().isBlank()) {
 
@@ -331,12 +264,7 @@ public class PlantationServiceImpl implements PlantationService {
             );
         }
 
-        // ----------------------------------------------------
-        // Informations
-        // ----------------------------------------------------
-
         if (dto.getDate_plantation() != null) {
-
             plantation.setDate_plantation(
                     dto.getDate_plantation()
             );
@@ -351,15 +279,10 @@ public class PlantationServiceImpl implements PlantationService {
         );
 
         if (dto.getImage() != null) {
-
             plantation.setImage(
                     dto.getImage()
             );
         }
-
-        // ----------------------------------------------------
-        // Relations
-        // ----------------------------------------------------
 
         if (dto.getId_species() > 0) {
 
@@ -370,15 +293,15 @@ public class PlantationServiceImpl implements PlantationService {
 
             plantation.setSpecies(species);
 
-            double biomass =
-                    calculateDryAGB(
+            double carbon =
+                    calculateCarbonForPlantation(
                             dto.getDiameter(),
                             dto.getHeight(),
                             species.getDensity()
                     );
 
             plantation.setCarbon_sequestered(
-                    calculateCarbon(biomass)
+                    carbon
             );
         }
 
@@ -400,11 +323,8 @@ public class PlantationServiceImpl implements PlantationService {
             );
         }
 
-        // ----------------------------------------------------
-        // Sync / date
-        // ----------------------------------------------------
-
         plantation.set_synced(true);
+
         plantation.setUpdatedAt(
                 LocalDateTime.now()
         );
@@ -414,9 +334,6 @@ public class PlantationServiceImpl implements PlantationService {
         );
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
 
     @Override
     @Transactional
@@ -425,13 +342,8 @@ public class PlantationServiceImpl implements PlantationService {
         Plantation plantation =
                 findById(id);
 
-        /*
-         * Suppression logique.
-         *
-         * On ne supprime pas réellement la ligne SQL,
-         * car ton application utilise is_deleted.
-         */
         plantation.setDeleted(true);
+
         plantation.setUpdatedAt(
                 LocalDateTime.now()
         );
@@ -441,9 +353,6 @@ public class PlantationServiceImpl implements PlantationService {
         );
     }
 
-    // ============================================================
-    // EXISTING METHODS
-    // ============================================================
 
     @Override
     @Transactional
@@ -468,13 +377,16 @@ public class PlantationServiceImpl implements PlantationService {
         }
     }
 
+
     @Override
     @Transactional
     public Plantation updatePlantation(
             Plantation plantation
     ) {
 
-        findById(plantation.getId());
+        findById(
+                plantation.getId()
+        );
 
         plantation.setUpdatedAt(
                 LocalDateTime.now()
@@ -485,6 +397,7 @@ public class PlantationServiceImpl implements PlantationService {
         );
     }
 
+
     @Override
     @Transactional
     public void deletePlantation(
@@ -492,17 +405,15 @@ public class PlantationServiceImpl implements PlantationService {
     ) {
 
         Plantation existing =
-                findById(plantation.getId());
+                findById(
+                        plantation.getId()
+                );
 
         try {
 
-            /*
-             * On garde ta méthode existante.
-             *
-             * Si tu veux une suppression logique partout,
-             * utilise deleteById() dans le controller.
-             */
-            plantationRepository.delete(existing);
+            plantationRepository.delete(
+                    existing
+            );
 
         } catch (DataIntegrityViolationException e) {
 
@@ -513,9 +424,6 @@ public class PlantationServiceImpl implements PlantationService {
         }
     }
 
-    // ============================================================
-    // SYNC MAP
-    // ============================================================
 
     @Override
     public Plantation mapToEntity(
@@ -525,13 +433,18 @@ public class PlantationServiceImpl implements PlantationService {
         Plantation plantation =
                 new Plantation();
 
-        plantation.setUuid(
-                UUID.fromString(
-                        (String) plantationMapping.get(
-                                "uuid_plantation"
-                        )
-                )
-        );
+        Object uuidValue =
+                plantationMapping.get(
+                        "uuid_plantation"
+                );
+
+        if (uuidValue != null) {
+            plantation.setUuid(
+                    UUID.fromString(
+                            uuidValue.toString()
+                    )
+            );
+        }
 
         plantation.setPlant_number(
                 (String) plantationMapping.get(
@@ -539,31 +452,48 @@ public class PlantationServiceImpl implements PlantationService {
                 )
         );
 
-        plantation.setDate_plantation(
-                LocalDate.parse(
-                        (String) plantationMapping.get(
-                                "date_plantation"
-                        )
-                )
-        );
+        Object dateValue =
+                plantationMapping.get(
+                        "date_plantation"
+                );
 
-        plantation.setDiameter(
-                ((Number) plantationMapping.get(
-                        "diameter"
-                )).doubleValue()
-        );
+        if (dateValue != null) {
 
-        plantation.setHeight(
-                ((Number) plantationMapping.get(
-                        "height"
-                )).doubleValue()
-        );
+            plantation.setDate_plantation(
+                    java.time.LocalDate.parse(
+                            dateValue.toString()
+                    )
+            );
+        }
 
-        plantation.setCarbon_sequestered(
-                ((Number) plantationMapping.get(
+        Object diameterValue =
+                plantationMapping.get("diameter");
+
+        if (diameterValue instanceof Number number) {
+            plantation.setDiameter(
+                    number.doubleValue()
+            );
+        }
+
+        Object heightValue =
+                plantationMapping.get("height");
+
+        if (heightValue instanceof Number number) {
+            plantation.setHeight(
+                    number.doubleValue()
+            );
+        }
+
+        Object carbonValue =
+                plantationMapping.get(
                         "carbon_sequestered"
-                )).doubleValue()
-        );
+                );
+
+        if (carbonValue instanceof Number number) {
+            plantation.setCarbon_sequestered(
+                    number.doubleValue()
+            );
+        }
 
         plantation.setImage(
                 (String) plantationMapping.get(
@@ -571,89 +501,94 @@ public class PlantationServiceImpl implements PlantationService {
                 )
         );
 
-        plantation.setStatus(
-                (Boolean) plantationMapping.get(
-                        "status"
-                )
-        );
+        Object statusValue =
+                plantationMapping.get("status");
+
+        if (statusValue instanceof Boolean booleanValue) {
+            plantation.setStatus(
+                    booleanValue
+            );
+        }
 
         return plantation;
     }
 
     // ============================================================
-    // CARBON CALCULATION
+    // CALCUL BIOMASSE
     // ============================================================
 
     public static double calculateDryAGB(
             double diameterCm,
             double heightM,
-            double woodDensityGcm3
+            double woodDensity
     ) {
 
         if (diameterCm <= 0 ||
                 heightM <= 0 ||
-                woodDensityGcm3 <= 0) {
+                woodDensity <= 0) {
 
             throw new IllegalArgumentException(
-                    "Les valeurs doivent être positives."
+                    "Le diamètre, la hauteur et la densité " +
+                            "doivent être positifs."
             );
         }
 
-        return 0.0673 *
+        return AGB_COEFFICIENT *
                 Math.pow(
-                        woodDensityGcm3 *
-                                diameterCm *
-                                diameterCm *
-                                heightM,
-                        0.976
+                        woodDensity
+                                * diameterCm
+                                * diameterCm
+                                * heightM,
+                        AGB_EXPONENT
                 );
     }
 
-    public static double convertWetToDryAGB(
-            double wetAGB,
-            double waterContentPercent
-    ) {
-
-        if (wetAGB <= 0 ||
-                waterContentPercent < 0 ||
-                waterContentPercent > 100) {
-
-            throw new IllegalArgumentException(
-                    "Valeurs invalides pour la biomasse humide " +
-                            "ou le contenu en eau."
-            );
-        }
-
-        return wetAGB *
-                (1 - waterContentPercent / 100);
-    }
 
     public static double calculateCarbon(
             double dryAGB
     ) {
 
+        if (dryAGB < 0) {
+            throw new IllegalArgumentException(
+                    "La biomasse ne peut pas être négative."
+            );
+        }
+
         return CARBON_RATIO * dryAGB;
     }
 
-    // ============================================================
-    // VIEWS
-    // ============================================================
+    private static double calculateCarbonForPlantation(
+            double diameter,
+            double height,
+            double density
+    ) {
+
+        double biomass =
+                calculateDryAGB(
+                        diameter,
+                        height,
+                        density
+                );
+
+        return calculateCarbon(biomass);
+    }
+
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PlantationViewDTO>
     getAllPlantations() {
 
-        List<Object[]> rows =
-                plantationRepository
-                        .findAllPlantationsView();
-
         return PlantationMapper
-                .toPlantationViewDTOList(rows);
+                .toPlantationViewDTOList(
+                        plantationRepository
+                                .findAllPlantationsView()
+                );
     }
 
+
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PlantationViewDTO>
     getPlantationsByCriteria(
             Integer idPlantationBlock,
@@ -662,61 +597,57 @@ public class PlantationServiceImpl implements PlantationService {
             Date datePlantation
     ) {
 
-        List<Object[]> rows =
-                plantationRepository
-                        .searchPlantationsByCriteria(
-                                idPlantationBlock,
-                                idSubPlot,
-                                idSpecies,
-                                datePlantation
-                        );
-
         return PlantationMapper
-                .toPlantationViewDTOList(rows);
+                .toPlantationViewDTOList(
+                        plantationRepository
+                                .searchPlantationsByCriteria(
+                                        idPlantationBlock,
+                                        idSubPlot,
+                                        idSpecies,
+                                        datePlantation
+                                )
+                );
     }
 
+
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PlantationViewDTO>
     getPlantationsByIdPlantationBlock(
             int blockId
     ) {
 
-        List<Object[]> rows =
-                plantationRepository
-                        .findPlantationsByBlockId(
-                                blockId
-                        );
-
         return PlantationMapper
-                .toPlantationViewDTOList(rows);
+                .toPlantationViewDTOList(
+                        plantationRepository
+                                .findPlantationsByBlockId(
+                                        blockId
+                                )
+                );
     }
 
+
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PlantationViewDTO>
     getPlantationsByBlockAndSubPlot(
             int blockId,
             int subPlotId
     ) {
 
-        List<Object[]> rows =
-                plantationRepository
-                        .findPlantationsByBlockAndSubPlot(
-                                blockId,
-                                subPlotId
-                        );
-
         return PlantationMapper
-                .toPlantationViewDTOList(rows);
+                .toPlantationViewDTOList(
+                        plantationRepository
+                                .findPlantationsByBlockAndSubPlot(
+                                        blockId,
+                                        subPlotId
+                                )
+                );
     }
 
-    // ============================================================
-    // TOTAL PER BLOCK
-    // ============================================================
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Map<String, Integer>>
     getTotalPlantationByBlock() {
 
@@ -731,7 +662,6 @@ public class PlantationServiceImpl implements PlantationService {
 
             if (plantation == null ||
                     plantation.idPlantationBlock == null) {
-
                 continue;
             }
 
@@ -747,19 +677,19 @@ public class PlantationServiceImpl implements PlantationService {
 
         try {
 
-            List<PlantationBlock> allBlocks =
+            List<PlantationBlock> blocks =
                     plantationBlockService.findAll();
 
-            for (PlantationBlock block :
-                    allBlocks) {
+            for (PlantationBlock block : blocks) {
 
-                if (block != null) {
-
-                    blockIdToName.put(
-                            block.getId(),
-                            block.getName()
-                    );
+                if (block == null) {
+                    continue;
                 }
+
+                blockIdToName.put(
+                        block.getId(),
+                        block.getName()
+                );
             }
 
         } catch (Exception ignored) {
@@ -771,9 +701,11 @@ public class PlantationServiceImpl implements PlantationService {
         for (Map.Entry<Integer, Integer> entry :
                 countsByBlockId.entrySet()) {
 
-            Integer blockId = entry.getKey();
+            Integer blockId =
+                    entry.getKey();
 
-            Integer count = entry.getValue();
+            Integer count =
+                    entry.getValue();
 
             String blockName =
                     blockIdToName.get(blockId);
@@ -791,7 +723,7 @@ public class PlantationServiceImpl implements PlantationService {
                                     ? block.getName()
                                     : "#" + blockId;
 
-                } catch (Exception e) {
+                } catch (Exception ignored) {
 
                     blockName =
                             "#" + blockId;
@@ -812,31 +744,22 @@ public class PlantationServiceImpl implements PlantationService {
         return result;
     }
 
-    // ============================================================
-    // STATUS BY YEAR
-    // ============================================================
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PlantationStatusByYearDTO>
     plantationStatusByYear() {
 
-        List<Object[]> rows =
-                plantationRepository
-                        .plantationStatusByYear();
-
         return PlantationMapper
                 .toPlantationStatusByYearDTOList(
-                        rows
+                        plantationRepository
+                                .plantationStatusByYear()
                 );
     }
 
-    // ============================================================
-    // CARBON BY SPECIES
-    // ============================================================
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<SpeciesCarbonDTO>
     getCarbonSequesteredBySpeciesNative() {
 
@@ -844,14 +767,20 @@ public class PlantationServiceImpl implements PlantationService {
                 plantationRepository
                         .sumCarbonBySpeciesNative();
 
+        if (rows == null || rows.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         return rows.stream()
+                .filter(Objects::nonNull)
                 .map(row -> {
 
                     Integer speciesId =
-                            row[0] == null
-                                    ? null
-                                    : ((Number) row[0])
-                                    .intValue();
+                            row.length > 0 &&
+                                    row[0] != null
+                                    ? ((Number) row[0])
+                                    .intValue()
+                                    : null;
 
                     String speciesName =
                             row.length > 1 &&
@@ -864,7 +793,12 @@ public class PlantationServiceImpl implements PlantationService {
                                     row[2] != null
                                     ? ((Number) row[2])
                                     .doubleValue()
-                                    : 0d;
+                                    : 0.0;
+
+                    total =
+                            Math.round(
+                                    total * 100.0
+                            ) / 100.0;
 
                     return new SpeciesCarbonDTO(
                             speciesId,
@@ -875,9 +809,6 @@ public class PlantationServiceImpl implements PlantationService {
                 .collect(Collectors.toList());
     }
 
-    // ============================================================
-    // SURVIVAL RATE BY YEAR
-    // ============================================================
 
     @Override
     public List<SurvivalRateDTO>
@@ -895,8 +826,7 @@ public class PlantationServiceImpl implements PlantationService {
             return Collections.emptyList();
         }
 
-        final Map<Integer, Integer>
-                autoCountByYear;
+        Map<Integer, Integer> autoCountByYear;
 
         if (plantingMonitorings == null ||
                 plantingMonitorings.isEmpty()) {
@@ -909,22 +839,39 @@ public class PlantationServiceImpl implements PlantationService {
             autoCountByYear =
                     plantingMonitorings.stream()
                             .filter(Objects::nonNull)
-                            .filter(pm ->
-                                    pm.getAuto_generation() > 0
+                            .filter(
+                                    monitoring ->
+                                            Boolean.TRUE.equals(
+                                                    monitoring
+                                                            .getAuto_generation()
+                                            )
                             )
-                            .filter(pm ->
-                                    pm.getPlantation() != null &&
-                                            pm.getPlantation()
-                                                    .getDate_plantation() != null
+                            .filter(
+                                    monitoring ->
+                                            monitoring
+                                                    .getPlantation()
+                                                    != null
+                                                    &&
+                                                    monitoring
+                                                            .getPlantation()
+                                                            .getDate_plantation()
+                                                            != null
                             )
                             .collect(
                                     Collectors.groupingBy(
-                                            pm ->
-                                                    pm.getPlantation()
+                                            monitoring ->
+                                                    monitoring
+                                                            .getPlantation()
                                                             .getDate_plantation()
                                                             .getYear(),
                                             Collectors.summingInt(
-                                                    PlantingMonitoring::getAuto_generation
+                                                    monitoring ->
+                                                            Boolean.TRUE.equals(
+                                                                    monitoring
+                                                                            .getAuto_generation()
+                                                            )
+                                                                    ? 1
+                                                                    : 0
                                             )
                                     )
                             );
@@ -978,16 +925,19 @@ public class PlantationServiceImpl implements PlantationService {
                     }
 
                     alivePct =
-                            Math.round(alivePct * 100.0)
-                                    / 100.0;
+                            Math.round(
+                                    alivePct * 100.0
+                            ) / 100.0;
 
                     deadPct =
-                            Math.round(deadPct * 100.0)
-                                    / 100.0;
+                            Math.round(
+                                    deadPct * 100.0
+                            ) / 100.0;
 
                     autoPct =
-                            Math.round(autoPct * 100.0)
-                                    / 100.0;
+                            Math.round(
+                                    autoPct * 100.0
+                            ) / 100.0;
 
                     return new SurvivalRateDTO(
                             year,
@@ -1021,8 +971,9 @@ public class PlantationServiceImpl implements PlantationService {
         );
     }
 
+
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<SurvivalRateDTO>
     survivalRateByYear() {
 
@@ -1035,13 +986,11 @@ public class PlantationServiceImpl implements PlantationService {
         );
     }
 
-    // ============================================================
-    // GLOBAL SURVIVAL
-    // ============================================================
 
     @Override
-    @Transactional
-    public SurvivalRateDTO survivalRateGlobal() {
+    @Transactional(readOnly = true)
+    public SurvivalRateDTO
+    survivalRateGlobal() {
 
         List<PlantationStatusByYearDTO>
                 statusByYear =
@@ -1077,6 +1026,7 @@ public class PlantationServiceImpl implements PlantationService {
             }
         }
 
+
         int totalAutoGeneration = 0;
 
         try {
@@ -1091,43 +1041,54 @@ public class PlantationServiceImpl implements PlantationService {
                         monitorings.stream()
                                 .filter(Objects::nonNull)
                                 .mapToInt(
-                                        PlantingMonitoring
-                                                ::getAuto_generation
+                                        monitoring ->
+                                                Boolean.TRUE.equals(
+                                                        monitoring
+                                                                .getAuto_generation()
+                                                )
+                                                        ? 1
+                                                        : 0
                                 )
                                 .sum();
             }
 
         } catch (Exception ignored) {
-            totalAutoGeneration = 0;
         }
 
-        double alivePct = 0;
-        double deadPct = 0;
-        double autoPct = 0;
+        // ----------------------------------------------------
+        // POURCENTAGES
+        // ----------------------------------------------------
+
+        double alivePct = 0.0;
+        double deadPct = 0.0;
+        double autoPct = 0.0;
 
         if (totalAll > 0) {
 
             alivePct =
                     ((double) totalAlive / totalAll)
-                            * 100;
+                            * 100.0;
 
             deadPct =
                     ((double) totalDead / totalAll)
-                            * 100;
+                            * 100.0;
 
             autoPct =
                     ((double) totalAutoGeneration / totalAll)
-                            * 100;
+                            * 100.0;
         }
 
         alivePct =
-                Math.round(alivePct * 100) / 100.0;
+                Math.round(alivePct * 100.0)
+                        / 100.0;
 
         deadPct =
-                Math.round(deadPct * 100) / 100.0;
+                Math.round(deadPct * 100.0)
+                        / 100.0;
 
         autoPct =
-                Math.round(autoPct * 100) / 100.0;
+                Math.round(autoPct * 100.0)
+                        / 100.0;
 
         return new SurvivalRateDTO(
                 null,
@@ -1137,12 +1098,9 @@ public class PlantationServiceImpl implements PlantationService {
         );
     }
 
-    // ============================================================
-    // SURVIVAL BY BLOCK / SUBPLOT / SPECIES
-    // ============================================================
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PlantationBlockSurvivalRateDTO>
     getSurvivalRateBySpeciesBySubPlotAndBlock() {
 
@@ -1165,7 +1123,6 @@ public class PlantationServiceImpl implements PlantationService {
             if (plantation == null ||
                     plantation.getSpecies() == null ||
                     plantation.getSubPlot() == null) {
-
                 continue;
             }
 
@@ -1182,7 +1139,6 @@ public class PlantationServiceImpl implements PlantationService {
             if (block.getId() <= 0 ||
                     subPlot.getId() <= 0 ||
                     plantation.getSpecies().getId() <= 0) {
-
                 continue;
             }
 

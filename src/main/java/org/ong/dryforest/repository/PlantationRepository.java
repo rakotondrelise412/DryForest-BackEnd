@@ -16,7 +16,7 @@ public interface PlantationRepository
         extends JpaRepository<Plantation, Integer> {
 
     // ============================================================
-    // EXISTANT
+    // PLANT NUMBER
     // ============================================================
 
     @Query("""
@@ -27,6 +27,10 @@ public interface PlantationRepository
     """)
     String getLastPlantNumber();
 
+    // ============================================================
+    // STATUS PAR ANNEE
+    // ============================================================
+
     @Query(
             value = """
             SELECT
@@ -36,18 +40,26 @@ public interface PlantationRepository
                 total_count
             FROM v_plantations_status_by_year
             ORDER BY year
-        """,
+            """,
             nativeQuery = true
     )
     List<Object[]> plantationStatusByYear();
 
-    Optional<Plantation> findByUuidAndIsDeletedFalse(UUID uuid);
+    // ============================================================
+    // RECHERCHE
+    // ============================================================
 
-    boolean existsByUuidAndIsDeletedFalse(UUID uuid);
+    Optional<Plantation>
+    findByUuidAndIsDeletedFalse(UUID uuid);
 
-    List<Plantation> findAllByIsDeletedFalse();
+    boolean
+    existsByUuidAndIsDeletedFalse(UUID uuid);
 
-    Optional<Plantation> findByIdAndIsDeletedFalse(int id);
+    List<Plantation>
+    findAllByIsDeletedFalse();
+
+    Optional<Plantation>
+    findByIdAndIsDeletedFalse(int id);
 
     // ============================================================
     // VUE PLANTATION
@@ -77,10 +89,14 @@ public interface PlantationRepository
                 plantation_block_name,
                 id_plantation_block
             FROM v_plantations_by_block_subplot
-        """,
+            """,
             nativeQuery = true
     )
     List<Object[]> findAllPlantationsView();
+
+    // ============================================================
+    // RECHERCHE PAR CRITERES
+    // ============================================================
 
     @Query(
             value = """
@@ -106,19 +122,34 @@ public interface PlantationRepository
                 plantation_block_name,
                 id_plantation_block
             FROM v_plantations_by_block_subplot
-            WHERE id_plantation_block = COALESCE(:idPlantationBlock, id_plantation_block)
-              AND id_sub_plot = COALESCE(:idSubPlot, id_sub_plot)
-              AND id_species = COALESCE(:idSpecies, id_species)
-              AND date_plantation = COALESCE(:datePlantation, date_plantation)
-        """,
+            WHERE id_plantation_block =
+                    COALESCE(:idPlantationBlock, id_plantation_block)
+              AND id_sub_plot =
+                    COALESCE(:idSubPlot, id_sub_plot)
+              AND id_species =
+                    COALESCE(:idSpecies, id_species)
+              AND date_plantation =
+                    COALESCE(:datePlantation, date_plantation)
+            """,
             nativeQuery = true
     )
     List<Object[]> searchPlantationsByCriteria(
-            @Param("idPlantationBlock") Integer idPlantationBlock,
-            @Param("idSubPlot") Integer idSubPlot,
-            @Param("idSpecies") Integer idSpecies,
-            @Param("datePlantation") Date datePlantation
+            @Param("idPlantationBlock")
+            Integer idPlantationBlock,
+
+            @Param("idSubPlot")
+            Integer idSubPlot,
+
+            @Param("idSpecies")
+            Integer idSpecies,
+
+            @Param("datePlantation")
+            Date datePlantation
     );
+
+    // ============================================================
+    // PAR BLOCK
+    // ============================================================
 
     @Query(
             value = """
@@ -145,12 +176,17 @@ public interface PlantationRepository
                 id_plantation_block
             FROM v_plantations_by_block_subplot
             WHERE id_plantation_block = :blockId
-        """,
+            """,
             nativeQuery = true
     )
     List<Object[]> findPlantationsByBlockId(
-            @Param("blockId") int blockId
+            @Param("blockId")
+            int blockId
     );
+
+    // ============================================================
+    // PAR BLOCK + SOUS-PLOT
+    // ============================================================
 
     @Query(
             value = """
@@ -178,16 +214,19 @@ public interface PlantationRepository
             FROM v_plantations_by_block_subplot
             WHERE id_plantation_block = :blockId
               AND id_sub_plot = :subPlotId
-        """,
+            """,
             nativeQuery = true
     )
     List<Object[]> findPlantationsByBlockAndSubPlot(
-            @Param("blockId") int blockId,
-            @Param("subPlotId") int subPlotId
+            @Param("blockId")
+            int blockId,
+
+            @Param("subPlotId")
+            int subPlotId
     );
 
     // ============================================================
-    // CARBONE
+    // CARBONE PAR ESPECE
     // ============================================================
 
     @Query(
@@ -200,9 +239,11 @@ public interface PlantationRepository
             LEFT JOIN species s
                 ON p.id_species = s.id_species
             WHERE COALESCE(p.is_deleted, false) = false
-            GROUP BY p.id_species, s.mg_name
+            GROUP BY
+                p.id_species,
+                s.mg_name
             ORDER BY total_carbon DESC
-        """,
+            """,
             nativeQuery = true
     )
     List<Object[]> sumCarbonBySpeciesNative();

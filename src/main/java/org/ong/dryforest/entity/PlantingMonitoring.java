@@ -3,6 +3,7 @@ package org.ong.dryforest.entity;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -42,7 +43,6 @@ public class PlantingMonitoring extends SyncEntity{
     @Column(name = "height")
     public double height;
 
-    // doit etre supprimer / unitil
     @Column(name = "density")
     public double density;
 
@@ -53,11 +53,12 @@ public class PlantingMonitoring extends SyncEntity{
     public String image;
 
     @Column(name = "auto_generation")
-    public int auto_generation;
+    private Boolean auto_generation;
 
     @Column(name = "is_synced")
     private boolean is_synced;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_plantation", referencedColumnName = "id_plantation")
     private Plantation plantation;
