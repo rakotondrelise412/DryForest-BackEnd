@@ -1,16 +1,20 @@
 package org.ong.dryforest.service.animalTracking;
 
+import org.ong.dryforest.entity.Animal;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.ong.dryforest.entity.Animal;
 
 public interface AnimalService {
-    public List<Animal> findAll();
+
+    List<Animal> findAll();
 
     Animal findById(int id_animal);
 
-    List<Animal> findAllAnimalUpdatedSince(LocalDateTime last_sync);
+    List<Animal> findAllAnimalUpdatedSince(
+            LocalDateTime last_sync
+    );
 
     Animal create(Animal animal);
 

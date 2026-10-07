@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnimalDTO {
+public class AnimalRequestDTO {
 
-    private int id_animal;
     private String name;
     private int id_category_animal;
 }

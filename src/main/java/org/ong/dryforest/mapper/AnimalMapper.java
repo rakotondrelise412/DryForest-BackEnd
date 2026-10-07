@@ -1,29 +1,79 @@
 package org.ong.dryforest.mapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.ong.dryforest.dto.animaltracking.AnimalDTO;
+import org.ong.dryforest.dto.animaltracking.AnimalSyncDTO;
 import org.ong.dryforest.entity.Animal;
 
-public class AnimalMapper {
-    
-    public static AnimalDTO toAnimalDTO(Animal animal){
-        AnimalDTO animalDTO = new AnimalDTO();
+import java.util.List;
 
-        animalDTO.setId_animal(animal.getId());
-        animalDTO.setName(animal.getName());
-        animalDTO.setId_category_animal(animal.getCategory_animal().getId());
-        
-        return animalDTO;
+public class AnimalMapper {
+
+    private AnimalMapper() {
     }
 
-    public static List<AnimalDTO> toDTOList(List<Animal> animals){
-        List<AnimalDTO> animalDTO = new ArrayList<>();
+    // =========================
+    // Animal -> AnimalDTO
+    // =========================
+    public static AnimalDTO toAnimalDTO(Animal animal) {
 
-        animalDTO = animals.stream().map(AnimalMapper::toAnimalDTO).collect(Collectors.toList());
+        AnimalDTO dto = new AnimalDTO();
 
-        return animalDTO;
+        dto.setId_animal(animal.getId());
+        dto.setName(animal.getName());
+
+        if (animal.getCategory_animal() != null) {
+            dto.setId_category_animal(
+                    animal.getCategory_animal().getId()
+            );
+        }
+
+        return dto;
+    }
+
+    // =========================
+    // List<Animal> -> List<AnimalDTO>
+    // =========================
+    public static List<AnimalDTO> toDTOList(
+            List<Animal> animals
+    ) {
+
+        return animals.stream()
+                .map(AnimalMapper::toAnimalDTO)
+                .toList();
+    }
+
+    // =========================
+    // Animal -> AnimalSyncDTO
+    // =========================
+    public static AnimalSyncDTO toAnimalSyncDTO(
+            Animal animal
+    ) {
+
+        AnimalSyncDTO dto = new AnimalSyncDTO();
+
+        dto.setId_animal(animal.getId());
+        dto.setName(animal.getName());
+
+        if (animal.getCategory_animal() != null) {
+            dto.setId_category_animal(
+                    animal.getCategory_animal().getId()
+            );
+        }
+
+        dto.setDeleted(animal.isDeleted());
+
+        return dto;
+    }
+
+    // =========================
+    // List<Animal> -> List<AnimalSyncDTO>
+    // =========================
+    public static List<AnimalSyncDTO> toAnimalSyncDTOList(
+            List<Animal> animals
+    ) {
+
+        return animals.stream()
+                .map(AnimalMapper::toAnimalSyncDTO)
+                .toList();
     }
 }
