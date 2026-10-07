@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class IncidentPatrolWebDTO {
     private int id_incident_patrol;
+    private String uuid;
     private LocalDateTime datetime_incident;
     private Map<String, Object> location;
     private String description;
@@ -22,4 +23,5 @@ public class IncidentPatrolWebDTO {
     private String zone;
     private String plantationBlock;
     private String severity;
+    private String type_incident_patrol;
 }
