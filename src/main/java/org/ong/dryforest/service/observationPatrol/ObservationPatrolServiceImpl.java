@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.ong.dryforest.dto.CountByTypeDTO;
 import org.ong.dryforest.dto.observationPatrol.ObservationPatrolDTO;
 import org.ong.dryforest.entity.ObservationPatrol;
@@ -52,9 +56,107 @@ public class ObservationPatrolServiceImpl implements ObservationPatrolService {
     }
 
     @Override
-    public ObservationPatrol updateObservationPatrol(ObservationPatrol observationPatrol){
+    public ObservationPatrol updateObservationPatrol(
+            ObservationPatrol observationPatrol) {
+
         findById(observationPatrol.getId());
-        return observationPatrolRepository.save(observationPatrol);
+
+        return observationPatrolRepository.save(
+                observationPatrol
+        );
+    }
+
+    @Override
+    public ObservationPatrol updateObservationPatrol(
+            int id,
+            ObservationPatrolDTO dto) {
+
+        ObservationPatrol existing = findById(id);
+
+        if (dto.getUuid() != null) {
+            existing.setUuid(dto.getUuid());
+        }
+
+        if (dto.getDate_observation() != null) {
+            existing.setDate_observation(
+                    dto.getDate_observation()
+            );
+        }
+
+        if (dto.getDescription() != null) {
+            existing.setDescription(
+                    dto.getDescription()
+            );
+        }
+
+        if (dto.getId_type_observation_patrol() > 0) {
+            existing.setTypeObservationPatrol(
+                    typeObservationPatrolService.findById(
+                            dto.getId_type_observation_patrol()
+                    )
+            );
+        }
+
+        if (dto.getId_patrol_group() > 0) {
+            existing.setPatrolGroup(
+                    patrolGroupService.findById(
+                            dto.getId_patrol_group()
+                    )
+            );
+        }
+
+        if (dto.getId_zone() > 0) {
+            existing.setZone(
+                    zoneService.findById(
+                            dto.getId_zone()
+                    )
+            );
+        }
+
+        if (dto.getId_user() > 0) {
+            existing.setUsers(
+                    userService.findUsersById(
+                            dto.getId_user()
+                    )
+            );
+        }
+        if (dto.getLocation() != null) {
+
+            Map<String, Object> location =
+                    dto.getLocation();
+
+            List<?> coordinates =
+                    (List<?>) location.get("coordinates");
+
+            if (coordinates != null && coordinates.size() >= 2) {
+
+                double longitude =
+                        ((Number) coordinates.get(0)).doubleValue();
+
+                double latitude =
+                        ((Number) coordinates.get(1)).doubleValue();
+
+                GeometryFactory geometryFactory =
+                        new GeometryFactory(
+                                new PrecisionModel(),
+                                4326
+                        );
+
+                Point point =
+                        geometryFactory.createPoint(
+                                new Coordinate(
+                                        longitude,
+                                        latitude
+                                )
+                        );
+
+                existing.setLocation(point);
+            }
+        }
+        existing.set_synced(dto.is_synced());
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        return observationPatrolRepository.save(existing);
     }
 
     @Override
@@ -89,33 +191,114 @@ public class ObservationPatrolServiceImpl implements ObservationPatrolService {
 
         return observationPatrol;
     }
-
     @Override
-    public ObservationPatrol create(ObservationPatrolDTO observationPatrolDTO){
+    public ObservationPatrol create(ObservationPatrolDTO observationPatrolDTO) {
         try {
             ObservationPatrol observationPatrol = new ObservationPatrol();
+
             if (observationPatrolDTO.getUuid() == null) {
                 observationPatrolDTO.setUuid(UUID.randomUUID());
             }
+
             observationPatrol.setUuid(observationPatrolDTO.getUuid());
 
             if (observationPatrolDTO.getCreated_at() == null) {
                 observationPatrolDTO.setCreated_at(LocalDateTime.now());
+            }
+
+            if (observationPatrolDTO.getUpdated_at() == null) {
                 observationPatrolDTO.setUpdated_at(LocalDateTime.now());
             }
-            observationPatrol.setCreatedAt(observationPatrolDTO.getCreated_at());
-            observationPatrol.setUpdatedAt(observationPatrolDTO.getUpdated_at());
-            observationPatrol.set_synced(observationPatrolDTO.isIs_synced());
 
-            observationPatrol.setDate_observation(observationPatrolDTO.getDate_observation());
-            observationPatrol.setPatrolGroup(patrolGroupService.findById(observationPatrolDTO.getId_patrol_group()));
-            observationPatrol.setTypeObservationPatrol(typeObservationPatrolService.findById(observationPatrolDTO.getId_type_observation_patrol()));
-            observationPatrol.setZone(zoneService.findById(observationPatrolDTO.getId_zone()));
-            observationPatrol.setUsers(userService.findUsersById(observationPatrolDTO.getId_user()));
+            observationPatrol.setCreatedAt(
+                    observationPatrolDTO.getCreated_at()
+            );
+
+            observationPatrol.setUpdatedAt(
+                    observationPatrolDTO.getUpdated_at()
+            );
+
+            observationPatrol.set_synced(
+                    observationPatrolDTO.is_synced()
+            );
+
+            observationPatrol.setDate_observation(
+                    observationPatrolDTO.getDate_observation()
+            );
+
+
+
+            // AJOUT
+            observationPatrol.setDescription(
+                    observationPatrolDTO.getDescription()
+            );
+
+            // Relations existantes
+            observationPatrol.setPatrolGroup(
+                    patrolGroupService.findById(
+                            observationPatrolDTO.getId_patrol_group()
+                    )
+            );
+
+            observationPatrol.setTypeObservationPatrol(
+                    typeObservationPatrolService.findById(
+                            observationPatrolDTO.getId_type_observation_patrol()
+                    )
+            );
+
+            observationPatrol.setZone(
+                    zoneService.findById(
+                            observationPatrolDTO.getId_zone()
+                    )
+            );
+
+            observationPatrol.setUsers(
+                    userService.findUsersById(
+                            observationPatrolDTO.getId_user()
+                    )
+            );
+
+            // LOCATION
+            if (observationPatrolDTO.getLocation() != null) {
+
+                Map<String, Object> location =
+                        observationPatrolDTO.getLocation();
+
+                List<?> coordinates =
+                        (List<?>) location.get("coordinates");
+
+                if (coordinates != null && coordinates.size() >= 2) {
+
+                    double longitude =
+                            ((Number) coordinates.get(0)).doubleValue();
+
+                    double latitude =
+                            ((Number) coordinates.get(1)).doubleValue();
+
+                    GeometryFactory geometryFactory =
+                            new GeometryFactory(
+                                    new PrecisionModel(),
+                                    4326
+                            );
+
+                    Point point =
+                            geometryFactory.createPoint(
+                                    new Coordinate(
+                                            longitude,
+                                            latitude
+                                    )
+                            );
+
+                    observationPatrol.setLocation(point);
+                }
+            }
 
             return observationPatrolRepository.save(observationPatrol);
+
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Observation patrol already exist");
+            throw new IllegalArgumentException(
+                    "Observation patrol already exist"
+            );
         }
     }
     

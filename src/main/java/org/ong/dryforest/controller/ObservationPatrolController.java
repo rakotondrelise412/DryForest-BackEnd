@@ -88,30 +88,40 @@ public class ObservationPatrolController {
 
 
     @PostMapping
-    public ResponseEntity<ObservationPatrol> create(
+    public ResponseEntity<ObservationPatrolDTO> create(
             @RequestBody ObservationPatrolDTO observationPatrolDTO) {
 
         ObservationPatrol observationPatrol =
                 observationPatrolService.create(observationPatrolDTO);
 
+        ObservationPatrolDTO response =
+                ObservationPatrolMapper.toObservationPatrolDTO(
+                        observationPatrol
+                );
+
         return ResponseEntity
                 .status(201)
-                .body(observationPatrol);
+                .body(response);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<ObservationPatrol> update(
+    public ResponseEntity<ObservationPatrolDTO> update(
             @PathVariable int id,
-            @RequestBody ObservationPatrol observationPatrol) {
-
-        observationPatrol.setId(id);
+            @RequestBody ObservationPatrolDTO observationPatrolDTO) {
 
         ObservationPatrol updated =
-                observationPatrolService
-                        .updateObservationPatrol(observationPatrol);
+                observationPatrolService.updateObservationPatrol(
+                        id,
+                        observationPatrolDTO
+                );
 
-        return ResponseEntity.ok(updated);
+        ObservationPatrolDTO response =
+                ObservationPatrolMapper.toObservationPatrolDTO(
+                        updated
+                );
+
+        return ResponseEntity.ok(response);
     }
 
 
