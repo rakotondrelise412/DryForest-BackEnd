@@ -1,6 +1,5 @@
 package org.ong.dryforest.mapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ public class CategoryAnimalMapper {
     }
 
     public static List<CategoryAnimalDTO> toDTOList(List<CategoryAnimal> categoryAnimals){
-        List<CategoryAnimalDTO> typeObservationPatrol = new ArrayList<>();
+        List<CategoryAnimalDTO> typeObservationPatrol;
 
         typeObservationPatrol = categoryAnimals.stream().map(CategoryAnimalMapper::toCategoryAnimalDTO).collect(Collectors.toList());
 

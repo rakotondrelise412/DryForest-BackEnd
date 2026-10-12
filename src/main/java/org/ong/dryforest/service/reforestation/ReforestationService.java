@@ -16,11 +16,10 @@ public interface ReforestationService {
 
     Reforestation findByUuid(UUID uuid);
 
-    Reforestation saveReforestation(
+    void saveReforestation(
             Reforestation reforestation);
 
-    Reforestation createReforestationWithDetails(
-            ReforestationDTO reforestationDTO);
+    Reforestation createReforestation(ReforestationDTO dto);
 
     void deleteReforestation(
             Reforestation reforestation);

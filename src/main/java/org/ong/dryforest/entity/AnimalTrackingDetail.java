@@ -1,7 +1,5 @@
 package org.ong.dryforest.entity;
 
-import java.util.UUID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,25 +8,29 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Table(name = "animal_tracking_detail")
-public class AnimalTrackingDetail extends SyncEntity{
+public class AnimalTrackingDetail extends SyncEntity {
+
     @Id
-    @Column(name = "id_animal_tracking_detail")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_animal_tracking_detail")
     private int id;
 
-    @Column(name = "uuid", columnDefinition= "uuid")
+    @Column(
+            name = "uuid",
+            columnDefinition = "uuid"
+    )
     private UUID uuid;
 
     @Column(name = "have_seen")
@@ -38,11 +40,16 @@ public class AnimalTrackingDetail extends SyncEntity{
     private boolean is_synced;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_animal", referencedColumnName = "id_animal")
+    @JoinColumn(
+            name = "id_animal",
+            referencedColumnName = "id_animal"
+    )
     private Animal animal;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_animal_tracking", referencedColumnName = "id_animal_tracking")
+    @JoinColumn(
+            name = "id_animal_tracking",
+            referencedColumnName = "id_animal_tracking"
+    )
     private AnimalTracking animalTracking;
-
 }

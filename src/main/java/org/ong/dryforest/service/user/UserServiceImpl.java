@@ -92,9 +92,8 @@ public class UserServiceImpl implements UserService {
                 counter =
                         Integer.parseInt(numberPart) + 1;
 
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
 
-                counter = 1;
             }
         }
 
@@ -180,7 +179,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Users updatePassword(
+    public void updatePassword(
             PasswordUpdateRequestDTO request) {
 
         Users user =
@@ -205,7 +204,7 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(new_password);
 
-        return usersRepository.save(user);
+        usersRepository.save(user);
     }
 
 

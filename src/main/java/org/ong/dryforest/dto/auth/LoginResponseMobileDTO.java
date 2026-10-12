@@ -2,9 +2,12 @@ package org.ong.dryforest.dto.auth;
 
 import java.time.LocalDateTime;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginResponseMobileDTO {
     private int id_user;
     private String username;

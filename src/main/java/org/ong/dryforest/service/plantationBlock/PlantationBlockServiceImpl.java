@@ -168,7 +168,7 @@ public class PlantationBlockServiceImpl
     }
 
     @Override
-    public PlantationBlock updatePlantationBlock(
+    public void updatePlantationBlock(
             PlantationBlock plantationBlock) {
 
         PlantationBlock existing =
@@ -182,7 +182,7 @@ public class PlantationBlockServiceImpl
             );
         }
 
-        return plantationBlockRepository.save(
+        plantationBlockRepository.save(
                 plantationBlock
         );
     }
@@ -260,26 +260,6 @@ public class PlantationBlockServiceImpl
         );
 
         return plantationBlockRepository.save(
-                existing
-        );
-    }
-
-    @Override
-    public void deletePlantationBlock(
-            PlantationBlock plantationBlock) {
-
-        PlantationBlock existing =
-                findById(
-                        plantationBlock.getId()
-                );
-
-        existing.setDeleted(true);
-
-        existing.setUpdatedAt(
-                LocalDateTime.now()
-        );
-
-        plantationBlockRepository.save(
                 existing
         );
     }

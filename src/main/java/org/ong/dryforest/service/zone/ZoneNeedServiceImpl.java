@@ -2,7 +2,6 @@ package org.ong.dryforest.service.zone;
 
 import org.ong.dryforest.entity.ZoneNeed;
 import org.ong.dryforest.repository.ZoneNeedRepository;
-import org.ong.dryforest.service.species.SpeciesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -17,9 +16,6 @@ public class ZoneNeedServiceImpl implements ZoneNeedService {
 
     @Autowired
     ZoneNeedRepository zoneNeedRepository;
-
-    @Autowired
-    SpeciesService speciesService;
 
     @Autowired
     ZoneService zoneService;

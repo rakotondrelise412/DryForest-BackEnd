@@ -1,9 +1,7 @@
 package org.ong.dryforest.dto.plantationBlock;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.ong.dryforest.dto.subPlot.SubPlotDTO;
 
 import java.time.LocalDateTime;
@@ -11,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlantationBlockDTO {

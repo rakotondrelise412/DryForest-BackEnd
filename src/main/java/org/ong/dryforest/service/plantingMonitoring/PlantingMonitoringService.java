@@ -10,9 +10,9 @@ import org.ong.dryforest.dto.species.SpeciesStatDTO;
 import org.ong.dryforest.entity.PlantingMonitoring;
 
 public interface PlantingMonitoringService {
-    public PlantingMonitoring create(PlantingMonitoringDTO plantingMonitoringDTO);
+    PlantingMonitoring create(PlantingMonitoringDTO plantingMonitoringDTO);
 
-    PlantingMonitoring createPlantingMonitoring(PlantingMonitoring plantingMonitoring);
+    void createPlantingMonitoring(PlantingMonitoring plantingMonitoring);
 
     PlantingMonitoring findById(int id);
 

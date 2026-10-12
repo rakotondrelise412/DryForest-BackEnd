@@ -51,6 +51,6 @@ public class Person extends SyncEntity {
     private Role role;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_site", referencedColumnName = "id_site", nullable = true)
+    @JoinColumn(name = "id_site", referencedColumnName = "id_site")
     private Site site;
 }

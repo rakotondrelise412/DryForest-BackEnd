@@ -19,10 +19,10 @@ public interface ObservationPatrolService {
             int id,
             ObservationPatrolDTO dto);
 
-    ObservationPatrol updateObservationPatrol(
+    void updateObservationPatrol(
             ObservationPatrol observationPatrol);
 
-    ObservationPatrol createObservationPatrol(
+    void createObservationPatrol(
             ObservationPatrol observationPatrol);
 
     ObservationPatrol findByUuid(UUID uuid);

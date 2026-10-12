@@ -2,7 +2,6 @@ package org.ong.dryforest.mapper;
 
 import org.ong.dryforest.entity.Site;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +31,7 @@ public class SiteMapper {
     }
 
     public static List<SiteMobileDTO> toDTOList(List<Site> sites) {
-        List<SiteMobileDTO> sitesDTO = new ArrayList<>();
+        List<SiteMobileDTO> sitesDTO;
 
         sitesDTO = sites.stream()
                    .map(SiteMapper::toMobileDTO)

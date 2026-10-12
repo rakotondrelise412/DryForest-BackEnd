@@ -5,304 +5,243 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.ong.dryforest.dto.reforestation.ReforestationDetailDTO;
+import org.ong.dryforest.entity.ReforestationDetail;
+import org.ong.dryforest.repository.ReforestationDetailRepository;
 import org.ong.dryforest.service.reforestation.ReforestationService;
+import org.ong.dryforest.service.species.SpeciesService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
-import org.ong.dryforest.entity.ReforestationDetail;
-import org.ong.dryforest.repository.ReforestationDetailRepository;
-import org.ong.dryforest.service.species.SpeciesService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ReforestationDetailServiceImpl
         implements ReforestationDetailService {
 
     @Autowired
-    ReforestationDetailRepository
+    private ReforestationDetailRepository
             reforestationDetailRepository;
 
     @Autowired
-    ReforestationService
-            reforestationService;
+    private ReforestationService reforestationService;
 
     @Autowired
-    SpeciesService speciesService;
-
+    private SpeciesService speciesService;
 
     @Override
-    public ReforestationDetail
-    createReforestationDetail(
-            ReforestationDetail detail) {
+    @Transactional
+    public ReforestationDetail createReforestationDetail(
+            ReforestationDetailDTO dto) {
 
-        try {
-
-            if (detail.getUuid() == null) {
-
-                detail.setUuid(
-                        UUID.randomUUID()
-                );
-            }
-
-
-            if (detail.getCreatedAt() == null) {
-
-                detail.setCreatedAt(
-                        LocalDateTime.now()
-                );
-            }
-
-
-            detail.setUpdatedAt(
-                    LocalDateTime.now()
-            );
-
-
-            detail.set_synced(true);
-
-
-            return reforestationDetailRepository
-                    .save(detail);
-
-        } catch (DataIntegrityViolationException e) {
-
+        if (dto.getId_reforestation() <= 0) {
             throw new IllegalArgumentException(
-                    "Reforestation detail already exist"
-            );
+                    "id_reforestation est obligatoire");
         }
-    }
 
-
-    @Override
-    public List<ReforestationDetail> findAll() {
-
-        return reforestationDetailRepository
-                .findAllByIsDeletedFalse();
-    }
-
-
-    @Override
-    public ReforestationDetail findById(
-            int id) {
-
-        return reforestationDetailRepository
-                .findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Le detail de la reforestation "
-                                        + "est introuvable par son id: "
-                                        + id
-                        )
-                );
-    }
-
-
-    @Override
-    public ReforestationDetail findByUuid(
-            UUID uuid) {
-
-        return reforestationDetailRepository
-                .findByUuidAndIsDeletedFalse(uuid)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Le detail de la reforestation "
-                                        + "est introuvable"
-                        )
-                );
-    }
-
-
-    @Override
-    public ReforestationDetail
-    updateReforestationDetail(
-            ReforestationDetail detail) {
-
-        try {
-
-            ReforestationDetail existing =
-                    findById(detail.getId());
-
-
-            existing.setUuid(
-                    detail.getUuid()
-            );
-
-
-            existing.setQuantity(
-                    detail.getQuantity()
-            );
-
-
-            existing.setSpecies(
-                    detail.getSpecies()
-            );
-
-
-            existing.setReforestation(
-                    detail.getReforestation()
-            );
-
-
-            existing.setUpdatedAt(
-                    LocalDateTime.now()
-            );
-
-
-            return reforestationDetailRepository
-                    .save(existing);
-
-        } catch (DataIntegrityViolationException e) {
-
-            throw new IllegalStateException(
-                    "Impossible de modifier ce detail "
-                            + "de la reforestation"
-            );
+        if (dto.getId_species() <= 0) {
+            throw new IllegalArgumentException(
+                    "id_species est obligatoire");
         }
-    }
-
-
-    @Override
-    public void deleteReforestationDetail(
-            ReforestationDetail detail) {
-
-        ReforestationDetail existing =
-                findById(detail.getId());
-
-
-        existing.setDeleted(true);
-
-        existing.setUpdatedAt(
-                LocalDateTime.now()
-        );
-
-
-        reforestationDetailRepository.save(
-                existing
-        );
-    }
-
-
-    @Override
-    public boolean existsByUuid(
-            UUID uuid) {
-
-        return reforestationDetailRepository
-                .existsByUuidAndIsDeletedFalse(uuid);
-    }
-
-
-    @Override
-    public ReforestationDetail mapToEntity(
-            Map<String, Object>
-                    reforestationDetailMapping) {
 
         ReforestationDetail detail =
                 new ReforestationDetail();
 
+        detail.setReforestation(
+                reforestationService.findById(
+                        dto.getId_reforestation()));
 
-        Object uuid =
-                reforestationDetailMapping.get(
-                        "uuid"
-                );
+        detail.setSpecies(
+                speciesService.findSpeciesEntityById(
+                        dto.getId_species()));
 
+        detail.setQuantity(dto.getQuantity());
+
+        detail.setUuid(
+                dto.getUuid() != null
+                        ? dto.getUuid()
+                        : UUID.randomUUID());
+
+        LocalDateTime now = LocalDateTime.now();
+
+        detail.setCreatedAt(now);
+        detail.setUpdatedAt(now);
+        detail.set_synced(true);
+
+        try {
+            return reforestationDetailRepository.save(detail);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException(
+                    "Impossible de créer le détail de reboisement.",
+                    e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReforestationDetail> findAll() {
+        return reforestationDetailRepository
+                .findAllByIsDeletedFalse();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ReforestationDetail findById(int id) {
+        return reforestationDetailRepository
+                .findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Détail de reboisement introuvable : "
+                                        + id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ReforestationDetail findByUuid(UUID uuid) {
+        return reforestationDetailRepository
+                .findByUuidAndIsDeletedFalse(uuid)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Détail de reboisement introuvable : "
+                                        + uuid));
+    }
+
+    @Override
+    @Transactional
+    public ReforestationDetail updateReforestationDetail(
+            int id,
+            ReforestationDetailDTO dto) {
+
+        ReforestationDetail existing = findById(id);
+
+        if (dto.getId_reforestation() <= 0) {
+            throw new IllegalArgumentException(
+                    "id_reforestation est obligatoire");
+        }
+
+        if (dto.getId_species() <= 0) {
+            throw new IllegalArgumentException(
+                    "id_species est obligatoire");
+        }
+
+        existing.setReforestation(
+                reforestationService.findById(
+                        dto.getId_reforestation()));
+
+        existing.setSpecies(
+                speciesService.findSpeciesEntityById(
+                        dto.getId_species()));
+
+        existing.setQuantity(dto.getQuantity());
+
+        if (dto.getUuid() != null) {
+            existing.setUuid(dto.getUuid());
+        }
+
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        return reforestationDetailRepository.save(existing);
+    }
+
+    @Override
+    @Transactional
+    public void deleteReforestationDetail(int id) {
+        ReforestationDetail existing = findById(id);
+
+        existing.setDeleted(true);
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        reforestationDetailRepository.save(existing);
+    }
+
+    @Override
+    public boolean existsByUuid(UUID uuid) {
+        return reforestationDetailRepository
+                .existsByUuidAndIsDeletedFalse(uuid);
+    }
+
+    @Override
+    public void createReforestationDetail(
+            ReforestationDetail detail) {
+
+        if (detail.getUuid() == null) {
+            detail.setUuid(UUID.randomUUID());
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (detail.getCreatedAt() == null) {
+            detail.setCreatedAt(now);
+        }
+
+        detail.setUpdatedAt(now);
+        detail.set_synced(true);
+
+        reforestationDetailRepository.save(detail);
+    }
+
+    @Override
+    public void updateReforestationDetail(
+            ReforestationDetail detail) {
+
+        ReforestationDetail existing =
+                reforestationDetailRepository
+                        .findByUuidAndIsDeletedFalse(detail.getUuid())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "ReforestationDetail introuvable pour UUID : "
+                                                + detail.getUuid()
+                                )
+                        );
+
+        existing.setQuantity(detail.getQuantity());
+        existing.setReforestation(detail.getReforestation());
+        existing.setSpecies(detail.getSpecies());
+        existing.setUpdatedAt(
+                detail.getUpdatedAt() != null
+                        ? detail.getUpdatedAt()
+                        : LocalDateTime.now()
+        );
+        existing.set_synced(true);
+
+        reforestationDetailRepository.save(existing);
+    }
+
+    @Override
+    public ReforestationDetail mapToEntity(
+            Map<String, Object> mapping) {
+
+        ReforestationDetail detail =
+                new ReforestationDetail();
+
+        Object uuid = mapping.get("uuid");
         if (uuid != null) {
-
-            detail.setUuid(
-                    UUID.fromString(
-                            uuid.toString()
-                    )
-            );
+            detail.setUuid(UUID.fromString(uuid.toString()));
         }
 
-
-        Object quantity =
-                reforestationDetailMapping.get(
-                        "quantity"
-                );
-
+        Object quantity = mapping.get("quantity");
         if (quantity != null) {
-
             detail.setQuantity(
-                    ((Number) quantity)
-                            .doubleValue()
-            );
+                    ((Number) quantity).doubleValue());
         }
-
-
-        Object createdAt =
-                reforestationDetailMapping.get(
-                        "created_at"
-                );
-
-        if (createdAt != null) {
-
-            detail.setCreatedAt(
-                    LocalDateTime.parse(
-                            createdAt.toString()
-                    )
-            );
-        }
-
-
-        Object updatedAt =
-                reforestationDetailMapping.get(
-                        "updated_at"
-                );
-
-        if (updatedAt != null) {
-
-            detail.setUpdatedAt(
-                    LocalDateTime.parse(
-                            updatedAt.toString()
-                    )
-            );
-        }
-
-
-        Object synced =
-                reforestationDetailMapping.get(
-                        "is_synced"
-                );
-
-        if (synced != null) {
-
-            detail.set_synced(
-                    (boolean) synced
-            );
-        }
-
 
         Object idReforestation =
-                reforestationDetailMapping.get(
-                        "id_reforestation"
-                );
+                mapping.get("id_reforestation");
 
         if (idReforestation != null) {
-
             detail.setReforestation(
                     reforestationService.findById(
-                            ((Number) idReforestation)
-                                    .intValue()
-                    )
-            );
+                            ((Number) idReforestation).intValue()));
         }
 
-
-        Object idSpecies =
-                reforestationDetailMapping.get(
-                        "id_species"
-                );
+        Object idSpecies = mapping.get("id_species");
 
         if (idSpecies != null) {
-
             detail.setSpecies(
                     speciesService.findSpeciesEntityById(
-                            ((Number) idSpecies)
-                                    .intValue()
-                    )
-            );
+                            ((Number) idSpecies).intValue()));
         }
-
 
         return detail;
     }

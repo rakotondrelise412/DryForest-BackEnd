@@ -2,10 +2,12 @@ package org.ong.dryforest.controller;
 
 import org.ong.dryforest.dto.auth.PasswordUpdateRequestDTO;
 import org.ong.dryforest.dto.user.UserUpdateDTO;
+import org.ong.dryforest.dto.user.UsersDTO;
 import org.ong.dryforest.entity.Users;
-
+import org.ong.dryforest.mapper.UsersMapper;
 import org.ong.dryforest.service.blacklistedToken.BlacklistedTokenService;
 import org.ong.dryforest.service.user.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,43 +24,48 @@ public class UserController {
     @Autowired
     private BlacklistedTokenService blacklistedTokenService;
 
-
     @GetMapping
-    public ResponseEntity<List<Users>> getAllUsers() {
+    public ResponseEntity<List<UsersDTO>> getAllUsers() {
 
-        return ResponseEntity.ok(
-                userService.findAllUsers()
-        );
+        List<UsersDTO> users = userService.findAllUsers()
+                .stream()
+                .map(UsersMapper::toDTO)
+                .toList();
+
+        return ResponseEntity.ok(users);
     }
-
 
     @GetMapping("/{id}")
-    public ResponseEntity<Users> getUserById(
+    public ResponseEntity<UsersDTO> getUserById(
             @PathVariable int id) {
 
+        Users user = userService.findUsersById(id);
+
         return ResponseEntity.ok(
-                userService.findUsersById(id)
+                UsersMapper.toDTO(user)
         );
     }
-
 
     @GetMapping("/username/{username}")
-    public ResponseEntity<Users> getUserByUsername(
+    public ResponseEntity<UsersDTO> getUserByUsername(
             @PathVariable String username) {
 
+        Users user = userService.findUsersByUsername(username);
+
         return ResponseEntity.ok(
-                userService.findUsersByUsername(username)
+                UsersMapper.toDTO(user)
         );
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<Users> updateUser(
+    public ResponseEntity<UsersDTO> updateUser(
             @PathVariable int id,
             @RequestBody UserUpdateDTO request) {
 
+        Users user = userService.updateUsers(id, request);
+
         return ResponseEntity.ok(
-                userService.updateUsers(id, request)
+                UsersMapper.toDTO(user)
         );
     }
 
@@ -79,8 +86,7 @@ public class UserController {
     public ResponseEntity<String> deleteUser(
             @PathVariable int id) {
 
-        Users user =
-                userService.findUsersById(id);
+        Users user = userService.findUsersById(id);
 
         userService.deleteUsers(user);
 
@@ -91,15 +97,16 @@ public class UserController {
 
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(
-            @RequestHeader("Authorization")
-            String authHeader) {
+    public ResponseEntity<String> logout(
+            @RequestHeader(
+                    value = "Authorization",
+                    required = false
+            ) String authHeader) {
 
         if (authHeader != null &&
                 authHeader.startsWith("Bearer ")) {
 
-            String token =
-                    authHeader.substring(7);
+            String token = authHeader.substring(7);
 
             blacklistedTokenService.addToken(token);
 

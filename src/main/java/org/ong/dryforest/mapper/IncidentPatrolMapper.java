@@ -193,9 +193,6 @@ public class IncidentPatrolMapper {
     }
 
 
-    // ============================================================
-    // UPDATE ENTITY
-    // ============================================================
 
     public static void updateEntity(
             IncidentPatrol entity,
@@ -288,9 +285,6 @@ public class IncidentPatrolMapper {
     }
 
 
-    // ============================================================
-    // GEOJSON -> POINT
-    // ============================================================
 
     private static Point toPoint(
             Map<String, Object> location

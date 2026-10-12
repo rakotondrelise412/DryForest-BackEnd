@@ -1,3 +1,4 @@
+
 package org.ong.dryforest.service.plantingMonitoring;
 
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.ong.dryforest.service.biomass.PlantBiomassService;
 import org.ong.dryforest.service.plantation.PlantationService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,37 +23,142 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PlantingMonitoringServiceImpl
         implements PlantingMonitoringService {
 
     private final PlantationService plantationService;
-
     private final PlantBiomassService plantBiomassService;
-
-    private final PlantingMonitoringRepository
-            plantingMonitoringRepository;
+    private final PlantingMonitoringRepository plantingMonitoringRepository;
 
     private double round2(double value) {
         return Math.round(value * 100.0) / 100.0;
     }
 
+    private void calculateBiomass(PlantingMonitoring monitoring) {
+
+        if (monitoring.getPlantation() == null) {
+            throw new IllegalArgumentException(
+                    "La plantation associée est obligatoire."
+            );
+        }
+
+        Plantation plantation = monitoring.getPlantation();
+
+        if (plantation.getSpecies() == null) {
+            throw new IllegalArgumentException(
+                    "L'espèce de la plantation est obligatoire."
+            );
+        }
+
+        double diameter = monitoring.getDiameter();
+        double height = monitoring.getHeight();
+        double density = plantation.getSpecies().getDensity();
+
+        if (diameter <= 0 || height <= 0 || density <= 0) {
+            throw new IllegalArgumentException(
+                    "Le diamètre, la hauteur et la densité doivent être positifs."
+            );
+        }
+
+        monitoring.setDensity(density);
+
+        double carbon =
+                plantBiomassService.calculateCarbonForPlantation(
+                        diameter,
+                        height,
+                        density
+                );
+
+        monitoring.setCarbon_sequestered(carbon);
+    }
+
+
     @Override
-    public PlantingMonitoring createPlantingMonitoring(
+    public void createPlantingMonitoring(
             PlantingMonitoring plantingMonitoring
     ) {
 
         try {
+            calculateBiomass(plantingMonitoring);
 
+            if (plantingMonitoring.getUuid() == null) {
+                plantingMonitoring.setUuid(UUID.randomUUID());
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+
+            if (plantingMonitoring.getCreatedAt() == null) {
+                plantingMonitoring.setCreatedAt(now);
+            }
+
+            plantingMonitoring.setUpdatedAt(now);
             plantingMonitoring.set_synced(true);
 
-            return plantingMonitoringRepository.save(
-                    plantingMonitoring
-            );
+            plantingMonitoringRepository.save(plantingMonitoring);
 
         } catch (DataIntegrityViolationException e) {
-
             throw new IllegalArgumentException(
-                    "Suivi plantation déjà existant",
+                    "Suivi plantation déjà existant.",
+                    e
+            );
+        }
+    }
+
+    @Override
+    public PlantingMonitoring create(PlantingMonitoringDTO dto) {
+
+        try {
+            if (dto.getId_plantation() <= 0) {
+                throw new IllegalArgumentException(
+                        "L'identifiant de la plantation est obligatoire."
+                );
+            }
+
+            Plantation plantation =
+                    plantationService.findById(dto.getId_plantation());
+
+            PlantingMonitoring monitoring = new PlantingMonitoring();
+
+            monitoring.setUuid(
+                    dto.getUuid() != null
+                            ? dto.getUuid()
+                            : UUID.randomUUID()
+            );
+
+            LocalDateTime now = LocalDateTime.now();
+
+            monitoring.setCreatedAt(
+                    dto.getCreated_at() != null
+                            ? dto.getCreated_at()
+                            : now
+            );
+
+            monitoring.setUpdatedAt(
+                    dto.getUpdated_at() != null
+                            ? dto.getUpdated_at()
+                            : now
+            );
+
+            monitoring.setDate_planting_monitoring(
+                    dto.getDate_planting_monitoring()
+            );
+
+            monitoring.setDiameter(dto.getDiameter());
+            monitoring.setHeight(dto.getHeight());
+            monitoring.setImage(dto.getImage());
+            monitoring.setAuto_generation(dto.isAuto_generation());
+            monitoring.setPlantation(plantation);
+
+            calculateBiomass(monitoring);
+
+            monitoring.set_synced(true);
+
+            return plantingMonitoringRepository.save(monitoring);
+
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException(
+                    "Suivi plantation déjà existant.",
                     e
             );
         }
@@ -63,42 +170,45 @@ public class PlantingMonitoringServiceImpl
             PlantingMonitoring plantingMonitoring
     ) {
 
-        findById(plantingMonitoring.getId());
-
-        /*
-         * Recalcul de la densité et du carbone
-         * à partir de la plantation et de son espèce.
-         */
-        Plantation plantation =
-                plantingMonitoring.getPlantation();
-
-        if (plantation != null &&
-                plantation.getSpecies() != null) {
-
-            double density =
-                    plantation.getSpecies().getDensity();
-
-            plantingMonitoring.setDensity(density);
-
-            double carbon =
-                    plantBiomassService.calculateCarbonForPlantation(
-                            plantingMonitoring.getDiameter(),
-                            plantingMonitoring.getHeight(),
-                            density
-                    );
-
-            plantingMonitoring.setCarbon_sequestered(carbon);
+        if (plantingMonitoring.getId() <= 0) {
+            throw new IllegalArgumentException(
+                    "L'identifiant du suivi est obligatoire."
+            );
         }
 
-        plantingMonitoring.set_synced(true);
+        PlantingMonitoring existing =
+                findById(plantingMonitoring.getId());
 
-        plantingMonitoring.setUpdatedAt(
-                LocalDateTime.now()
+        if (plantingMonitoring.getUuid() != null) {
+            existing.setUuid(plantingMonitoring.getUuid());
+        }
+
+        existing.setDate_planting_monitoring(
+                plantingMonitoring.getDate_planting_monitoring()
         );
 
-        return plantingMonitoringRepository.save(
-                plantingMonitoring
+        existing.setDiameter(plantingMonitoring.getDiameter());
+        existing.setHeight(plantingMonitoring.getHeight());
+        existing.setImage(plantingMonitoring.getImage());
+
+        existing.setAuto_generation(
+                plantingMonitoring.getAuto_generation()
         );
+
+        if (plantingMonitoring.getPlantation() != null) {
+            existing.setPlantation(
+                    plantationService.findById(
+                            plantingMonitoring.getPlantation().getId()
+                    )
+            );
+        }
+
+        calculateBiomass(existing);
+
+        existing.set_synced(true);
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        return plantingMonitoringRepository.save(existing);
     }
 
 
@@ -107,17 +217,15 @@ public class PlantingMonitoringServiceImpl
             PlantingMonitoring plantingMonitoring
     ) {
 
+        PlantingMonitoring existing =
+                findById(plantingMonitoring.getId());
+
         try {
-
-            PlantingMonitoring existing =
-                    findById(plantingMonitoring.getId());
-
             plantingMonitoringRepository.delete(existing);
 
         } catch (DataIntegrityViolationException e) {
-
             throw new IllegalStateException(
-                    "Impossible de supprimer ce suivi plantation",
+                    "Impossible de supprimer ce suivi plantation.",
                     e
             );
         }
@@ -126,7 +234,6 @@ public class PlantingMonitoringServiceImpl
 
     @Override
     public boolean existsByUuid(UUID uuid) {
-
         return plantingMonitoringRepository
                 .existsByUuidAndIsDeletedFalse(uuid);
     }
@@ -134,189 +241,102 @@ public class PlantingMonitoringServiceImpl
 
     @Override
     public PlantingMonitoring mapToEntity(
-            Map<String, Object> plantingMonitoringMapping
+            Map<String, Object> mapping
     ) {
 
-        PlantingMonitoring plantingMonitoring =
-                new PlantingMonitoring();
+        PlantingMonitoring monitoring = new PlantingMonitoring();
 
-        Object uuid =
-                plantingMonitoringMapping.get("uuid");
-
+        Object uuid = mapping.get("uuid");
         if (uuid != null) {
-
-            plantingMonitoring.setUuid(
-                    UUID.fromString(uuid.toString())
-            );
+            monitoring.setUuid(UUID.fromString(uuid.toString()));
         }
 
-        Object diameter =
-                plantingMonitoringMapping.get("diameter");
-
-        if (diameter != null) {
-
-            plantingMonitoring.setDiameter(
-                    ((Number) diameter).doubleValue()
-            );
+        Object diameter = mapping.get("diameter");
+        if (diameter instanceof Number) {
+            monitoring.setDiameter(((Number) diameter).doubleValue());
         }
 
-        Object height =
-                plantingMonitoringMapping.get("height");
-
-        if (height != null) {
-
-            plantingMonitoring.setHeight(
-                    ((Number) height).doubleValue()
-            );
+        Object height = mapping.get("height");
+        if (height instanceof Number) {
+            monitoring.setHeight(((Number) height).doubleValue());
         }
 
-        Object carbon =
-                plantingMonitoringMapping.get(
-                        "carbon_sequestered"
-                );
+        monitoring.setImage((String) mapping.get("image"));
 
-        if (carbon != null) {
-
-            plantingMonitoring.setCarbon_sequestered(
-                    ((Number) carbon).doubleValue()
-            );
-        }
-
-        Object density =
-                plantingMonitoringMapping.get("density");
-
-        if (density != null) {
-
-            plantingMonitoring.setDensity(
-                    ((Number) density).doubleValue()
-            );
-        }
-
-        plantingMonitoring.setImage(
-                (String) plantingMonitoringMapping.get(
-                        "image"
-                )
-        );
-
-        Object date =
-                plantingMonitoringMapping.get(
-                        "date_planting_monitoring"
-                );
-
+        Object date = mapping.get("date_planting_monitoring");
         if (date != null) {
-
-            plantingMonitoring.setDate_planting_monitoring(
+            monitoring.setDate_planting_monitoring(
                     LocalDate.parse(date.toString())
             );
         }
 
-        Object autoGeneration =
-                plantingMonitoringMapping.get(
-                        "auto_generation"
-                );
-
+        Object autoGeneration = mapping.get("auto_generation");
         if (autoGeneration instanceof Boolean) {
-
-            plantingMonitoring.setAuto_generation(
-                    (Boolean) autoGeneration
-            );
-
+            monitoring.setAuto_generation((Boolean) autoGeneration);
         } else if (autoGeneration instanceof Number) {
-
-            plantingMonitoring.setAuto_generation(
+            monitoring.setAuto_generation(
                     ((Number) autoGeneration).intValue() != 0
             );
-
         } else if (autoGeneration != null) {
-
-            plantingMonitoring.setAuto_generation(
-                    Boolean.parseBoolean(
-                            autoGeneration.toString()
-                    )
+            monitoring.setAuto_generation(
+                    Boolean.parseBoolean(autoGeneration.toString())
             );
         }
 
-        Object createdAt =
-                plantingMonitoringMapping.get("created_at");
-
+        Object createdAt = mapping.get("created_at");
         if (createdAt != null) {
-
-            plantingMonitoring.setCreatedAt(
-                    LocalDateTime.parse(
-                            createdAt.toString()
-                    )
+            monitoring.setCreatedAt(
+                    LocalDateTime.parse(createdAt.toString())
             );
         }
 
-        Object updatedAt =
-                plantingMonitoringMapping.get("updated_at");
-
+        Object updatedAt = mapping.get("updated_at");
         if (updatedAt != null) {
+            monitoring.setUpdatedAt(
+                    LocalDateTime.parse(updatedAt.toString())
+            );
+        }
 
-            plantingMonitoring.setUpdatedAt(
-                    LocalDateTime.parse(
-                            updatedAt.toString()
+        Object synced = mapping.get("is_synced");
+        if (synced instanceof Boolean) {
+            monitoring.set_synced((Boolean) synced);
+        }
+
+        Object idPlantation = mapping.get("id_plantation");
+
+        if (idPlantation instanceof Number) {
+            monitoring.setPlantation(
+                    plantationService.findById(
+                            ((Number) idPlantation).intValue()
                     )
             );
         }
 
-        Object synced =
-                plantingMonitoringMapping.get("is_synced");
-
-        if (synced != null) {
-
-            plantingMonitoring.set_synced(
-                    (Boolean) synced
-            );
-        }
-
-        Object idPlantationObject =
-                plantingMonitoringMapping.get(
-                        "id_plantation"
-                );
-
-        if (idPlantationObject != null) {
-
-            int idPlantation =
-                    ((Number) idPlantationObject).intValue();
-
-            Plantation plantation =
-                    plantationService.findById(
-                            idPlantation
-                    );
-
-            plantingMonitoring.setPlantation(
-                    plantation
-            );
-        }
-
-        return plantingMonitoring;
+        return monitoring;
     }
 
+
     @Override
+    @Transactional(readOnly = true)
     public List<PlantingMonitoring> findAll() {
-
-        return plantingMonitoringRepository
-                .findAllByIsDeletedFalse();
+        return plantingMonitoringRepository.findAllByIsDeletedFalse();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PlantingMonitoring findById(int id) {
-
         return plantingMonitoringRepository
                 .findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() ->
                         new RuntimeException(
-                                "Suivi plantation introuvable avec id : "
-                                        + id
+                                "Suivi plantation introuvable avec id : " + id
                         )
                 );
     }
 
-
     @Override
+    @Transactional(readOnly = true)
     public PlantingMonitoring findByUuid(UUID uuid) {
-
         return plantingMonitoringRepository
                 .findByUuidAndIsDeletedFalse(uuid)
                 .orElseThrow(() ->
@@ -329,164 +349,37 @@ public class PlantingMonitoringServiceImpl
 
 
     @Override
-    public PlantingMonitoring create(
-            PlantingMonitoringDTO dto
-    ) {
-
-        try {
-
-            PlantingMonitoring plantingMonitoring =
-                    new PlantingMonitoring();
-
-            UUID uuid = dto.getUuid();
-
-            if (uuid == null) {
-                uuid = UUID.randomUUID();
-            }
-
-            plantingMonitoring.setUuid(uuid);
-
-
-            LocalDateTime createdAt =
-                    dto.getCreatedAt() != null
-                            ? dto.getCreatedAt()
-                            : LocalDateTime.now();
-
-            LocalDateTime updatedAt =
-                    dto.getUpdatedAt() != null
-                            ? dto.getUpdatedAt()
-                            : LocalDateTime.now();
-
-            plantingMonitoring.setCreatedAt(createdAt);
-
-            plantingMonitoring.setUpdatedAt(updatedAt);
-
-            plantingMonitoring.set_synced(true);
-
-
-            plantingMonitoring.setDate_planting_monitoring(
-                    dto.getDate_planting_monitoring()
-            );
-
-            plantingMonitoring.setDiameter(
-                    dto.getDiameter()
-            );
-
-            plantingMonitoring.setHeight(
-                    dto.getHeight()
-            );
-
-            plantingMonitoring.setImage(
-                    dto.getImage()
-            );
-
-            plantingMonitoring.setAuto_generation(
-                    dto.isAuto_generation()
-            );
-
-
-            Plantation plantation =
-                    plantationService.findById(
-                            dto.getId_plantation()
-                    );
-
-            plantingMonitoring.setPlantation(
-                    plantation
-            );
-
-            double density =
-                    plantation.getSpecies().getDensity();
-
-            plantingMonitoring.setDensity(density);
-
-            double carbon =
-                    plantBiomassService.calculateCarbonForPlantation(
-                            dto.getDiameter(),
-                            dto.getHeight(),
-                            density
-                    );
-
-            plantingMonitoring.setCarbon_sequestered(
-                    carbon
-            );
-
-
-            return plantingMonitoringRepository.save(plantingMonitoring);
-
-        } catch (DataIntegrityViolationException e) {
-
-            throw new IllegalArgumentException(
-                    "Suivi plantation déjà existant",
-                    e
-            );
-        }
-    }
-
-
-    @Override
+    @Transactional(readOnly = true)
     public List<SpeciesStatDTO> statisticSpecies() {
 
-        List<Plantation> plantations =
-                plantationService.findAll();
+        List<PlantingMonitoring> monitorings = findAll();
+        List<SpeciesStatDTO> result = new ArrayList<>();
 
-        List<PlantingMonitoring> monitorings =
-                this.findAll();
-
-        List<SpeciesStatDTO> result =
-                new ArrayList<>();
-
-        if (plantations == null ||
-                monitorings == null ||
-                plantations.isEmpty() ||
-                monitorings.isEmpty()) {
-
+        if (monitorings.isEmpty()) {
             return result;
         }
 
+        for (PlantingMonitoring monitoring : monitorings) {
 
-        for (PlantingMonitoring monitoring :
-                monitorings) {
-
-            if (monitoring == null ||
-                    monitoring.getPlantation() == null) {
-
+            if (monitoring == null || monitoring.getPlantation() == null) {
                 continue;
             }
 
-            Plantation plantation =
-                    monitoring.getPlantation();
+            Plantation plantation = monitoring.getPlantation();
 
             if (plantation.getSpecies() == null) {
                 continue;
             }
 
+            SpeciesStatDTO dto = new SpeciesStatDTO();
 
-            SpeciesStatDTO dto =
-                    new SpeciesStatDTO();
-
-            dto.setId_species(
-                    plantation.getSpecies().getId()
-            );
-
+            dto.setId_species(plantation.getSpecies().getId());
             dto.setScientific_name(
-                    plantation.getSpecies()
-                            .getScientific_name()
+                    plantation.getSpecies().getScientific_name()
             );
-
-            dto.setMg_name(
-                    plantation.getSpecies()
-                            .getMg_name()
-            );
-
-            dto.setEn_name(
-                    plantation.getSpecies()
-                            .getEn_name()
-            );
-
-            dto.setFr_name(
-                    plantation.getSpecies()
-                            .getFr_name()
-            );
+            dto.setMg_name(plantation.getSpecies().getMg_name());
+            dto.setEn_name(plantation.getSpecies().getEn_name());
+            dto.setFr_name(plantation.getSpecies().getFr_name());
 
             dto.setDiameter(
                     round2(
@@ -510,22 +403,13 @@ public class PlantingMonitoringServiceImpl
             );
 
             if (plantation.getReforestation() != null) {
-
                 dto.setDate_reforestation(
                         plantation.getReforestation()
                                 .getDate_reforestation()
                 );
             }
 
-            System.out.println(
-                    "MONITORING ID = " + monitoring.getId()
-                            + " | PLANTATION ID = " + plantation.getId()
-                            + " | PLANTATION CLASS = " + plantation.getClass()
-            );
-
-            dto.setId_plantation(
-                    plantation.getId()
-            );
+            dto.setId_plantation(plantation.getId());
 
             result.add(dto);
         }
@@ -534,251 +418,110 @@ public class PlantingMonitoringServiceImpl
     }
 
 
-    // ============================================================
-    // MOYENNE PAR ESPECE + DATE DE REFORESTATION
-    // ============================================================
-
     @Override
+    @Transactional(readOnly = true)
     public List<SpeciesStatDTO>
     statisticSpeciesAverageBySpeciesAndReforestationDate() {
 
-        List<SpeciesStatDTO> stats =
-                statisticSpecies();
+        List<SpeciesStatDTO> stats = statisticSpecies();
 
-        if (stats == null || stats.isEmpty()) {
+        if (stats.isEmpty()) {
             return new ArrayList<>();
         }
 
-
         Map<String, List<SpeciesStatDTO>> grouped =
-                stats.stream()
-                        .collect(
-                                Collectors.groupingBy(
-                                        dto ->
-                                                dto.getId_species()
-                                                        + "_"
-                                                        + (
-                                                        dto.getDate_reforestation()
-                                                                != null
-                                                                ? dto.getDate_reforestation()
-                                                                : "null"
-                                                )
-                                )
-                        );
+                stats.stream().collect(
+                        Collectors.groupingBy(dto ->
+                                dto.getId_species() + "_" +
+                                        (dto.getDate_reforestation() != null
+                                                ? dto.getDate_reforestation()
+                                                : "null")
+                        )
+                );
 
-
-        List<SpeciesStatDTO> result =
-                new ArrayList<>();
-
-
-        for (List<SpeciesStatDTO> group :
-                grouped.values()) {
-
-            if (group.isEmpty()) {
-                continue;
-            }
-
-            SpeciesStatDTO first =
-                    group.get(0);
-
-
-            double avgDiameter =
-                    group.stream()
-                            .mapToDouble(
-                                    SpeciesStatDTO::getDiameter
-                            )
-                            .average()
-                            .orElse(0.0);
-
-            double avgHeight =
-                    group.stream()
-                            .mapToDouble(
-                                    SpeciesStatDTO::getHeight
-                            )
-                            .average()
-                            .orElse(0.0);
-
-            double avgCarbon =
-                    group.stream()
-                            .mapToDouble(
-                                    SpeciesStatDTO::getCarbon_sequestered
-                            )
-                            .average()
-                            .orElse(0.0);
-
-
-            SpeciesStatDTO dto =
-                    new SpeciesStatDTO();
-
-
-            dto.setId_species(
-                    first.getId_species()
-            );
-
-            dto.setScientific_name(
-                    first.getScientific_name()
-            );
-
-            dto.setMg_name(
-                    first.getMg_name()
-            );
-
-            dto.setEn_name(
-                    first.getEn_name()
-            );
-
-            dto.setFr_name(
-                    first.getFr_name()
-            );
-
-            dto.setDate_reforestation(
-                    first.getDate_reforestation()
-            );
-
-            dto.setId_plantation(
-                    first.getId_plantation()
-            );
-            dto.setDiameter(round2(avgDiameter));
-            dto.setHeight(round2(avgHeight));
-            dto.setCarbon_sequestered(round2(avgCarbon));
-            result.add(dto);
-        }
-
-        return result;
+        return calculateAverages(grouped);
     }
 
 
-    // ============================================================
-    // MOYENNE PAR PERIODE DE REFORESTATION
-    // ============================================================
-
     @Override
+    @Transactional(readOnly = true)
     public List<SpeciesStatDTO>
     statisticSpeciesAverageByReforestationDateRange(
             LocalDate startDate,
             LocalDate endDate
     ) {
 
-        List<SpeciesStatDTO> stats =
-                statisticSpecies();
-
-        if (stats == null ||
-                stats.isEmpty() ||
-                startDate == null ||
-                endDate == null) {
-
-            return new ArrayList<>();
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException(
+                    "Les dates de début et de fin sont obligatoires."
+            );
         }
 
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException(
+                    "La date de début doit précéder la date de fin."
+            );
+        }
+
+        List<SpeciesStatDTO> stats = statisticSpecies();
 
         Map<String, List<SpeciesStatDTO>> grouped =
                 stats.stream()
-
-                        .filter(
-                                dto ->
-                                        dto.getDate_reforestation()
-                                                != null
-                        )
-
+                        .filter(dto -> dto.getDate_reforestation() != null)
                         .filter(dto -> {
-
-                            LocalDate date =
-                                    dto.getDate_reforestation();
-
-                            return (
-                                    date.isEqual(startDate)
-                                            ||
-                                            date.isAfter(startDate)
-                            )
-                                    &&
-                                    (
-                                            date.isEqual(endDate)
-                                                    ||
-                                                    date.isBefore(endDate)
-                                    );
+                            LocalDate date = dto.getDate_reforestation();
+                            return !date.isBefore(startDate)
+                                    && !date.isAfter(endDate);
                         })
-
                         .collect(
-                                Collectors.groupingBy(
-                                        dto ->
-                                                dto.getId_species()
-                                                        + "_"
-                                                        + dto.getDate_reforestation()
+                                Collectors.groupingBy(dto ->
+                                        dto.getId_species() + "_" +
+                                                dto.getDate_reforestation()
                                 )
                         );
 
+        return calculateAverages(grouped);
+    }
 
-        List<SpeciesStatDTO> result =
-                new ArrayList<>();
 
+    private List<SpeciesStatDTO> calculateAverages(
+            Map<String, List<SpeciesStatDTO>> grouped
+    ) {
 
-        for (List<SpeciesStatDTO> group :
-                grouped.values()) {
+        List<SpeciesStatDTO> result = new ArrayList<>();
+
+        for (List<SpeciesStatDTO> group : grouped.values()) {
 
             if (group.isEmpty()) {
                 continue;
             }
 
-            SpeciesStatDTO first =
-                    group.get(0);
+            SpeciesStatDTO first = group.get(0);
 
+            double avgDiameter = group.stream()
+                    .mapToDouble(SpeciesStatDTO::getDiameter)
+                    .average()
+                    .orElse(0.0);
 
-            double avgDiameter =
-                    group.stream()
-                            .mapToDouble(
-                                    SpeciesStatDTO::getDiameter
-                            )
-                            .average()
-                            .orElse(0.0);
+            double avgHeight = group.stream()
+                    .mapToDouble(SpeciesStatDTO::getHeight)
+                    .average()
+                    .orElse(0.0);
 
-            double avgHeight =
-                    group.stream()
-                            .mapToDouble(
-                                    SpeciesStatDTO::getHeight
-                            )
-                            .average()
-                            .orElse(0.0);
+            double avgCarbon = group.stream()
+                    .mapToDouble(SpeciesStatDTO::getCarbon_sequestered)
+                    .average()
+                    .orElse(0.0);
 
-            double avgCarbon =
-                    group.stream()
-                            .mapToDouble(
-                                    SpeciesStatDTO::getCarbon_sequestered
-                            )
-                            .average()
-                            .orElse(0.0);
+            SpeciesStatDTO dto = new SpeciesStatDTO();
 
-
-            SpeciesStatDTO dto =
-                    new SpeciesStatDTO();
-
-
-            dto.setId_species(
-                    first.getId_species()
-            );
-
-            dto.setScientific_name(
-                    first.getScientific_name()
-            );
-
-            dto.setMg_name(
-                    first.getMg_name()
-            );
-
-            dto.setEn_name(
-                    first.getEn_name()
-            );
-
-            dto.setFr_name(
-                    first.getFr_name()
-            );
-
-            dto.setDate_reforestation(
-                    first.getDate_reforestation()
-            );
-
-            dto.setId_plantation(
-                    first.getId_plantation()
-            );
+            dto.setId_species(first.getId_species());
+            dto.setScientific_name(first.getScientific_name());
+            dto.setMg_name(first.getMg_name());
+            dto.setEn_name(first.getEn_name());
+            dto.setFr_name(first.getFr_name());
+            dto.setDate_reforestation(first.getDate_reforestation());
+            dto.setId_plantation(first.getId_plantation());
 
             dto.setDiameter(round2(avgDiameter));
             dto.setHeight(round2(avgHeight));

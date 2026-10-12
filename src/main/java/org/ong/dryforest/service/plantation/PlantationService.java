@@ -16,10 +16,6 @@ import java.util.UUID;
 
 public interface PlantationService {
 
-    // ============================================================
-    // CRUD
-    // ============================================================
-
     Plantation create(PlantationDTO plantationDTO);
 
     Plantation update(
@@ -35,31 +31,21 @@ public interface PlantationService {
 
     Plantation findByUuid(UUID uuid);
 
-    Plantation updatePlantation(
+    void updatePlantation(
             Plantation plantation
     );
 
-    void deletePlantation(
-            Plantation plantation
-    );
-
-    Plantation createPlantation(
+    void createPlantation(
             Plantation plantation
     );
 
     boolean existsByUuid(UUID uuid);
 
-    // ============================================================
-    // SYNC
-    // ============================================================
 
     Plantation mapToEntity(
             Map<String, Object> plantationMapping
     );
 
-    // ============================================================
-    // VUES
-    // ============================================================
 
     List<PlantationViewDTO> getAllPlantations();
 
@@ -82,9 +68,6 @@ public interface PlantationService {
             Date datePlantation
     );
 
-    // ============================================================
-    // STATISTIQUES
-    // ============================================================
 
     List<Map<String, Integer>>
     getTotalPlantationByBlock();

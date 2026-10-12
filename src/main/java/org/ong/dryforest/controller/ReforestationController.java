@@ -67,22 +67,16 @@ public class ReforestationController {
     }
 
 
-    @PostMapping("/with-details")
-    public ResponseEntity<ReforestationResponseDTO>
-    createWithDetails(
+    @PostMapping
+    public ResponseEntity<ReforestationResponseDTO> create(
             @RequestBody ReforestationDTO dto) {
 
         Reforestation created =
-                reforestationService
-                        .createReforestationWithDetails(dto);
+                reforestationService.createReforestation(dto);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(
-                        reforestationMapper.toResponseDTO(
-                                created
-                        )
-                );
+                .body(reforestationMapper.toResponseDTO(created));
     }
 
 

@@ -5,10 +5,12 @@ import org.ong.dryforest.entity.PlantingMonitoring;
 
 public class PlantingMonitoringMapper {
 
+    private PlantingMonitoringMapper() {
+    }
+
     public static PlantingMonitoringDTO toMonitoringDTO(
             PlantingMonitoring plantingMonitoring
     ) {
-
         PlantingMonitoringDTO dto =
                 new PlantingMonitoringDTO();
 
@@ -32,6 +34,14 @@ public class PlantingMonitoringMapper {
                 plantingMonitoring.getHeight()
         );
 
+        dto.setDensity(
+                plantingMonitoring.getDensity()
+        );
+
+        dto.setCarbon_sequestered(
+                plantingMonitoring.getCarbon_sequestered()
+        );
+
         dto.setImage(
                 plantingMonitoring.getImage()
         );
@@ -40,24 +50,23 @@ public class PlantingMonitoringMapper {
                 plantingMonitoring.getAuto_generation()
         );
 
-        dto.setCreatedAt(
+        dto.setCreated_at(
                 plantingMonitoring.getCreatedAt()
         );
 
-        dto.setUpdatedAt(
+        dto.setUpdated_at(
                 plantingMonitoring.getUpdatedAt()
         );
 
-        dto.setIsSynced(
+        dto.setSynced(
                 plantingMonitoring.is_synced()
         );
 
-        dto.setDeletedAt(
+        dto.setDeleted_at(
                 plantingMonitoring.isDeleted()
         );
 
         if (plantingMonitoring.getPlantation() != null) {
-
             dto.setId_plantation(
                     plantingMonitoring
                             .getPlantation()

@@ -1,20 +1,31 @@
 package org.ong.dryforest.repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import org.ong.dryforest.entity.AnimalTrackingDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
-public interface AnimalTrackingDetailRepository extends JpaRepository<AnimalTrackingDetail, Integer> {
-    boolean existsByUuidAndIsDeletedFalse(UUID uuid);
+public interface AnimalTrackingDetailRepository
+        extends JpaRepository<AnimalTrackingDetail, Integer> {
 
-    Optional<AnimalTrackingDetail> findByUuidAndIsDeletedFalse(UUID uuid);
+    boolean existsByUuidAndIsDeletedFalse(
+            UUID uuid
+    );
 
-    List<AnimalTrackingDetail> findAllByIsDeletedFalse();
+    Optional<AnimalTrackingDetail>
+    findByUuidAndIsDeletedFalse(
+            UUID uuid
+    );
 
-    Optional<AnimalTrackingDetail> findByIdAndIsDeletedFalse(int id);
+    List<AnimalTrackingDetail>
+    findAllByIsDeletedFalse();
+
+    Optional<AnimalTrackingDetail>
+    findByIdAndIsDeletedFalse(
+            int id
+    );
 }

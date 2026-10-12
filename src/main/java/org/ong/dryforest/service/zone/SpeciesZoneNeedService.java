@@ -20,11 +20,11 @@ public interface SpeciesZoneNeedService {
 
     SpeciesZoneNeed findByUuid(UUID uuid);
 
-    SpeciesZoneNeed createSpeciesZoneNeed(
+    void createSpeciesZoneNeed(
             SpeciesZoneNeed speciesZoneNeed
     );
 
-    SpeciesZoneNeed updateSpeciesZoneNeed(
+    void updateSpeciesZoneNeed(
             SpeciesZoneNeed speciesZoneNeed
     );
 

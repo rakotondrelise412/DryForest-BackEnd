@@ -356,7 +356,7 @@ public class PlantationServiceImpl
 
     @Override
     @Transactional
-    public Plantation createPlantation(
+    public void createPlantation(
             Plantation plantation
     ) {
 
@@ -364,7 +364,7 @@ public class PlantationServiceImpl
 
             plantation.set_synced(true);
 
-            return plantationRepository.save(
+            plantationRepository.save(
                     plantation
             );
 
@@ -380,7 +380,7 @@ public class PlantationServiceImpl
 
     @Override
     @Transactional
-    public Plantation updatePlantation(
+    public void updatePlantation(
             Plantation plantation
     ) {
 
@@ -392,38 +392,10 @@ public class PlantationServiceImpl
                 LocalDateTime.now()
         );
 
-        return plantationRepository.save(
+        plantationRepository.save(
                 plantation
         );
     }
-
-
-    @Override
-    @Transactional
-    public void deletePlantation(
-            Plantation plantation
-    ) {
-
-        Plantation existing =
-                findById(
-                        plantation.getId()
-                );
-
-        try {
-
-            plantationRepository.delete(
-                    existing
-            );
-
-        } catch (DataIntegrityViolationException e) {
-
-            throw new IllegalStateException(
-                    "Impossible de supprimer cette plantation",
-                    e
-            );
-        }
-    }
-
 
     @Override
     public Plantation mapToEntity(
@@ -517,7 +489,7 @@ public class PlantationServiceImpl
     // CALCUL BIOMASSE
     // ============================================================
 
-    public static double calculateDryAGB(
+    public double calculateDryAGB(
             double diameterCm,
             double heightM,
             double woodDensity
@@ -544,7 +516,7 @@ public class PlantationServiceImpl
     }
 
 
-    public static double calculateCarbon(
+    public double calculateCarbon(
             double dryAGB
     ) {
 
@@ -557,7 +529,7 @@ public class PlantationServiceImpl
         return CARBON_RATIO * dryAGB;
     }
 
-    private static double calculateCarbonForPlantation(
+    private double calculateCarbonForPlantation(
             double diameter,
             double height,
             double density

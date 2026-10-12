@@ -50,18 +50,18 @@ public class ObservationPatrolServiceImpl implements ObservationPatrolService {
     }
 
     @Override
-    public ObservationPatrol createObservationPatrol(ObservationPatrol observationPatrol){
+    public void createObservationPatrol(ObservationPatrol observationPatrol){
         observationPatrol.set_synced(true);
-        return observationPatrolRepository.save(observationPatrol);
+        observationPatrolRepository.save(observationPatrol);
     }
 
     @Override
-    public ObservationPatrol updateObservationPatrol(
+    public void updateObservationPatrol(
             ObservationPatrol observationPatrol) {
 
         findById(observationPatrol.getId());
 
-        return observationPatrolRepository.save(
+        observationPatrolRepository.save(
                 observationPatrol
         );
     }

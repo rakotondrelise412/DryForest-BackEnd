@@ -11,9 +11,6 @@ public class AnimalMapper {
     private AnimalMapper() {
     }
 
-    // =========================
-    // Animal -> AnimalDTO
-    // =========================
     public static AnimalDTO toAnimalDTO(Animal animal) {
 
         AnimalDTO dto = new AnimalDTO();
@@ -30,9 +27,7 @@ public class AnimalMapper {
         return dto;
     }
 
-    // =========================
-    // List<Animal> -> List<AnimalDTO>
-    // =========================
+
     public static List<AnimalDTO> toDTOList(
             List<Animal> animals
     ) {
@@ -42,9 +37,7 @@ public class AnimalMapper {
                 .toList();
     }
 
-    // =========================
-    // Animal -> AnimalSyncDTO
-    // =========================
+
     public static AnimalSyncDTO toAnimalSyncDTO(
             Animal animal
     ) {
@@ -65,9 +58,7 @@ public class AnimalMapper {
         return dto;
     }
 
-    // =========================
-    // List<Animal> -> List<AnimalSyncDTO>
-    // =========================
+
     public static List<AnimalSyncDTO> toAnimalSyncDTOList(
             List<Animal> animals
     ) {

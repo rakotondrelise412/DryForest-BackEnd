@@ -1,6 +1,5 @@
 package org.ong.dryforest.mapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ public class TypeZoneMapper {
     }
 
     public static List<TypeZoneDTO> toDTOList(List<TypeZone> typeZone){
-        List<TypeZoneDTO> typeZoneDTO = new ArrayList<>();
+        List<TypeZoneDTO> typeZoneDTO;
 
         typeZoneDTO = typeZone.stream()
                         .map(TypeZoneMapper::toTypeZone)

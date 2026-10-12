@@ -1,6 +1,5 @@
 package org.ong.dryforest.mapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,7 @@ public class TypeIncidentPatrolMapper {
     }
 
     public static List<TypeIncidentPatrolDTO> toDTOlList(List<TypeIncidentPatrol> typeIncidentPatrol){
-        List<TypeIncidentPatrolDTO> typeIncidentPatrolDTO = new ArrayList<>();
+        List<TypeIncidentPatrolDTO> typeIncidentPatrolDTO;
 
         typeIncidentPatrolDTO = typeIncidentPatrol.stream().map(TypeIncidentPatrolMapper::toTypeIncidentPatrolDTO).collect(Collectors.toList());
 

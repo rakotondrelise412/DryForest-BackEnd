@@ -13,12 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.ong.dryforest.dto.reforestation.ReforestationCountingDTO;
 import org.ong.dryforest.dto.reforestation.ReforestationDTO;
-import org.ong.dryforest.dto.reforestation.ReforestationDetailDTO;
 import org.ong.dryforest.entity.Reforestation;
-import org.ong.dryforest.entity.ReforestationDetail;
-import org.ong.dryforest.entity.Species;
 import org.ong.dryforest.repository.ReforestationRepository;
-import org.ong.dryforest.service.species.SpeciesService;
 import org.ong.dryforest.service.zone.ZoneService;
 
 @Service
@@ -30,9 +26,6 @@ public class ReforestationServiceImpl
 
     @Autowired
     ZoneService zoneService;
-
-    @Autowired
-    SpeciesService speciesService;
 
 
     @Override
@@ -74,113 +67,45 @@ public class ReforestationServiceImpl
     }
 
     @Override
-    public Reforestation saveReforestation(
+    public void saveReforestation(
             Reforestation reforestation) {
 
-        return reforestationRepository.save(
+        reforestationRepository.save(
                 reforestation
         );
     }
+
 
     @Override
     @Transactional
-    public Reforestation createReforestationWithDetails(
+    public Reforestation createReforestation(
             ReforestationDTO dto) {
-
-        Reforestation reforestation =
-                new Reforestation();
 
         if (dto.getId_zone() == 0) {
             throw new IllegalArgumentException(
-                    "id_zone est obligatoire"
-            );
+                    "id_zone est obligatoire");
         }
+
+        Reforestation reforestation = new Reforestation();
 
         reforestation.setZone(
-                zoneService.findById(
-                        dto.getId_zone()
-                )
-        );
+                zoneService.findById(dto.getId_zone()));
 
-        if (dto.getUuid() != null) {
-
-            reforestation.setUuid(
-                    dto.getUuid()
-            );
-
-        } else {
-
-            reforestation.setUuid(
-                    UUID.randomUUID()
-            );
-        }
+        reforestation.setUuid(
+                dto.getUuid() != null
+                        ? dto.getUuid()
+                        : UUID.randomUUID());
 
         reforestation.setDate_reforestation(
-                dto.getDate_reforestation()
-        );
+                dto.getDate_reforestation());
 
-        reforestation.setQuantity(
-                dto.getQuantity()
-        );
+        reforestation.setQuantity(dto.getQuantity());
 
         reforestation.set_synced(true);
 
-        if (dto.getReforestationDetailsDTO() != null
-                && !dto.getReforestationDetailsDTO().isEmpty()) {
-
-            for (ReforestationDetailDTO detailDTO :
-                    dto.getReforestationDetailsDTO()) {
-
-                if (detailDTO.getId_species() == 0) {
-
-                    throw new IllegalArgumentException(
-                            "id_species est obligatoire"
-                    );
-                }
-
-                ReforestationDetail detail =
-                        new ReforestationDetail();
-
-                detail.setQuantity(
-                        detailDTO.getQuantity()
-                );
-
-                Species species =
-                        speciesService.findSpeciesEntityById(
-                                detailDTO.getId_species()
-                        );
-
-                detail.setSpecies(species);
-
-                detail.setReforestation(
-                        reforestation
-                );
-
-                if (detailDTO.getUuid() != null) {
-
-                    detail.setUuid(
-                            detailDTO.getUuid()
-                    );
-
-                } else {
-
-                    detail.setUuid(
-                            UUID.randomUUID()
-                    );
-                }
-
-                detail.set_synced(true);
-
-                reforestation
-                        .getReforestationDetail()
-                        .add(detail);
-            }
-        }
-
-        return reforestationRepository.save(
-                reforestation
-        );
+        return reforestationRepository.save(reforestation);
     }
+
 
     @Override
     public Reforestation updateReforestation(

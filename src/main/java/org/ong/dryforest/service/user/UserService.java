@@ -21,7 +21,7 @@ public interface UserService {
 
     Users updateUsers(int id_user, UserUpdateDTO request);
 
-    Users updatePassword(PasswordUpdateRequestDTO request);
+    void updatePassword(PasswordUpdateRequestDTO request);
 
     void deleteUsers(Users user);
 }

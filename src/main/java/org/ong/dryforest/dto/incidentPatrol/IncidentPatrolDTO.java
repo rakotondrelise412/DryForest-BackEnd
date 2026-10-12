@@ -4,12 +4,10 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 
+import lombok.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class IncidentPatrolDTO {

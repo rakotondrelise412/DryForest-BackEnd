@@ -12,9 +12,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TypeIncidentPatrolRepository extends JpaRepository<TypeIncidentPatrol, Integer>{
-    // boolean existsByUuidAndIsDeletedFalse(UUID uuid);
-
-    // Optional<TypeIncidentPatrol> findByUuidAndIsDeletedFalse(UUID uuid);
 
     List<TypeIncidentPatrol> findAllByIsDeletedFalse();
 

@@ -1,8 +1,6 @@
 package org.ong.dryforest.mapper;
 
 import org.ong.dryforest.entity.Person;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

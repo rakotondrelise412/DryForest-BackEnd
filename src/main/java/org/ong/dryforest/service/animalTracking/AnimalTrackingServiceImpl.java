@@ -1,150 +1,280 @@
 package org.ong.dryforest.service.animalTracking;
 
+import lombok.RequiredArgsConstructor;
+import org.ong.dryforest.dto.animaltracking.AnimalObservedByZoneDTO;
+import org.ong.dryforest.dto.animaltracking.AnimalTrackingDTO;
+import org.ong.dryforest.entity.AnimalTracking;
+import org.ong.dryforest.mapper.AnimalTrackingMapper;
+import org.ong.dryforest.repository.AnimalTrackingRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Point;
-import org.ong.dryforest.dto.animaltracking.AnimalObservedByZoneDTO;
-import org.ong.dryforest.dto.animaltracking.AnimalTrackingDTO;
-import org.ong.dryforest.dto.animaltracking.AnimalTrackingDetailDTO;
-import org.ong.dryforest.entity.Animal;
-import org.ong.dryforest.entity.AnimalTracking;
-import org.ong.dryforest.entity.AnimalTrackingDetail;
-import org.ong.dryforest.repository.AnimalTrackingRepository;
-import org.ong.dryforest.service.geometryService.GeometryService;
-import org.ong.dryforest.service.plantationBlock.PlantationBlockService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-
 @Service
-public class AnimalTrackingServiceImpl implements AnimalTrackingService{
+@RequiredArgsConstructor
+public class AnimalTrackingServiceImpl implements AnimalTrackingService {
 
-
-    private final GeometryService geometryService;
-    private final AnimalService animalService;
     private final AnimalTrackingRepository animalTrackingRepository;
-    private final PlantationBlockService plantationBlockService;
+    private final AnimalTrackingMapper animalTrackingMapper;
 
-    @Autowired
-    public AnimalTrackingServiceImpl(
-            GeometryService geometryService,
-            AnimalService animalService,
-            AnimalTrackingRepository animalTrackingRepository,
-            PlantationBlockService plantationBlockService) {
-        this.geometryService = geometryService;
-        this.animalService = animalService;
-        this.animalTrackingRepository = animalTrackingRepository;
-        this.plantationBlockService = plantationBlockService;
-    }
 
     @Override
-    public AnimalTracking createAnimalTracking(AnimalTracking animalTracking){
-        animalTracking.set_synced(true);
+    public AnimalTracking create(AnimalTrackingDTO dto) throws Exception {
+
+        AnimalTracking animalTracking =
+                animalTrackingMapper.toEntity(dto);
+
         return animalTrackingRepository.save(animalTracking);
     }
 
+
     @Override
-    public List<AnimalTracking> findAll(){
+    public void createAnimalTracking(
+            AnimalTracking animalTracking
+    ) {
+
+        if (animalTracking.getUuid() == null) {
+            animalTracking.setUuid(UUID.randomUUID());
+        }
+
+        if (animalTracking.getCreatedAt() == null) {
+            animalTracking.setCreatedAt(LocalDateTime.now());
+        }
+
+        animalTracking.setUpdatedAt(LocalDateTime.now());
+
+        animalTracking.set_synced(true);
+
+        animalTrackingRepository.save(animalTracking);
+    }
+
+
+    @Override
+    public List<AnimalTracking> findAll() {
+
         return animalTrackingRepository.findAllByIsDeletedFalse();
     }
 
-    @Override
-    public AnimalTracking findById(int id){
-        return animalTrackingRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new RuntimeException("L'animal est introuvable par l'id : " + id));
-    }
 
     @Override
-    public AnimalTracking findByUuid(UUID uuid){
-        return animalTrackingRepository.findByUuidAndIsDeletedFalse(uuid).orElseThrow(() -> new RuntimeException("L'animal est introuvable par l'uuid : " + uuid));
+    public AnimalTracking findById(int id) {
+
+        return animalTrackingRepository
+                .findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Animal tracking not found for id: " + id
+                        )
+                );
     }
 
-    @Override
-    public AnimalTracking updateAnimalTracking(AnimalTracking animalTracking){
-        findById(animalTracking.getId());
-        return animalTrackingRepository.save(animalTracking);
-    }
 
     @Override
-    public void deleteAnimalTracking(AnimalTracking animalTracking){
+    public AnimalTracking findByUuid(UUID uuid) {
+
+        return animalTrackingRepository
+                .findByUuidAndIsDeletedFalse(uuid)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Animal tracking not found for uuid: " + uuid
+                        )
+                );
+    }
+
+
+    @Override
+    public void updateAnimalTracking(
+            AnimalTracking animalTracking
+    ) {
+
+        AnimalTracking existing =
+                findById(animalTracking.getId());
+
+        existing.setUuid(animalTracking.getUuid());
+        existing.setLocation(animalTracking.getLocation());
+        existing.setDate_tracking(
+                animalTracking.getDate_tracking()
+        );
+        existing.setHave_seen(
+                animalTracking.isHave_seen()
+        );
+        existing.setDescription(
+                animalTracking.getDescription()
+        );
+
+        if (animalTracking.getPlantationBlock() != null) {
+            existing.setPlantationBlock(
+                    animalTracking.getPlantationBlock()
+            );
+        }
+
+        existing.setUpdatedAt(LocalDateTime.now());
+        existing.set_synced(true);
+
+        animalTrackingRepository.save(existing);
+    }
+
+
+
+    @Override
+    public AnimalTracking update(
+            int id,
+            AnimalTrackingDTO dto
+    ) throws Exception {
+
+        AnimalTracking existing = findById(id);
+
+        animalTrackingMapper.updateEntity(
+                existing,
+                dto
+        );
+
+        return animalTrackingRepository.save(existing);
+    }
+
+
+    @Override
+    public void deleteAnimalTracking(
+            AnimalTracking animalTracking
+    ) {
+
         try {
             findById(animalTracking.getId());
-            animalTrackingRepository.delete(animalTracking);
+            animalTracking.setDeleted(true);
+            animalTracking.setUpdatedAt(
+                    LocalDateTime.now()
+            );
+            animalTracking.set_synced(true);
+
+            animalTrackingRepository.save(animalTracking);
+
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("Impossible de supprimer cette animal");
+
+            throw new IllegalStateException(
+                    "Impossible de supprimer cet animal tracking"
+            );
         }
     }
 
+
     @Override
-    public boolean existsByUuid(UUID uuid){
-        return animalTrackingRepository.existsByUuidAndIsDeletedFalse(uuid);
+    public boolean existsByUuid(UUID uuid) {
+
+        return animalTrackingRepository
+                .existsByUuidAndIsDeletedFalse(uuid);
     }
 
-    @Override
-    public AnimalTracking mapToEntity(Map<String, Object> animalTrackingMapping){
-        AnimalTracking animalTracking = new AnimalTracking();
 
-        animalTracking.setUuid(UUID.fromString((String)animalTrackingMapping.get("uuid")));
-        animalTracking.setDate_tracking(LocalDateTime.parse((String)animalTrackingMapping.get("date_tracking")));
-        animalTracking.setDescription((String)animalTrackingMapping.get("description"));
-        animalTracking.setLocation((Point)animalTrackingMapping.get("location"));
-        animalTracking.setPlantationBlock(plantationBlockService.findById(((Integer)animalTrackingMapping.get("id_plantation_block")).intValue()));
-        animalTracking.setCreatedAt(LocalDateTime.parse((String)animalTrackingMapping.get("created_at")));
-        animalTracking.setUpdatedAt(LocalDateTime.parse((String)animalTrackingMapping.get("updated_at")));
-        animalTracking.set_synced((boolean)animalTrackingMapping.get("is_synced"));
+    @Override
+    public AnimalTracking mapToEntity(
+            Map<String, Object> animalTrackingMapping
+    ) {
+        AnimalTracking animalTracking =
+                new AnimalTracking();
+
+        if (animalTrackingMapping.get("uuid") != null) {
+
+            animalTracking.setUuid(
+                    UUID.fromString(
+                            animalTrackingMapping
+                                    .get("uuid")
+                                    .toString()
+                    )
+            );
+
+        } else {
+
+            animalTracking.setUuid(
+                    UUID.randomUUID()
+            );
+        }
+
+        if (animalTrackingMapping.get("date_tracking") != null) {
+
+            animalTracking.setDate_tracking(
+                    LocalDateTime.parse(
+                            animalTrackingMapping
+                                    .get("date_tracking")
+                                    .toString()
+                    )
+            );
+        }
+
+        if (animalTrackingMapping.get("description") != null) {
+
+            animalTracking.setDescription(
+                    animalTrackingMapping
+                            .get("description")
+                            .toString()
+            );
+        }
+
+        if (animalTrackingMapping.get("have_seen") != null) {
+
+            animalTracking.setHave_seen(
+                    Boolean.parseBoolean(
+                            animalTrackingMapping
+                                    .get("have_seen")
+                                    .toString()
+                    )
+            );
+        }
+
+        if (animalTrackingMapping.get("is_synced") != null) {
+
+            animalTracking.set_synced(
+                    Boolean.parseBoolean(
+                            animalTrackingMapping
+                                    .get("is_synced")
+                                    .toString()
+                    )
+            );
+        }
+
+        if (animalTrackingMapping.get("created_at") != null) {
+
+            animalTracking.setCreatedAt(
+                    LocalDateTime.parse(
+                            animalTrackingMapping
+                                    .get("created_at")
+                                    .toString()
+                    )
+            );
+        } else {
+
+            animalTracking.setCreatedAt(
+                    LocalDateTime.now()
+            );
+        }
+
+        if (animalTrackingMapping.get("updated_at") != null) {
+
+            animalTracking.setUpdatedAt(
+                    LocalDateTime.parse(
+                            animalTrackingMapping
+                                    .get("updated_at")
+                                    .toString()
+                    )
+            );
+        } else {
+
+            animalTracking.setUpdatedAt(
+                    LocalDateTime.now()
+            );
+        }
 
         return animalTracking;
     }
 
-    @Override
-    public AnimalTracking create(AnimalTrackingDTO animalTrackingDTO) throws Exception{
-        AnimalTracking animalTracking = new AnimalTracking();
-
-        if (animalTrackingDTO.getUuid() == null) {
-            animalTrackingDTO.setUuid(UUID.randomUUID());
-        }
-        animalTracking.setUuid(animalTrackingDTO.getUuid());
-        if (animalTrackingDTO.getCreated_at() == null) {
-            animalTrackingDTO.setCreated_at(LocalDateTime.now());
-        }
-        animalTracking.setCreatedAt(animalTrackingDTO.getCreated_at());
-        animalTracking.setUpdatedAt(animalTrackingDTO.getCreated_at());
-        if (animalTrackingDTO.isIs_synced() == false) {
-            animalTrackingDTO.setIs_synced(true);
-        }
-        animalTracking.set_synced(animalTrackingDTO.isIs_synced());
-
-        Geometry location = geometryService.parseGeoJson(animalTrackingDTO.getLocation());
-        animalTracking.setLocation((Point)location);
-        animalTracking.setDate_tracking(animalTrackingDTO.getDate_tracking());
-        animalTracking.setHave_seen(animalTrackingDTO.isHave_seen());
-        animalTracking.setDescription(animalTrackingDTO.getDescription());
-        if (animalTrackingDTO.getAnimal_tracking_details() != null && !animalTrackingDTO.getAnimal_tracking_details().isEmpty()) {
-            for (AnimalTrackingDetailDTO animalTrackingDetailDTO : animalTrackingDTO.getAnimal_tracking_details()) {
-                AnimalTrackingDetail animalTrackingDetail = new AnimalTrackingDetail();
-
-                if (animalTrackingDetailDTO.getId_animal() != 0) {
-                    Animal animal = animalService.findById(animalTrackingDetailDTO.getId_animal());
-                    animalTrackingDetail.setAnimal(animal);
-                } else {
-                    throw new IllegalArgumentException("Animal is required! Give me that");
-                }
-                animalTrackingDetail.setUuid(animalTrackingDetailDTO.getUuid());
-                animalTrackingDetail.setCreatedAt(animalTrackingDetailDTO.getCreated_at());
-                animalTrackingDetail.setUpdatedAt(animalTrackingDetailDTO.getUpdated_at());
-                animalTrackingDetail.set_synced(animalTrackingDetailDTO.isIs_synced());
-                animalTracking.getAnimal_tracking_details().add(animalTrackingDetail);
-                //animalTrackingDetailService.create(animalTrackingDetail);
-            }
-        }
-        return animalTrackingRepository.save(animalTracking);
-    }
 
     @Override
     public List<AnimalObservedByZoneDTO> getObservedAnimalsByZone() {
-        return animalTrackingRepository.findObservedAnimalsByZone();
+
+        return animalTrackingRepository
+                .findObservedAnimalsByZone();
     }
 }

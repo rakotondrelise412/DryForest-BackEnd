@@ -2,13 +2,15 @@ package org.ong.dryforest.dto.person;
 
 import java.time.LocalDateTime;
 
+import lombok.*;
 import org.ong.dryforest.dto.site.SiteWebDTO;
 import org.ong.dryforest.entity.Gender;
 import org.ong.dryforest.entity.Role;
 
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PersonWebDTO {
     private int id;
     private String last_name;

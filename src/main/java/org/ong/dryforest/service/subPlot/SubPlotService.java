@@ -19,7 +19,7 @@ public interface SubPlotService {
 
     SubPlot createSubPlot(SubPlotDTO dto);
 
-    SubPlot updateSubPlot(SubPlot subPlot);
+    void updateSubPlot(SubPlot subPlot);
 
     SubPlot updateSubPlot(
             int id,

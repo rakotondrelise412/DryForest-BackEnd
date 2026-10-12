@@ -1,6 +1,5 @@
 package org.ong.dryforest.mapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,7 @@ public class PatrolGroupMapper {
     }
 
     public static List<PatrolGroupDTO> toDTOList(List<PatrolGroup> patrolGroups){
-        List<PatrolGroupDTO> patrolGroupDTO = new ArrayList<>();
+        List<PatrolGroupDTO> patrolGroupDTO;
 
         patrolGroupDTO = patrolGroups.stream().map(PatrolGroupMapper::toPatrolGroupDTO).collect(Collectors.toList());
 

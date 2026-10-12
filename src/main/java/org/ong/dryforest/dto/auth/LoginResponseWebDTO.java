@@ -2,11 +2,13 @@ package org.ong.dryforest.dto.auth;
 
 import java.time.LocalDateTime;
 
+import lombok.*;
 import org.ong.dryforest.dto.person.PersonWebDTO;
 
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginResponseWebDTO {
     private int id_user;
     private String username;

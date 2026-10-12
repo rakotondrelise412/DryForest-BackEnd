@@ -1,27 +1,32 @@
 package org.ong.dryforest.mapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.ong.dryforest.dto.observationPatrol.TypeObservationPatrolDTO;
 import org.ong.dryforest.entity.TypeObservationPatrol;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class TypeObservationPatrolMapper {
-    public static TypeObservationPatrolDTO toObservationDTO(TypeObservationPatrol typeObservation){
-        TypeObservationPatrolDTO typeObservationDTO = new TypeObservationPatrolDTO();
 
-        typeObservationDTO.setId_observation(typeObservation.getId());
-        typeObservationDTO.setName(typeObservation.getName());
+    public static TypeObservationPatrolDTO toObservationDTO(
+            TypeObservationPatrol typeObservation
+    ) {
 
-        return typeObservationDTO;
+        TypeObservationPatrolDTO dto =
+                new TypeObservationPatrolDTO();
+
+        dto.setId_observation(typeObservation.getId());
+        dto.setName(typeObservation.getName());
+
+        return dto;
     }
 
-    public static List<TypeObservationPatrolDTO> toDTOList(List<TypeObservationPatrol> typeObservationPatrols){
-        List<TypeObservationPatrolDTO> typeObservationPatrol = new ArrayList<>();
+    public static List<TypeObservationPatrolDTO> toDTOList(
+            List<TypeObservationPatrol> typeObservationPatrols
+    ) {
 
-        typeObservationPatrol = typeObservationPatrols.stream().map(TypeObservationPatrolMapper::toObservationDTO).collect(Collectors.toList());
-
-        return typeObservationPatrol;
+        return typeObservationPatrols.stream()
+                .map(TypeObservationPatrolMapper::toObservationDTO)
+                .collect(Collectors.toList());
     }
 }

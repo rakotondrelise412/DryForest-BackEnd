@@ -1,15 +1,25 @@
 package org.ong.dryforest.service.animalTracking;
 
+import org.ong.dryforest.dto.animaltracking.AnimalTrackingDetailDTO;
+import org.ong.dryforest.entity.AnimalTrackingDetail;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.ong.dryforest.entity.AnimalTrackingDetail;
-
 public interface AnimalTrackingDetailService {
-    public AnimalTrackingDetail create(AnimalTrackingDetail animalTrackingDetail);
 
-    AnimalTrackingDetail createAnimalTrackingDetail(AnimalTrackingDetail animalTrackingDetail);
+    AnimalTrackingDetail create(
+            AnimalTrackingDetail animalTrackingDetail
+    );
+
+    AnimalTrackingDetail create(
+            AnimalTrackingDetailDTO dto
+    );
+
+    void createAnimalTrackingDetail(
+            AnimalTrackingDetail animalTrackingDetail
+    );
 
     List<AnimalTrackingDetail> findAll();
 
@@ -17,11 +27,22 @@ public interface AnimalTrackingDetailService {
 
     AnimalTrackingDetail findByUuid(UUID uuid);
 
-    AnimalTrackingDetail updateAnimalTrackingDetail(AnimalTrackingDetail animalTracking);
+    void updateAnimalTrackingDetail(
+            AnimalTrackingDetail animalTrackingDetail
+    );
 
-    void deleteAnimalTrackingDetail(AnimalTrackingDetail animalTrackingDetail);
+    AnimalTrackingDetail update(
+            int id,
+            AnimalTrackingDetailDTO dto
+    );
+
+    void deleteAnimalTrackingDetail(
+            AnimalTrackingDetail animalTrackingDetail
+    );
 
     boolean existsByUuid(UUID uuid);
 
-    AnimalTrackingDetail mapToEntity(Map<String, Object> animalTrackingDetailMapping);
+    AnimalTrackingDetail mapToEntity(
+            Map<String, Object> animalTrackingDetailMapping
+    );
 }

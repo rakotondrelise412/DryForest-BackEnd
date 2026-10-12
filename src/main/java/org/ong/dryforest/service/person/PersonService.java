@@ -22,6 +22,4 @@ public interface PersonService {
 
     void deletePerson(int id_person);
 
-    List<Person> findAllActivePersons();
-
 }

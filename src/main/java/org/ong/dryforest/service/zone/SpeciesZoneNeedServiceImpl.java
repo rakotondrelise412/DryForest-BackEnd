@@ -76,7 +76,7 @@ public class SpeciesZoneNeedServiceImpl
 
 
     @Override
-    public SpeciesZoneNeed createSpeciesZoneNeed(
+    public void createSpeciesZoneNeed(
             SpeciesZoneNeed speciesZoneNeed
     ) {
 
@@ -84,7 +84,7 @@ public class SpeciesZoneNeedServiceImpl
 
             speciesZoneNeed.set_synced(true);
 
-            return speciesZoneNeedRepository.save(
+            speciesZoneNeedRepository.save(
                     speciesZoneNeed
             );
 
@@ -98,7 +98,7 @@ public class SpeciesZoneNeedServiceImpl
 
 
     @Override
-    public SpeciesZoneNeed updateSpeciesZoneNeed(
+    public void updateSpeciesZoneNeed(
             SpeciesZoneNeed speciesZoneNeed
     ) {
 
@@ -115,7 +115,7 @@ public class SpeciesZoneNeedServiceImpl
 
         existing.set_synced(false);
 
-        return speciesZoneNeedRepository.save(existing);
+        speciesZoneNeedRepository.save(existing);
     }
 
 
@@ -143,11 +143,6 @@ public class SpeciesZoneNeedServiceImpl
     }
 
 
-    // =========================================================
-    // MAP -> ENTITY
-    // IMPORTANT POUR LA SYNCHRONISATION
-    // =========================================================
-
     @Override
     public SpeciesZoneNeed mapToEntity(
             Map<String, Object> speciesZoneNeedMapping
@@ -156,8 +151,6 @@ public class SpeciesZoneNeedServiceImpl
         SpeciesZoneNeed entity =
                 new SpeciesZoneNeed();
 
-
-        // UUID
         Object uuidValue =
                 speciesZoneNeedMapping.get("uuid");
 
@@ -170,8 +163,6 @@ public class SpeciesZoneNeedServiceImpl
             );
         }
 
-
-        // SPECIES
         Object speciesIdValue =
                 speciesZoneNeedMapping.get("id_species");
 
@@ -187,8 +178,6 @@ public class SpeciesZoneNeedServiceImpl
             entity.setSpecies(species);
         }
 
-
-        // ZONE NEED
         Object zoneNeedIdValue =
                 speciesZoneNeedMapping.get("id_zone_need");
 
@@ -203,8 +192,6 @@ public class SpeciesZoneNeedServiceImpl
             entity.setZoneNeed(zoneNeed);
         }
 
-
-        // CREATED AT
         Object createdAtValue =
                 speciesZoneNeedMapping.get("createdAt");
 
@@ -217,8 +204,6 @@ public class SpeciesZoneNeedServiceImpl
             );
         }
 
-
-        // UPDATED AT
         Object updatedAtValue =
                 speciesZoneNeedMapping.get("updatedAt");
 
@@ -231,8 +216,6 @@ public class SpeciesZoneNeedServiceImpl
             );
         }
 
-
-        // IS SYNCED
         Object syncedValue =
                 speciesZoneNeedMapping.get("is_synced");
 
@@ -323,22 +306,16 @@ public class SpeciesZoneNeedServiceImpl
             );
         }
 
-
-        // Recherche de Species
         Species species =
                 speciesService.findSpeciesEntityById(
                         dto.getSpeciesId()
                 );
 
-
-        // Recherche de ZoneNeed
         ZoneNeed zoneNeed =
                 zoneNeedService.findById(
                         dto.getZoneNeedId()
                 );
 
-
-        // Création Entity
         SpeciesZoneNeed entity =
                 new SpeciesZoneNeed();
 
@@ -354,13 +331,9 @@ public class SpeciesZoneNeedServiceImpl
 
         entity.set_synced(true);
 
-
-        // Sauvegarde
         SpeciesZoneNeed saved =
                 speciesZoneNeedRepository.save(entity);
 
-
-        // Retour DTO
         return speciesZoneNeedMapper.toDTO(saved);
     }
 
@@ -385,8 +358,6 @@ public class SpeciesZoneNeedServiceImpl
             );
         }
 
-
-        // Recherche de l'ancien enregistrement
         SpeciesZoneNeed existing =
                 speciesZoneNeedRepository
                         .findByIdAndIsDeletedFalse(id)
@@ -396,30 +367,22 @@ public class SpeciesZoneNeedServiceImpl
                                 )
                         );
 
-
-        // Recherche Species
         Species species =
                 speciesService.findSpeciesEntityById(
                         dto.getSpeciesId()
                 );
 
-
-        // Recherche ZoneNeed
         ZoneNeed zoneNeed =
                 zoneNeedService.findById(
                         dto.getZoneNeedId()
                 );
 
-
-        // Mise à jour
         existing.setSpecies(species);
 
         existing.setZoneNeed(zoneNeed);
 
         existing.set_synced(false);
 
-
-        // UUID uniquement si envoyé
         if (dto.getUuid() != null) {
 
             existing.setUuid(
@@ -427,15 +390,11 @@ public class SpeciesZoneNeedServiceImpl
             );
         }
 
-
-        // Sauvegarde
         SpeciesZoneNeed updated =
                 speciesZoneNeedRepository.save(
                         existing
                 );
 
-
-        // Retour DTO
         return speciesZoneNeedMapper.toDTO(updated);
     }
 }

@@ -49,7 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SynchroRefServiceImpl implements SynchroRefService{
+public class SynchroRefServiceImpl implements SynchroRefService {
 
     @Autowired
     private SyncProperties syncProperties;
@@ -119,7 +119,7 @@ public class SynchroRefServiceImpl implements SynchroRefService{
                     break;
 
                 case "reforestation_detail":
-                    results.put("reforestation_detail", processReforestation(records));
+                    results.put("reforestation_detail", processReforestationDetail(records));
                     break;
 
                     
@@ -264,32 +264,70 @@ public class SynchroRefServiceImpl implements SynchroRefService{
         return response;
     }
 
+
     @Override
-    public List<Map<String, Object>> processReforestationDetail(List<Map<String, Object>> records){
+    public List<Map<String, Object>> processReforestationDetail(
+            List<Map<String, Object>> records) {
+
         List<Map<String, Object>> response = new ArrayList<>();
-        for (Map<String,Object> data : records) {
+
+        for (Map<String, Object> data : records) {
             try {
                 String status = "ignored";
-                ReforestationDetail reforestationDetail = reforestationDetailService.mapToEntity(data);
 
-                if (reforestationDetailService.existsByUuid(reforestationDetail.getUuid())) {
-                    ReforestationDetail lastreforestationDetail = reforestationDetailService.findByUuid(reforestationDetail.getUuid());
-                    if (reforestationDetail.getUpdatedAt().isAfter(lastreforestationDetail.getUpdatedAt())) {
-                        reforestationDetailService.updateReforestationDetail(reforestationDetail);
+                ReforestationDetail detail =
+                        reforestationDetailService.mapToEntity(data);
+
+                if (detail.getUuid() == null) {
+                    throw new IllegalArgumentException(
+                            "L'UUID du détail de reforestation est obligatoire"
+                    );
+                }
+
+                if (reforestationDetailService.existsByUuid(
+                        detail.getUuid())) {
+
+                    ReforestationDetail lastDetail =
+                            reforestationDetailService.findByUuid(
+                                    detail.getUuid()
+                            );
+
+                    if (detail.getUpdatedAt() != null
+                            && (lastDetail.getUpdatedAt() == null
+                            || detail.getUpdatedAt().isAfter(
+                            lastDetail.getUpdatedAt()))) {
+
+                        reforestationDetailService
+                                .updateReforestationDetail(detail);
+
                         status = "updated";
                     }
+
                 } else {
-                    reforestationDetailService.createReforestationDetail(reforestationDetail);
+                    reforestationDetailService
+                            .createReforestationDetail(detail);
+
                     status = "created";
                 }
-                response.add(Map.of("uuid", reforestationDetail.getUuid().toString(), "status", status));
+
+                response.add(Map.of(
+                        "uuid", detail.getUuid().toString(),
+                        "status", status
+                ));
+
             } catch (Exception e) {
-                response.add(Map.of("error", e.getMessage()));
+                response.add(Map.of(
+                        "error",
+                        e.getMessage() != null
+                                ? e.getMessage()
+                                : "Erreur lors de la synchronisation du détail"
+                ));
             }
         }
 
         return response;
     }
+
 
     @Override
     public List<Map<String, Object>> processZoneNeed(List<Map<String, Object>> records){

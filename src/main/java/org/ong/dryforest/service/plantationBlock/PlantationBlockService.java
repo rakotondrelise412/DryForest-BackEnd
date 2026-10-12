@@ -28,15 +28,12 @@ public interface PlantationBlockService {
             PlantationBlockDTO dto
     );
 
-    PlantationBlock updatePlantationBlock(
+    void updatePlantationBlock(
             PlantationBlock plantationBlock
     );
 
     void deletePlantationBlock(int id);
 
-    void deletePlantationBlock(
-            PlantationBlock plantationBlock
-    );
 
     boolean existsByUuid(UUID uuid);
 

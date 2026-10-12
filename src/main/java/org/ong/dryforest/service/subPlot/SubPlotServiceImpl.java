@@ -140,7 +140,7 @@ public class SubPlotServiceImpl implements SubPlotService {
     }
 
     @Override
-    public SubPlot updateSubPlot(SubPlot subPlot) {
+    public void updateSubPlot(SubPlot subPlot) {
 
         SubPlot existing = findById(subPlot.getId());
 
@@ -148,7 +148,7 @@ public class SubPlotServiceImpl implements SubPlotService {
             subPlot.setUuid(existing.getUuid());
         }
 
-        return subPlotRepository.save(subPlot);
+        subPlotRepository.save(subPlot);
     }
 
     @Override
@@ -209,8 +209,7 @@ public class SubPlotServiceImpl implements SubPlotService {
 
     @Override
     public SubPlot updateSubPlotLocation(
-            SubPlotDTO subPlotDTO)
-            throws Exception {
+            SubPlotDTO subPlotDTO) {
 
         SubPlot existing =
                 subPlotRepository

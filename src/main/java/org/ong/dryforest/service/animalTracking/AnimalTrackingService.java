@@ -10,9 +10,13 @@ import org.ong.dryforest.entity.AnimalTracking;
 
 public interface AnimalTrackingService {
 
-    AnimalTracking create(AnimalTrackingDTO animalTrackingDTO) throws Exception;
+    AnimalTracking create(
+            AnimalTrackingDTO animalTrackingDTO
+    ) throws Exception;
 
-    AnimalTracking createAnimalTracking(AnimalTracking animalTracking);
+    void createAnimalTracking(
+            AnimalTracking animalTracking
+    );
 
     List<AnimalTracking> findAll();
 
@@ -20,14 +24,24 @@ public interface AnimalTrackingService {
 
     AnimalTracking findByUuid(UUID uuid);
 
-    AnimalTracking updateAnimalTracking(AnimalTracking animalTracking);
+    void updateAnimalTracking(
+            AnimalTracking animalTracking
+    );
 
-    void deleteAnimalTracking(AnimalTracking animalTracking);
+    AnimalTracking update(
+            int id,
+            AnimalTrackingDTO dto
+    ) throws Exception;
+
+    void deleteAnimalTracking(
+            AnimalTracking animalTracking
+    );
 
     boolean existsByUuid(UUID uuid);
 
-    AnimalTracking mapToEntity(Map<String, Object> animalTrackingMapping);
+    AnimalTracking mapToEntity(
+            Map<String, Object> animalTrackingMapping
+    );
 
     List<AnimalObservedByZoneDTO> getObservedAnimalsByZone();
-
 }

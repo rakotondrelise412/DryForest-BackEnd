@@ -21,14 +21,16 @@ public interface ZoneRepository extends JpaRepository<Zone, Integer> {
     Optional<Zone> findByIdAndIsDeletedFalse(int id);
 
     @Query(value = """
-        SELECT 
-            id_zone,
-            name,
-            area,
-            ST_AsGeoJSON(geom) AS geom_json,
-            id_type_zone
-        FROM zone
-        WHERE is_deleted = false
-        """, nativeQuery = true)
+    SELECT
+        id_zone,
+        uuid,
+        name,
+        area,
+        ST_AsGeoJSON(geom) AS geom_json,
+        id_type_zone,
+        is_synced
+    FROM zone
+    WHERE is_deleted = false
+    """, nativeQuery = true)
     List<Object[]> findAllWithGeomAsGeoJson();
 }

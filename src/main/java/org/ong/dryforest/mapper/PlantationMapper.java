@@ -159,7 +159,7 @@ public final class PlantationMapper {
                 safeToString(safeGet(row, i++));
 
         dto.idPlantationBlock =
-                safeToIntegerObj(safeGet(row, i++));
+                safeToIntegerObj(safeGet(row, i));
 
         return dto;
     }

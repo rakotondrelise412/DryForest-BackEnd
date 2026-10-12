@@ -72,9 +72,6 @@ public class PlantationController {
         return ResponseEntity.ok(result);
     }
 
-    // ============================================================
-    // VIEWS
-    // ============================================================
 
     @GetMapping("/plantationsByPlantationBlock")
     public ResponseEntity<List<PlantationViewDTO>>
@@ -225,9 +222,6 @@ public class PlantationController {
         return ResponseEntity.noContent().build();
     }
 
-    // ============================================================
-    // STATISTICS
-    // ============================================================
 
     @GetMapping("/by_year_status")
     public ResponseEntity<List<PlantationStatusByYearDTO>>

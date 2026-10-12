@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.ong.dryforest.dto.zone.ZoneNeedDTO;
+import org.ong.dryforest.entity.Zone;
 import org.ong.dryforest.entity.ZoneNeed;
 import org.ong.dryforest.mapper.ZoneNeedMapper;
 import org.ong.dryforest.service.zone.ZoneNeedService;
 
+import org.ong.dryforest.service.zone.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +26,24 @@ public class ZoneNeedController {
     @Autowired
     private ZoneNeedMapper zoneNeedMapper;
 
+    @Autowired
+    private ZoneService zoneService;
+
     @PostMapping
     public ResponseEntity<ZoneNeedDTO> create(
-            @RequestBody ZoneNeed zoneNeed) {
+            @RequestBody ZoneNeedDTO dto) {
+
+        ZoneNeed zoneNeed = new ZoneNeed();
+
+        zoneNeed.setUuid(
+                dto.getUuid() != null
+                        ? UUID.fromString(dto.getUuid())
+                        : UUID.randomUUID()
+        );
+
+        Zone zone = zoneService.findById(dto.getId_zone());
+
+        zoneNeed.setZone(zone);
 
         ZoneNeed created =
                 zoneNeedService.createZoneNeed(zoneNeed);
@@ -72,20 +89,26 @@ public class ZoneNeedController {
         );
     }
 
+
     @PutMapping("/{id}")
     public ResponseEntity<ZoneNeedDTO> update(
             @PathVariable int id,
-            @RequestBody ZoneNeed zoneNeed) {
+            @RequestBody ZoneNeedDTO dto) {
 
-        zoneNeed.setId(id);
-
+        ZoneNeed existing = zoneNeedService.findById(id);
+        if (dto.getUuid() != null) {
+            existing.setUuid(UUID.fromString(dto.getUuid()));
+        }
+        Zone zone = zoneService.findById(dto.getId_zone());
+        existing.setZone(zone);
         ZoneNeed updated =
-                zoneNeedService.updatZoneNeed(zoneNeed);
+                zoneNeedService.updatZoneNeed(existing);
 
         return ResponseEntity.ok(
                 zoneNeedMapper.toDTO(updated)
         );
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(

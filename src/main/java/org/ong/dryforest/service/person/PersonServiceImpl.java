@@ -52,10 +52,6 @@ public class PersonServiceImpl implements PersonService {
         return personRepository.findAllByRole_Id(id_role);
     }
 
-    @Override
-    public List<Person> findAllActivePersons() {
-        return personRepository.findAllByIsDeletedFalse();
-    }
 
     @Override
     public Person createPerson(PersonWebDTO dto) {

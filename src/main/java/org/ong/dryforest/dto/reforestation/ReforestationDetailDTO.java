@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,6 +16,8 @@ import lombok.Setter;
 public class ReforestationDetailDTO {
 
     private int id_reforestation_detail;
+
+    private int id_reforestation;
 
     private int id_species;
 

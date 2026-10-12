@@ -483,21 +483,59 @@ INSERT INTO animal (id_animal, name, id_category_animal, created_at, updated_at,
 (6, 'Furcifer labordi (Caméléon de Labord)', 3, '2025-02-07 10:00:00', '2025-02-07 10:00:00', false),
 (7, 'Acrantophis madagascariensis (Boa de Madagascar)', 3, '2025-02-07 10:15:00', '2025-02-07 10:15:00', false)@@
 
-INSERT INTO animal_tracking (id_animal_tracking, uuid, date_tracking, description, location, id_plantation_block, created_at, updated_at, is_synced, is_deleted) VALUES
-(1, gen_random_uuid(), '2025-09-12 07:45:00',
+INSERT INTO animal_tracking (
+    id_animal_tracking,
+    uuid,
+    date_tracking,
+    description,
+    location,
+    id_plantation_block,
+    created_at,
+    updated_at,
+    is_synced,
+    is_deleted,
+    have_seen
+)
+VALUES
+(
+    1,
+    gen_random_uuid(),
+    '2025-09-12 07:45:00',
     'Traces de pas fraîches au sol et restes de fruits rongés observés près des baobabs.',
-    ST_GeomFromText('POINT(44.0912 -20.7125)', 4326), 1,
-    '2025-09-12 08:00:00', '2025-09-12 08:00:00', true, false),
-
-(2, gen_random_uuid(), '2025-10-20 18:30:00',
+    ST_GeomFromText('POINT(44.0912 -20.7125)', 4326),
+    1,
+    '2025-09-12 08:00:00',
+    '2025-09-12 08:00:00',
+    true,
+    false,
+    false
+),
+(
+    2,
+    gen_random_uuid(),
+    '2025-10-20 18:30:00',
     'Session d''écoute nocturne près de la zone de transition humide. Forte activité biologique.',
-    ST_GeomFromText('POINT(44.1325 -20.8315)', 4326), 3,
-    '2025-10-20 19:30:00', '2025-10-20 19:30:00', true, false),
-
-(3, gen_random_uuid(), '2025-11-05 10:15:00',
+    ST_GeomFromText('POINT(44.1325 -20.8315)', 4326),
+    3,
+    '2025-10-20 19:30:00',
+    '2025-10-20 19:30:00',
+    true,
+    false,
+    false
+),
+(
+    3,
+    gen_random_uuid(),
+    '2025-11-05 10:15:00',
     'Patrouille de suivi biodiversité le long du transect principal de restauration.',
-    ST_GeomFromText('POINT(44.1945 -20.7155)', 4326), 6,
-    '2025-11-05 12:00:00', '2025-11-05 12:00:00', true, false)@@
+    ST_GeomFromText('POINT(44.1945 -20.7155)', 4326),
+    6,
+    '2025-11-05 12:00:00',
+    '2025-11-05 12:00:00',
+    true,
+    false,
+    false
+);
 
 INSERT INTO animal_tracking_detail (id_animal_tracking_detail, have_seen, uuid, id_animal, id_animal_tracking, created_at, updated_at, is_synced, is_deleted) VALUES
 (1, true,  gen_random_uuid(), 1, 1, '2025-09-12 08:05:00', '2025-09-12 08:05:00', true, false),

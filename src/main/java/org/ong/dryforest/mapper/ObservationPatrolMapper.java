@@ -11,10 +11,6 @@ import org.ong.dryforest.entity.ObservationPatrol;
 
 public class ObservationPatrolMapper {
 
-    // =========================================================
-    // Entity -> ObservationPatrolWebDTO
-    // Utilisé par les GET web
-    // =========================================================
     public static ObservationPatrolWebDTO toObservationPatrolWebDTO(
             ObservationPatrol observationPatrol) {
 
@@ -69,8 +65,6 @@ public class ObservationPatrolMapper {
                     new HashMap<>();
 
             location.put("type", "Point");
-
-            // GeoJSON : [longitude, latitude]
             location.put(
                     "coordinates",
                     List.of(
@@ -86,10 +80,6 @@ public class ObservationPatrolMapper {
     }
 
 
-    // =========================================================
-    // Entity -> ObservationPatrolDTO
-    // Utilisé pour retourner le DTO après POST
-    // =========================================================
     public static ObservationPatrolDTO toObservationPatrolDTO(
             ObservationPatrol observationPatrol) {
 
@@ -123,8 +113,6 @@ public class ObservationPatrolMapper {
         dto.set_synced(
                 observationPatrol.is_synced()
         );
-
-        // Type d'observation
         if (observationPatrol.getTypeObservationPatrol() != null) {
 
             dto.setId_type_observation_patrol(
@@ -133,8 +121,6 @@ public class ObservationPatrolMapper {
                             .getId()
             );
         }
-
-        // Groupe de patrouille
         if (observationPatrol.getPatrolGroup() != null) {
 
             dto.setId_patrol_group(
@@ -144,7 +130,6 @@ public class ObservationPatrolMapper {
             );
         }
 
-        // Zone
         if (observationPatrol.getZone() != null) {
 
             dto.setId_zone(
@@ -154,7 +139,6 @@ public class ObservationPatrolMapper {
             );
         }
 
-        // Utilisateur
         if (observationPatrol.getUsers() != null) {
 
             dto.setId_user(
@@ -164,7 +148,6 @@ public class ObservationPatrolMapper {
             );
         }
 
-        // Location
         if (observationPatrol.getLocation() != null) {
 
             Point point =
@@ -175,7 +158,6 @@ public class ObservationPatrolMapper {
 
             location.put("type", "Point");
 
-            // GeoJSON : [longitude, latitude]
             location.put(
                     "coordinates",
                     List.of(
