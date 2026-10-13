@@ -165,6 +165,8 @@ public class PlantationServiceImpl
                     dto.getImage()
             );
 
+            plantation.setStatus(dto.isStatus());
+
             var species =
                     speciesService.findSpeciesEntityById(
                             dto.getId_species()
@@ -194,8 +196,6 @@ public class PlantationServiceImpl
             plantation.setCarbon_sequestered(
                     carbon
             );
-
-            plantation.setStatus(false);
 
             return plantationRepository.save(
                     plantation

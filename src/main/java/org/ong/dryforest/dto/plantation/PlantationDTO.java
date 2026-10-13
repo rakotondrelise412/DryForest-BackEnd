@@ -28,6 +28,10 @@ public class PlantationDTO {
 
     private double height;
 
+    private boolean status;
+
+    private double carbon_sequestered;
+
     private String image;
 
     @JsonProperty("created_at")

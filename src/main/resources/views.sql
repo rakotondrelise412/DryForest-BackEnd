@@ -1,7 +1,7 @@
 --cmd
 -- psql -U postgres
 -- DROP DATABASE IF EXISTS dryforest;
--- CREATE DATABASE dryforest;
+-- CREATE DATABASE dryforest_test;
 -- \c dryforest
 -- CREATE EXTENSION IF NOT EXISTS postgis;
 -- SELECT PostGIS_Version();
