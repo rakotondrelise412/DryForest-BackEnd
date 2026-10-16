@@ -5,7 +5,9 @@ import org.ong.dryforest.dto.PlantingMonitoringDTO;
 import org.ong.dryforest.dto.species.SpeciesStatDTO;
 import org.ong.dryforest.entity.PlantingMonitoring;
 import org.ong.dryforest.mapper.PlantingMonitoringMapper;
+import org.ong.dryforest.service.ImageStorageService;
 import org.ong.dryforest.service.plantingMonitoring.PlantingMonitoringService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +17,25 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/planting_monitoring")
 @RequiredArgsConstructor
 public class PlantingMonitoringController {
 
     private final PlantingMonitoringService plantingMonitoringService;
+
+    @Autowired
+    private ImageStorageService imageStorageService;
 
     @GetMapping
     public ResponseEntity<List<PlantingMonitoringDTO>> getAll() {
@@ -99,18 +114,31 @@ public class PlantingMonitoringController {
     }
 
 
-    @PostMapping
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PlantingMonitoringDTO> create(
-            @RequestBody PlantingMonitoringDTO dto
-    ) {
+            @RequestPart("plantingMonitoring") String plantingMonitoringJson,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+
+        ObjectMapper objectMapper = new ObjectMapper()
+                .findAndRegisterModules();
+
+        PlantingMonitoringDTO dto = objectMapper.readValue(
+                plantingMonitoringJson,
+                PlantingMonitoringDTO.class
+        );
+
+        if (image != null && !image.isEmpty()) {
+            String imagePath = imageStorageService.store(image);
+            dto.setImage(imagePath);
+        }
 
         PlantingMonitoring saved =
                 plantingMonitoringService.create(dto);
 
         PlantingMonitoringDTO result =
-                PlantingMonitoringMapper.toMonitoringDTO(
-                        saved
-                );
+                PlantingMonitoringMapper.toMonitoringDTO(saved);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -118,64 +146,62 @@ public class PlantingMonitoringController {
     }
 
 
-    @PutMapping("/{id}")
+
+    @PutMapping(
+            value = "/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<PlantingMonitoringDTO> update(
             @PathVariable int id,
-            @RequestBody PlantingMonitoringDTO dto
-    ) {
+            @RequestPart("plantingMonitoring") String plantingMonitoringJson,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
 
         PlantingMonitoring existing =
                 plantingMonitoringService.findById(id);
 
+        ObjectMapper objectMapper = new ObjectMapper()
+                .findAndRegisterModules();
 
-        if (dto.getUuid() != null) {
+        PlantingMonitoringDTO dto = objectMapper.readValue(
+                plantingMonitoringJson,
+                PlantingMonitoringDTO.class
+        );
 
-            existing.setUuid(
-                    dto.getUuid()
-            );
+        if (image != null && !image.isEmpty()) {
+            String imagePath = imageStorageService.store(image);
+            dto.setImage(imagePath);
+        } else {
+            dto.setImage(existing.getImage());
         }
 
+        if (dto.getUuid() != null) {
+            existing.setUuid(dto.getUuid());
+        }
 
         if (dto.getDate_planting_monitoring() != null) {
-
             existing.setDate_planting_monitoring(
                     dto.getDate_planting_monitoring()
             );
         }
 
+        existing.setDiameter(dto.getDiameter());
+        existing.setHeight(dto.getHeight());
 
-        existing.setDiameter(
-                dto.getDiameter()
-        );
-
-        existing.setHeight(
-                dto.getHeight()
-        );
-
-
-        if (dto.getImage() != null &&
-                !dto.getImage().isBlank()) {
-
-            existing.setImage(
-                    dto.getImage()
-            );
-        }
-
+        existing.setImage(dto.getImage());
 
         existing.setAuto_generation(
                 dto.isAuto_generation()
         );
 
         PlantingMonitoring updated =
-                plantingMonitoringService
-                        .updatePlantingMonitoring(
-                                existing
-                        );
+                plantingMonitoringService.updatePlantingMonitoring(
+                        existing
+                );
 
         PlantingMonitoringDTO result =
-                PlantingMonitoringMapper.toMonitoringDTO(
-                        updated
-                );
+                PlantingMonitoringMapper.toMonitoringDTO(updated);
 
         return ResponseEntity.ok(result);
     }
