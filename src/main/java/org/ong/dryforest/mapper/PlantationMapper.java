@@ -32,6 +32,7 @@ public final class PlantationMapper {
 
         dto.setId_plantation(plantation.getId());
         dto.setPlant_number(plantation.getPlant_number());
+        dto.setImage(plantation.getImage());
 
         if (plantation.getReforestation() != null) {
             dto.setId_reforestation(

@@ -74,6 +74,10 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**")
                         .permitAll()
 
+                        // Autorise l'accès public aux images
+                        .requestMatchers("/uploads/**")
+                        .permitAll()
+
                         // Toutes les autres routes nécessitent un JWT
                         .anyRequest()
                         .authenticated()

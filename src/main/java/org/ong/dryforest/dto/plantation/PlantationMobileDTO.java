@@ -20,4 +20,6 @@ public class PlantationMobileDTO {
     private int id_species;
 
     private int id_sub_plot;
+
+    private String image;
 }
