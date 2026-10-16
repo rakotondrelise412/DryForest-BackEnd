@@ -14,7 +14,7 @@ import org.ong.dryforest.dto.incidentPatrol.IncidentPatrolDTO;
 import org.ong.dryforest.dto.incidentPatrol.IncidentPatrolWebDTO;
 import org.ong.dryforest.entity.IncidentPatrol;
 import org.ong.dryforest.mapper.IncidentPatrolMapper;
-import org.ong.dryforest.service.incidentPatrol.ImageStorageService;
+import org.ong.dryforest.service.ImageStorageService;
 import org.ong.dryforest.service.incidentPatrol.IncidentPatrolService;
 import org.ong.dryforest.service.incidentPatrol.PatrolGroupService;
 import org.ong.dryforest.service.incidentPatrol.TypeIncidentPatrolService;

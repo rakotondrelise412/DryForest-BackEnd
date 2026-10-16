@@ -1,5 +1,20 @@
 package org.ong.dryforest.controller;
 
+import java.io.IOException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.ong.dryforest.service.ImageStorageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.RequiredArgsConstructor;
 import org.ong.dryforest.dto.plantation.*;
 import org.ong.dryforest.dto.plantationBlock.PlantationBlockSurvivalRateDTO;
@@ -7,8 +22,6 @@ import org.ong.dryforest.dto.species.SpeciesCarbonDTO;
 import org.ong.dryforest.entity.Plantation;
 import org.ong.dryforest.mapper.PlantationMapper;
 import org.ong.dryforest.service.plantation.PlantationService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
@@ -22,6 +35,8 @@ public class PlantationController {
 
     private final PlantationService plantationService;
 
+    @Autowired
+    private ImageStorageService imageStorageService;
 
     @GetMapping
     public ResponseEntity<List<PlantationMobileDTO>> findAll() {
@@ -170,45 +185,67 @@ public class PlantationController {
     }
 
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PlantationMobileDTO> create(
-            @RequestBody PlantationDTO plantationDTO
-    ) {
+            @RequestPart("plantation") String plantationJson,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
 
-        Plantation saved =
-                plantationService.create(
-                        plantationDTO
-                );
+        ObjectMapper objectMapper = new ObjectMapper()
+                .findAndRegisterModules();
 
-        PlantationMobileDTO result =
-                PlantationMapper.toPlantationMobileDTO(
-                        saved
-                );
+        PlantationDTO dto = objectMapper.readValue(
+                plantationJson,
+                PlantationDTO.class
+        );
+
+        if (image != null && !image.isEmpty()) {
+            String imagePath = imageStorageService.store(image);
+            dto.setImage(imagePath);
+        }
+
+        Plantation saved = plantationService.create(dto);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(result);
+                .body(PlantationMapper.toPlantationMobileDTO(saved));
     }
 
 
-    @PutMapping("/{id}")
+
+    @PutMapping(
+            value = "/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<PlantationMobileDTO> update(
             @PathVariable int id,
-            @RequestBody PlantationDTO plantationDTO
-    ) {
+            @RequestPart("plantation") String plantationJson,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
 
-        Plantation updated =
-                plantationService.update(
-                        id,
-                        plantationDTO
-                );
+        Plantation existing = plantationService.findById(id);
 
-        PlantationMobileDTO result =
-                PlantationMapper.toPlantationMobileDTO(
-                        updated
-                );
+        ObjectMapper objectMapper = new ObjectMapper()
+                .findAndRegisterModules();
 
-        return ResponseEntity.ok(result);
+        PlantationDTO dto = objectMapper.readValue(
+                plantationJson,
+                PlantationDTO.class
+        );
+
+        if (image != null && !image.isEmpty()) {
+            String imagePath = imageStorageService.store(image);
+            dto.setImage(imagePath);
+        } else {
+            dto.setImage(existing.getImage());
+        }
+
+        Plantation updated = plantationService.update(id, dto);
+
+        return ResponseEntity.ok(
+                PlantationMapper.toPlantationMobileDTO(updated)
+        );
     }
 
 
