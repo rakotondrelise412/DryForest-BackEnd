@@ -4,10 +4,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.ong.dryforest.entity.PatrolGroup;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PatrolGroupService {
 
     List<PatrolGroup> findAll();
+
+    Page<PatrolGroup> findAll(Pageable pageable);
 
     PatrolGroup findById(int id_patrol_group);
 

@@ -1,7 +1,6 @@
 package org.ong.dryforest.controller;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +9,9 @@ import org.ong.dryforest.entity.PatrolGroup;
 import org.ong.dryforest.mapper.PatrolGroupMapper;
 import org.ong.dryforest.service.incidentPatrol.PatrolGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,19 +25,15 @@ public class PatrolGroupController {
 
 
     @GetMapping
-    public ResponseEntity<List<PatrolGroupDTO>> findAll() {
+    public ResponseEntity<Page<PatrolGroupDTO>> findAll(
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "0") int page) {
 
-        List<PatrolGroupDTO> patrolGroupDTO = new ArrayList<>();
+        Pageable pageable = PageRequest.of(page, size);
 
-        List<PatrolGroup> patrolGroup =
-                patrolGroupService.findAll();
-
-        if (patrolGroup != null && !patrolGroup.isEmpty()) {
-
-            patrolGroupDTO = patrolGroup.stream()
-                    .map(PatrolGroupMapper::toPatrolGroupDTO)
-                    .collect(Collectors.toList());
-        }
+        Page<PatrolGroupDTO> patrolGroupDTO =
+                patrolGroupService.findAll(pageable)
+                        .map(PatrolGroupMapper::toPatrolGroupDTO);
 
         return ResponseEntity.ok(patrolGroupDTO);
     }

@@ -7,6 +7,8 @@ import org.ong.dryforest.entity.PatrolGroup;
 import org.ong.dryforest.repository.PatrolGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +20,12 @@ public class PatrolGroupServiceImpl implements PatrolGroupService {
     @Override
     public List<PatrolGroup> findAll() {
         return patrolGroupRepository.findAllByIsDeletedFalse();
+    }
+
+    @Override
+    public Page<PatrolGroup> findAll(Pageable pageable) {
+        return patrolGroupRepository
+                .findAllByIsDeletedFalse(pageable);
     }
 
     @Override
