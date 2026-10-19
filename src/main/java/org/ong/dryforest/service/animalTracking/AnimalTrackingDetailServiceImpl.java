@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +50,6 @@ public class AnimalTrackingDetailServiceImpl
 
     @Override
     public List<AnimalTrackingDetail> findAll() {
-
         return animalTrackingDetailRepository
                 .findAllByIsDeletedFalse();
     }
@@ -306,5 +307,11 @@ public class AnimalTrackingDetailServiceImpl
         animalTrackingDetailRepository.save(
                 animalTrackingDetail
         );
+    }
+
+    @Override
+    public Page<AnimalTrackingDetail> findAll(Pageable pageable) {
+        return animalTrackingDetailRepository
+                .findAllByIsDeletedFalse(pageable);
     }
 }

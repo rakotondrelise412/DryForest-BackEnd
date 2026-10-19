@@ -8,8 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/animal_tracking_detail")
@@ -33,12 +39,32 @@ public class AnimalTrackingDetailController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AnimalTrackingDetailDTO>> findAll() {
+    public ResponseEntity<Page<AnimalTrackingDetailDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        if (page < 0 || size < 1 || size > 100) {
+            throw new IllegalArgumentException(
+                    "page doit être >= 0 et size doit être compris entre 1 et 100"
+            );
+        }
 
-        List<AnimalTrackingDetailDTO> result =
-                animalTrackingDetailMapper.toDTOList(
-                        animalTrackingDetailService.findAll()
-                );
+        Sort.Direction direction =
+                "asc".equalsIgnoreCase(sortDir)
+                        ? Sort.Direction.ASC
+                        : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(direction, sortBy)
+        );
+
+        Page<AnimalTrackingDetailDTO> result =
+                animalTrackingDetailService.findAll(pageable)
+                        .map(animalTrackingDetailMapper::toDTO);
 
         return ResponseEntity.ok(result);
     }

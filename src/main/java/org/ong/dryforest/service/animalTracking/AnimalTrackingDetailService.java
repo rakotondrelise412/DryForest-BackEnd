@@ -2,6 +2,8 @@ package org.ong.dryforest.service.animalTracking;
 
 import org.ong.dryforest.dto.animaltracking.AnimalTrackingDetailDTO;
 import org.ong.dryforest.entity.AnimalTrackingDetail;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -45,4 +47,7 @@ public interface AnimalTrackingDetailService {
     AnimalTrackingDetail mapToEntity(
             Map<String, Object> animalTrackingDetailMapping
     );
+
+    Page<AnimalTrackingDetail> findAll(Pageable pageable);
+
 }
