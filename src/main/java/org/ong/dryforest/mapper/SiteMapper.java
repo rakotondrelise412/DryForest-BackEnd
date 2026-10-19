@@ -19,16 +19,21 @@ public class SiteMapper {
         return siteDTO;
     }
 
+
     public static SiteWebDTO toWebDTO(Site site) {
         SiteWebDTO siteDTO = new SiteWebDTO();
 
         siteDTO.setId(site.getId());
         siteDTO.setName(site.getName());
-        siteDTO.setLatitude(site.getLocation().getY());
-        siteDTO.setLongitude(site.getLocation().getX());
+
+        if (site.getLocation() != null) {
+            siteDTO.setLatitude(site.getLocation().getY());
+            siteDTO.setLongitude(site.getLocation().getX());
+        }
 
         return siteDTO;
     }
+
 
     public static List<SiteMobileDTO> toDTOList(List<Site> sites) {
         List<SiteMobileDTO> sitesDTO;

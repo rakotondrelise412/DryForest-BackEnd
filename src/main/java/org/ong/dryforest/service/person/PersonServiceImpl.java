@@ -3,6 +3,7 @@ package org.ong.dryforest.service.person;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.ong.dryforest.dto.person.PersonMobileDTO;
 import org.ong.dryforest.dto.person.PersonWebDTO;
 import org.ong.dryforest.entity.Gender;
 import org.ong.dryforest.entity.Person;
@@ -13,6 +14,8 @@ import org.ong.dryforest.repository.PersonRepository;
 
 import org.ong.dryforest.repository.RoleRepository;
 import org.ong.dryforest.repository.SiteRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,9 +40,10 @@ public class PersonServiceImpl implements PersonService {
                 .orElseThrow(() -> new RuntimeException("Personne '" + id_person + "' introuvable"));
     }
 
+
     @Override
-    public List<Person> findAllPersons() {
-        return personRepository.findAll();
+    public Page<Person> findAllPersons(Pageable pageable) {
+        return personRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override
@@ -50,6 +54,39 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public List<Person> findAllPersonsByRole(int id_role) {
         return personRepository.findAllByRole_Id(id_role);
+    }
+
+    public Person createPerson(PersonMobileDTO dto) {
+        Person person = new Person();
+
+        person.setLast_name(dto.getLast_name());
+        person.setFirst_name(dto.getFirst_name());
+        person.setEmail(dto.getEmail());
+        person.setPhone_number(dto.getPhone_number());
+        person.setAddress(dto.getAddress());
+
+        if (dto.getId_gender() != null) {
+            Gender gender = genderRepository.findById(dto.getId_gender())
+                    .orElseThrow(() ->
+                            new RuntimeException("Genre introuvable"));
+            person.setGender(gender);
+        }
+
+        if (dto.getId_role() != null) {
+            Role role = roleRepository.findById(dto.getId_role())
+                    .orElseThrow(() ->
+                            new RuntimeException("Rôle introuvable"));
+            person.setRole(role);
+        }
+
+        if (dto.getId_site() != null) {
+            Site site = siteRepository.findById(dto.getId_site())
+                    .orElseThrow(() ->
+                            new RuntimeException("Site introuvable"));
+            person.setSite(site);
+        }
+
+        return personRepository.save(person);
     }
 
 
@@ -139,7 +176,9 @@ public class PersonServiceImpl implements PersonService {
 
             Gender gender = genderRepository.findById(idGender)
                     .orElseThrow(() ->
-                            new RuntimeException("Gender '" + idGender + "' introuvable"));
+                            new RuntimeException(
+                                    "Gender '" + idGender + "' introuvable"
+                            ));
 
             person.setGender(gender);
         }
@@ -149,7 +188,9 @@ public class PersonServiceImpl implements PersonService {
 
             Role role = roleRepository.findById(idRole)
                     .orElseThrow(() ->
-                            new RuntimeException("Role '" + idRole + "' introuvable"));
+                            new RuntimeException(
+                                    "Role '" + idRole + "' introuvable"
+                            ));
 
             person.setRole(role);
         }
@@ -159,16 +200,15 @@ public class PersonServiceImpl implements PersonService {
 
             Site site = siteRepository.findById(idSite)
                     .orElseThrow(() ->
-                            new RuntimeException("Site '" + idSite + "' introuvable"));
+                            new RuntimeException(
+                                    "Site '" + idSite + "' introuvable"
+                            ));
 
             person.setSite(site);
-        } else {
-            person.setSite(null);
         }
 
         return personRepository.save(person);
     }
-
 
     @Override
     public void deletePerson(int id_person) {

@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.ong.dryforest.entity.Person;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +18,8 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
     List<Person> findAllByRole_Id(int id_role);
     
     List<Person> findAllByIsDeletedFalse();
+
+    Page<Person> findAllByIsDeletedFalse(Pageable pageable);
     
     Optional<Person> findByIdAndIsDeletedFalse(int id);
 

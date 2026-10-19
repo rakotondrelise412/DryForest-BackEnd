@@ -11,6 +11,7 @@ import org.ong.dryforest.service.animalTracking.AnimalTrackingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +31,9 @@ public class AnimalTrackingController {
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(
-                Math.max(page, 0),
-                Math.max(size, 1)
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
         return ResponseEntity.ok(
@@ -45,8 +47,9 @@ public class AnimalTrackingController {
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(
-                Math.max(page, 0),
-                Math.max(size, 1)
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
         Page<AnimalTrackingDTO> result =

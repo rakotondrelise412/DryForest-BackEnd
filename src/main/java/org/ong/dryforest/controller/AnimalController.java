@@ -9,6 +9,7 @@ import org.ong.dryforest.entity.CategoryAnimal;
 import org.ong.dryforest.mapper.AnimalMapper;
 import org.ong.dryforest.service.animalTracking.AnimalService;
 import org.ong.dryforest.service.animalTracking.CategoryAnimalService;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,15 +29,15 @@ public class AnimalController {
     private final AnimalService animalService;
     private final CategoryAnimalService categoryAnimalService;
 
-
     @GetMapping
     public ResponseEntity<Page<AnimalDTO>> findAll(
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(
-                Math.max(page - 1, 0),
-                size
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
         Page<Animal> animals = animalService.findAll(pageable);

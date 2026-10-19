@@ -1,13 +1,17 @@
 package org.ong.dryforest.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.ong.dryforest.dto.person.PersonMobileDTO;
 import org.ong.dryforest.entity.Person;
 import org.ong.dryforest.mapper.PersonMapper;
 import org.ong.dryforest.dto.person.PersonWebDTO;
 import org.ong.dryforest.service.person.PersonService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +24,19 @@ public class PersonController {
     private PersonService personService;
 
     @GetMapping
-    public ResponseEntity<List<PersonWebDTO>> getAllPersons() {
-        List<PersonWebDTO> personsDTO = new ArrayList<>();
+    public ResponseEntity<Page<PersonWebDTO>> getAllPersons(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
 
-        List<Person> persons = personService.findAllPersons();
-        if (persons != null && !persons.isEmpty()) {
-            personsDTO = PersonMapper.toDTOList(persons);
-        }
+        Page<PersonWebDTO> personsDTO =
+                personService.findAllPersons(pageable)
+                        .map(PersonMapper::toWebDTO);
 
         return ResponseEntity.ok(personsDTO);
     }
@@ -56,6 +66,25 @@ public class PersonController {
                 PersonMapper.toDTOList(persons);
 
         return ResponseEntity.ok(personsDTO);
+    }
+
+    @PostMapping("/mobile")
+    public ResponseEntity<?> createPersonMobile(
+            @RequestBody PersonMobileDTO personDTO) {
+
+        try {
+            Person createdPerson =
+                    personService.createPerson(personDTO);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(PersonMapper.toWebDTO(createdPerson));
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(e.getMessage());
+        }
     }
 
     @PostMapping

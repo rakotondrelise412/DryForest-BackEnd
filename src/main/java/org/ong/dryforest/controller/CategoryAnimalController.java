@@ -26,29 +26,15 @@ public class CategoryAnimalController {
     @Autowired
     private CategoryAnimalService categoryAnimalService;
 
-
     @GetMapping
     public ResponseEntity<Page<CategoryAnimalDTO>> findAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir
+            @RequestParam(defaultValue = "10") int size
     ) {
-        if (page < 0 || size < 1 || size > 100) {
-            throw new IllegalArgumentException(
-                    "page doit être >= 0 et size doit être compris entre 1 et 100"
-            );
-        }
-
-        Sort.Direction direction =
-                "asc".equalsIgnoreCase(sortDir)
-                        ? Sort.Direction.ASC
-                        : Sort.Direction.DESC;
-
         Pageable pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by(direction, sortBy)
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
         Page<CategoryAnimalDTO> result =
@@ -57,7 +43,6 @@ public class CategoryAnimalController {
 
         return ResponseEntity.ok(result);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<CategoryAnimalDTO> findById(
