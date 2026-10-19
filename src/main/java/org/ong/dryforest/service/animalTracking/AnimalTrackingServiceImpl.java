@@ -7,6 +7,8 @@ import org.ong.dryforest.entity.AnimalTracking;
 import org.ong.dryforest.mapper.AnimalTrackingMapper;
 import org.ong.dryforest.repository.AnimalTrackingRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -272,9 +274,15 @@ public class AnimalTrackingServiceImpl implements AnimalTrackingService {
 
 
     @Override
-    public List<AnimalObservedByZoneDTO> getObservedAnimalsByZone() {
+    public Page<AnimalObservedByZoneDTO> getObservedAnimalsByZone(
+            Pageable pageable
+    ) {
+        return animalTrackingRepository.findObservedAnimalsByZone(pageable);
+    }
 
+    @Override
+    public Page<AnimalTracking> findAll(Pageable pageable) {
         return animalTrackingRepository
-                .findObservedAnimalsByZone();
+                .findAllByIsDeletedFalse(pageable);
     }
 }

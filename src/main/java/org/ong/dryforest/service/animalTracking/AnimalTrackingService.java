@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.ong.dryforest.dto.animaltracking.AnimalObservedByZoneDTO;
 import org.ong.dryforest.dto.animaltracking.AnimalTrackingDTO;
 import org.ong.dryforest.entity.AnimalTracking;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AnimalTrackingService {
 
@@ -19,6 +21,8 @@ public interface AnimalTrackingService {
     );
 
     List<AnimalTracking> findAll();
+
+    Page<AnimalTracking> findAll(Pageable pageable);
 
     AnimalTracking findById(int id);
 
@@ -43,5 +47,5 @@ public interface AnimalTrackingService {
             Map<String, Object> animalTrackingMapping
     );
 
-    List<AnimalObservedByZoneDTO> getObservedAnimalsByZone();
+    Page<AnimalObservedByZoneDTO> getObservedAnimalsByZone(Pageable pageable);
 }

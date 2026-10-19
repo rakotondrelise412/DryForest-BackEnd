@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.ong.dryforest.dto.animaltracking.AnimalObservedByZoneDTO;
 import org.ong.dryforest.entity.AnimalTracking;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,10 @@ public interface AnimalTrackingRepository extends JpaRepository<AnimalTracking, 
     List<AnimalTracking> findAllByIsDeletedFalse();
 
     Optional<AnimalTracking> findByIdAndIsDeletedFalse(int id);
+
+    Page<AnimalTracking> findAllByIsDeletedFalse(
+            Pageable pageable
+    );
 
     @Query("""
         SELECT new org.ong.dryforest.dto.animaltracking.AnimalObservedByZoneDTO(
@@ -42,5 +48,7 @@ public interface AnimalTrackingRepository extends JpaRepository<AnimalTracking, 
         GROUP BY z.id, z.name, a.id, a.name
         ORDER BY z.name, a.name
     """)
-    List<AnimalObservedByZoneDTO> findObservedAnimalsByZone();
+    Page<AnimalObservedByZoneDTO> findObservedAnimalsByZone(
+            Pageable pageable
+    );
 }
