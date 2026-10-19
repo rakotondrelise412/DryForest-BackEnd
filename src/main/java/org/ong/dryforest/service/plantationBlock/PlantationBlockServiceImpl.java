@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -398,5 +400,10 @@ public class PlantationBlockServiceImpl
         }
 
         return plantationBlock;
+    }
+
+    @Override
+    public Page<PlantationBlock> findAll(Pageable pageable) {
+        return plantationBlockRepository.findAllByIsDeletedFalse(pageable);
     }
 }

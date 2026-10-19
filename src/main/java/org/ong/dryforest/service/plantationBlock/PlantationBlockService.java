@@ -6,10 +6,14 @@ import org.ong.dryforest.entity.PlantationBlock;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PlantationBlockService {
 
     List<PlantationBlock> findAll();
+
+    Page<PlantationBlock> findAll(Pageable pageable);
 
     PlantationBlock findById(int id);
 

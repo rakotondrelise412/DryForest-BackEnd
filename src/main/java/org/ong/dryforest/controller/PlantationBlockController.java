@@ -7,6 +7,10 @@ import org.ong.dryforest.entity.PlantationBlock;
 import org.ong.dryforest.mapper.PlantationBlockMapper;
 import org.ong.dryforest.service.plantationBlock.PlantationBlockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,25 +28,27 @@ public class PlantationBlockController {
 
 
     @GetMapping
-    public ResponseEntity<List<PlantationBlockMobileDTO>>
-    findAll() {
+    public ResponseEntity<Page<PlantationBlockMobileDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<PlantationBlock> plantationBlocks =
-                plantationBlockService.findAll();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
 
-        List<PlantationBlockMobileDTO> result =
-                plantationBlocks
-                        .stream()
-                        .map(
-                                PlantationBlockMapper
-                                        ::toPlantationBlockMobileDTO
-                        )
-                        .collect(
-                                Collectors.toList()
-                        );
+        Page<PlantationBlock> plantationBlocks =
+                plantationBlockService.findAll(pageable);
+
+        Page<PlantationBlockMobileDTO> result =
+                plantationBlocks.map(
+                        PlantationBlockMapper::toPlantationBlockMobileDTO
+                );
 
         return ResponseEntity.ok(result);
     }
+
 
 
     @GetMapping("/all")
