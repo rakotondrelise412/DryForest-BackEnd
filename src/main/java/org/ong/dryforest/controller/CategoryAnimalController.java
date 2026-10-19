@@ -1,7 +1,6 @@
 package org.ong.dryforest.controller;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +13,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.RequestParam;
+
 @RestController
 @RequestMapping("/api/categoryAnimal")
 public class CategoryAnimalController {
@@ -23,22 +28,34 @@ public class CategoryAnimalController {
 
 
     @GetMapping
-    public ResponseEntity<List<CategoryAnimalDTO>> findAll() {
-
-        List<CategoryAnimal> categoryAnimals =
-                categoryAnimalService.findAll();
-
-        List<CategoryAnimalDTO> categoryAnimalDTO =
-                new ArrayList<>();
-
-        if (categoryAnimals != null && !categoryAnimals.isEmpty()) {
-
-            categoryAnimalDTO = categoryAnimals.stream()
-                    .map(CategoryAnimalMapper::toCategoryAnimalDTO)
-                    .collect(Collectors.toList());
+    public ResponseEntity<Page<CategoryAnimalDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        if (page < 0 || size < 1 || size > 100) {
+            throw new IllegalArgumentException(
+                    "page doit être >= 0 et size doit être compris entre 1 et 100"
+            );
         }
 
-        return ResponseEntity.ok(categoryAnimalDTO);
+        Sort.Direction direction =
+                "asc".equalsIgnoreCase(sortDir)
+                        ? Sort.Direction.ASC
+                        : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(direction, sortBy)
+        );
+
+        Page<CategoryAnimalDTO> result =
+                categoryAnimalService.findAll(pageable)
+                        .map(CategoryAnimalMapper::toCategoryAnimalDTO);
+
+        return ResponseEntity.ok(result);
     }
 
 

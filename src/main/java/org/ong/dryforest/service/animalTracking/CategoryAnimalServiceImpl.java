@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.ong.dryforest.entity.CategoryAnimal;
 import org.ong.dryforest.repository.CategoryAnimalRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,6 +30,11 @@ public class CategoryAnimalServiceImpl implements CategoryAnimalService {
     @Override
     public List<CategoryAnimal> findAll() {
         return categoryAnimalRepository.findAllByIsDeletedFalse();
+    }
+
+    @Override
+    public Page<CategoryAnimal> findAll(Pageable pageable) {
+        return categoryAnimalRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override
