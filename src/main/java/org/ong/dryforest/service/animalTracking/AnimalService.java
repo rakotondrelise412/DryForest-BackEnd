@@ -1,14 +1,17 @@
 package org.ong.dryforest.service.animalTracking;
 
 import org.ong.dryforest.entity.Animal;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 public interface AnimalService {
 
     List<Animal> findAll();
+
+    Page<Animal> findAll(Pageable pageable);
 
     Animal findById(int id_animal);
 

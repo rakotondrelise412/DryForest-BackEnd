@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/animal")
@@ -26,15 +30,21 @@ public class AnimalController {
 
 
     @GetMapping
-    public ResponseEntity<List<AnimalDTO>> findAll() {
+    public ResponseEntity<Page<AnimalDTO>> findAll(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(
+                Math.max(page - 1, 0),
+                size
+        );
 
-        List<Animal> animals = animalService.findAll();
+        Page<Animal> animals = animalService.findAll(pageable);
 
         return ResponseEntity.ok(
-                AnimalMapper.toDTOList(animals)
+                animals.map(AnimalMapper::toAnimalDTO)
         );
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<AnimalDTO> findById(

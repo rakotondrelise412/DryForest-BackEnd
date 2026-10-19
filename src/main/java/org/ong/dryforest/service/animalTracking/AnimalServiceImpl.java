@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.ong.dryforest.entity.Animal;
 import org.ong.dryforest.repository.AnimalRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -76,5 +78,10 @@ public class AnimalServiceImpl implements AnimalService {
         existing.setDeleted(true);
 
         animalRepository.save(existing);
+    }
+
+    @Override
+    public Page<Animal> findAll(Pageable pageable) {
+        return animalRepository.findAll(pageable);
     }
 }
