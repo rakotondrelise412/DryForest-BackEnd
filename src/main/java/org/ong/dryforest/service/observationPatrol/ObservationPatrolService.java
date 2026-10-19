@@ -7,6 +7,9 @@ import java.util.UUID;
 import org.ong.dryforest.dto.CountByTypeDTO;
 import org.ong.dryforest.dto.observationPatrol.ObservationPatrolDTO;
 import org.ong.dryforest.entity.ObservationPatrol;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 public interface ObservationPatrolService {
 
     ObservationPatrol create(
@@ -30,6 +33,8 @@ public interface ObservationPatrolService {
     ObservationPatrol findById(int id);
 
     List<ObservationPatrol> findAll();
+
+    Page<ObservationPatrol> findAll(Pageable pageable);
 
     ObservationPatrol mapToEntity(
             Map<String, Object> observationPatrolMapping);

@@ -19,6 +19,8 @@ import org.ong.dryforest.service.zone.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ObservationPatrolServiceImpl implements ObservationPatrolService {
@@ -37,6 +39,12 @@ public class ObservationPatrolServiceImpl implements ObservationPatrolService {
     @Override
     public List<ObservationPatrol> findAll(){
         return observationPatrolRepository.findAllByIsDeletedFalse();
+    }
+
+    @Override
+    public Page<ObservationPatrol> findAll(Pageable pageable) {
+        return observationPatrolRepository
+                .findAllByIsDeletedFalse(pageable);
     }
 
     @Override
@@ -226,14 +234,10 @@ public class ObservationPatrolServiceImpl implements ObservationPatrolService {
                     observationPatrolDTO.getDate_observation()
             );
 
-
-
-            // AJOUT
             observationPatrol.setDescription(
                     observationPatrolDTO.getDescription()
             );
 
-            // Relations existantes
             observationPatrol.setPatrolGroup(
                     patrolGroupService.findById(
                             observationPatrolDTO.getId_patrol_group()
@@ -258,7 +262,6 @@ public class ObservationPatrolServiceImpl implements ObservationPatrolService {
                     )
             );
 
-            // LOCATION
             if (observationPatrolDTO.getLocation() != null) {
 
                 Map<String, Object> location =

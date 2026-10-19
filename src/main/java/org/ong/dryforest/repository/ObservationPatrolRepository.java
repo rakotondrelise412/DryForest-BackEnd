@@ -9,6 +9,8 @@ import org.ong.dryforest.entity.ObservationPatrol;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface ObservationPatrolRepository extends JpaRepository<ObservationPatrol, Integer> {
@@ -17,6 +19,8 @@ public interface ObservationPatrolRepository extends JpaRepository<ObservationPa
     Optional<ObservationPatrol> findByUuidAndIsDeletedFalse(UUID uuid);
 
     List<ObservationPatrol> findAllByIsDeletedFalse();
+
+    Page<ObservationPatrol> findAllByIsDeletedFalse(Pageable pageable);
 
     Optional<ObservationPatrol> findByIdAndIsDeletedFalse(int id);
 

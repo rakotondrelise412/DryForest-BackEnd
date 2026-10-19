@@ -10,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/observationPatrol")
@@ -24,19 +27,34 @@ public class ObservationPatrolController {
 
 
     @GetMapping
-    public ResponseEntity<List<ObservationPatrolWebDTO>> getAll() {
+    public ResponseEntity<Page<ObservationPatrolWebDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        if (page < 0 || size < 1 || size > 100) {
+            throw new IllegalArgumentException(
+                    "page doit être >= 0 et size doit être compris entre 1 et 100"
+            );
+        }
 
-        List<ObservationPatrol> observation_pa =
-                observationPatrolService.findAll();
+        Sort.Direction direction =
+                "asc".equalsIgnoreCase(sortDir)
+                        ? Sort.Direction.ASC
+                        : Sort.Direction.DESC;
 
-        List<ObservationPatrolWebDTO> observationPatrolDTO =
-                observation_pa == null
-                        ? new ArrayList<>()
-                        : observation_pa.stream()
-                        .map(ObservationPatrolMapper::toObservationPatrolWebDTO)
-                        .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(direction, sortBy)
+        );
 
-        return ResponseEntity.ok(observationPatrolDTO);
+        Page<ObservationPatrolWebDTO> result =
+                observationPatrolService.findAll(pageable)
+                        .map(ObservationPatrolMapper::toObservationPatrolWebDTO);
+
+        return ResponseEntity.ok(result);
     }
 
 
