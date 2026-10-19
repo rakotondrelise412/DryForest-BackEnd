@@ -20,6 +20,8 @@ import org.ong.dryforest.service.species.SpeciesService;
 import org.ong.dryforest.service.subPlot.SubPlotService;
 import org.ong.dryforest.service.util.BlockStats;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,6 +78,12 @@ public class PlantationServiceImpl
     public List<Plantation> findAll() {
         return plantationRepository
                 .findAllByIsDeletedFalse();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Plantation> findAll(Pageable pageable) {
+        return plantationRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override

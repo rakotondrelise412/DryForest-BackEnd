@@ -13,6 +13,8 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PlantationService {
 
@@ -26,6 +28,8 @@ public interface PlantationService {
     void deleteById(int id);
 
     List<Plantation> findAll();
+
+    Page<Plantation> findAll(Pageable pageable);
 
     Plantation findById(int idPlantation);
 

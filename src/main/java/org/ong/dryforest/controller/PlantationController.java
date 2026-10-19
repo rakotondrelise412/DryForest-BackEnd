@@ -6,6 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.ong.dryforest.service.ImageStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,17 +42,21 @@ public class PlantationController {
     @Autowired
     private ImageStorageService imageStorageService;
 
-    @GetMapping
-    public ResponseEntity<List<PlantationMobileDTO>> findAll() {
 
-        List<PlantationMobileDTO> result =
-                plantationService.findAll()
-                        .stream()
-                        .map(
-                                PlantationMapper
-                                        ::toPlantationMobileDTO
-                        )
-                        .toList();
+    @GetMapping
+    public ResponseEntity<Page<PlantationMobileDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<PlantationMobileDTO> result =
+                plantationService.findAll(pageable)
+                        .map(PlantationMapper::toPlantationMobileDTO);
 
         return ResponseEntity.ok(result);
     }

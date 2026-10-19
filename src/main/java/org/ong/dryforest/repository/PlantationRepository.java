@@ -10,6 +10,8 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface PlantationRepository
@@ -57,6 +59,8 @@ public interface PlantationRepository
 
     List<Plantation>
     findAllByIsDeletedFalse();
+
+    Page<Plantation> findAllByIsDeletedFalse(Pageable pageable);
 
     Optional<Plantation>
     findByIdAndIsDeletedFalse(int id);
