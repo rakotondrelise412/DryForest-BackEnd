@@ -15,7 +15,8 @@ import org.ong.dryforest.service.user.UserService;
 import org.ong.dryforest.service.zone.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class IncidentPatrolServiceImpl
@@ -48,6 +49,12 @@ public class IncidentPatrolServiceImpl
 
         return incidentPatrolRepository
                 .findAllByIsDeletedFalse();
+    }
+
+    @Override
+    public Page<IncidentPatrol> findAll(Pageable pageable) {
+        return incidentPatrolRepository
+                .findAllByIsDeletedFalse(pageable);
     }
 
 
@@ -112,15 +119,8 @@ public class IncidentPatrolServiceImpl
 
         findById(incidentPatrol.getId());
 
-        /*
-         * Soft delete
-         */
         incidentPatrol.setDeleted(true);
 
-        /*
-         * L'élément n'est plus considéré comme
-         * synchronisé avec les données actives.
-         */
         incidentPatrol.set_synced(false);
 
         incidentPatrolRepository.save(

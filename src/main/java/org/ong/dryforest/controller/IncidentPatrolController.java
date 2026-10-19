@@ -1,9 +1,7 @@
 package org.ong.dryforest.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +26,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
@@ -59,21 +62,35 @@ public class IncidentPatrolController {
     private ImageStorageService imageStorageService;
 
     @GetMapping
-    public ResponseEntity<List<IncidentPatrolWebDTO>> getAll() {
+    public ResponseEntity<Page<IncidentPatrolWebDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        if (page < 0 || size < 1 || size > 100) {
+            throw new IllegalArgumentException(
+                    "page doit être >= 0 et size doit être compris entre 1 et 100"
+            );
+        }
 
-        List<IncidentPatrol> incidentPatrol =
-                incidentPatrolService.findAll();
+        Sort.Direction direction =
+                "asc".equalsIgnoreCase(sortDir)
+                        ? Sort.Direction.ASC
+                        : Sort.Direction.DESC;
 
-        List<IncidentPatrolWebDTO> incidentPatrolDTO =
-                incidentPatrol == null
-                        ? new ArrayList<>()
-                        : incidentPatrol.stream()
-                        .map(IncidentPatrolMapper::toIncidentPatrolWebDTO)
-                        .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(direction, sortBy)
+        );
 
-        return ResponseEntity.ok(incidentPatrolDTO);
+        Page<IncidentPatrolWebDTO> result =
+                incidentPatrolService.findAll(pageable)
+                        .map(IncidentPatrolMapper::toIncidentPatrolWebDTO);
+
+        return ResponseEntity.ok(result);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<IncidentPatrolWebDTO> getById(

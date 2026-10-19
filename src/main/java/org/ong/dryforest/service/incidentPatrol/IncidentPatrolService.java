@@ -6,10 +6,14 @@ import java.util.UUID;
 
 import org.ong.dryforest.dto.CountByTypeDTO;
 import org.ong.dryforest.entity.IncidentPatrol;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface IncidentPatrolService {
 
     List<IncidentPatrol> findAll();
+
+    Page<IncidentPatrol> findAll(Pageable pageable);
 
     IncidentPatrol createIncidentPatrol(IncidentPatrol incidentPatrol);
 
