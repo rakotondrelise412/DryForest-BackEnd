@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +29,17 @@ public class ReforestationServiceImpl
     @Autowired
     ZoneService zoneService;
 
-
     @Override
     public List<Reforestation> findAll() {
 
         return reforestationRepository
                 .findAllByIsDeletedFalse();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Reforestation> findAll(Pageable pageable) {
+        return reforestationRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override
@@ -118,32 +125,26 @@ public class ReforestationServiceImpl
                             reforestation.getId()
                     );
 
-
             existing.setUuid(
                     reforestation.getUuid()
             );
-
 
             existing.setDate_reforestation(
                     reforestation
                             .getDate_reforestation()
             );
 
-
             existing.setQuantity(
                     reforestation.getQuantity()
             );
-
 
             existing.setZone(
                     reforestation.getZone()
             );
 
-
             existing.setUpdatedAt(
                     LocalDateTime.now()
             );
-
 
             return reforestationRepository.save(
                     existing
@@ -167,13 +168,11 @@ public class ReforestationServiceImpl
                         reforestation.getId()
                 );
 
-
         existing.setDeleted(true);
 
         existing.setUpdatedAt(
                 LocalDateTime.now()
         );
-
 
         reforestationRepository.save(
                 existing
@@ -251,7 +250,6 @@ public class ReforestationServiceImpl
             );
         }
 
-
         Object updatedAt =
                 reforestationMapping.get(
                         "updated_at"
@@ -265,7 +263,6 @@ public class ReforestationServiceImpl
                     )
             );
         }
-
 
         Object synced =
                 reforestationMapping.get(
@@ -293,7 +290,6 @@ public class ReforestationServiceImpl
                     )
             );
         }
-
 
         return reforestation;
     }

@@ -7,10 +7,14 @@ import java.util.UUID;
 import org.ong.dryforest.dto.reforestation.ReforestationDTO;
 import org.ong.dryforest.dto.reforestation.ReforestationCountingDTO;
 import org.ong.dryforest.entity.Reforestation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ReforestationService {
 
     List<Reforestation> findAll();
+
+    Page<Reforestation> findAll(Pageable pageable);
 
     Reforestation findById(int id_reforestation);
 

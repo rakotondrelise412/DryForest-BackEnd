@@ -2,6 +2,8 @@ package org.ong.dryforest.repository;
 
 import org.ong.dryforest.dto.reforestation.ReforestationCountingDTO;
 import org.ong.dryforest.entity.Reforestation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,18 +19,16 @@ public interface ReforestationRepository
 
     boolean existsByUuidAndIsDeletedFalse(UUID uuid);
 
-
     Optional<Reforestation>
     findByUuidAndIsDeletedFalse(UUID uuid);
-
 
     List<Reforestation>
     findAllByIsDeletedFalse();
 
+    Page<Reforestation> findAllByIsDeletedFalse(Pageable pageable);
 
     Optional<Reforestation>
     findByIdAndIsDeletedFalse(int id);
-
 
     @Query(
             value = "SELECT total_plants " +
@@ -37,9 +37,7 @@ public interface ReforestationRepository
     )
     Integer getTotalPlanted();
 
-
     Reforestation findTopByOrderByIdDesc();
-
 
     @Query(
             value = "SELECT id_type_zone, " +
@@ -49,7 +47,6 @@ public interface ReforestationRepository
             nativeQuery = true
     )
     List<Object[]> findRefQuantityByTypeZone();
-
 
     default List<ReforestationCountingDTO>
     getRefQuantityByTypeZone() {
@@ -76,12 +73,10 @@ public interface ReforestationRepository
                         }
                     }
 
-
                     String type_zone_name =
                             row[1] != null
                                     ? row[1].toString()
                                     : null;
-
 
                     Integer totalQuantity = null;
 
@@ -100,7 +95,6 @@ public interface ReforestationRepository
                         } catch (Exception ignored) {
                         }
                     }
-
 
                     return new ReforestationCountingDTO(
                             id_type_zone,
