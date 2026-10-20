@@ -1,7 +1,6 @@
 package org.ong.dryforest.controller;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +9,10 @@ import org.ong.dryforest.entity.TypeZone;
 import org.ong.dryforest.mapper.TypeZoneMapper;
 import org.ong.dryforest.service.zone.TypeZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,20 +26,21 @@ public class TypeZoneController {
 
 
     @GetMapping
-    public ResponseEntity<List<TypeZoneDTO>> findAll() {
+    public ResponseEntity<Page<TypeZoneDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<TypeZone> typeZones = typeZoneService.findAll();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
 
-        List<TypeZoneDTO> typeZoneDTO = new ArrayList<>();
+        Page<TypeZoneDTO> result =
+                typeZoneService.findAll(pageable)
+                        .map(TypeZoneMapper::toTypeZone);
 
-        if (typeZones != null && !typeZones.isEmpty()) {
-
-            typeZoneDTO = typeZones.stream()
-                    .map(TypeZoneMapper::toTypeZone)
-                    .collect(Collectors.toList());
-        }
-
-        return ResponseEntity.ok(typeZoneDTO);
+        return ResponseEntity.ok(result);
     }
 
 

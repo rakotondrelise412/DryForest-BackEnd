@@ -7,7 +7,10 @@ import org.ong.dryforest.entity.TypeZone;
 import org.ong.dryforest.repository.TypeZoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TypeZoneServiceImpl implements TypeZoneService {
@@ -24,6 +27,12 @@ public class TypeZoneServiceImpl implements TypeZoneService {
     @Override
     public List<TypeZone> findAll() {
         return typeZoneRepository.findAllByIsDeletedFalse();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TypeZone> findAll(Pageable pageable) {
+        return typeZoneRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override
