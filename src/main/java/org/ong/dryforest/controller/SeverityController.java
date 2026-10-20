@@ -3,6 +3,10 @@ package org.ong.dryforest.controller;
 import lombok.RequiredArgsConstructor;
 import org.ong.dryforest.dto.severity.SeverityDTO;
 import org.ong.dryforest.service.severity.SeverityService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +22,22 @@ public class SeverityController {
 
     private final SeverityService severityService;
 
-    @GetMapping
-    public ResponseEntity<List<SeverityDTO>> getAllSeverities() {
 
-        return ResponseEntity.ok(
-                severityService.findAllSeverities()
+    @GetMapping
+    public ResponseEntity<Page<SeverityDTO>> getAllSeverities(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
+
+        Page<SeverityDTO> result =
+                severityService.findAllSeverities(pageable);
+
+        return ResponseEntity.ok(result);
     }
 
 

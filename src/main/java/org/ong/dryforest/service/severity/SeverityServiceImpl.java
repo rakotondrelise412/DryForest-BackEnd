@@ -6,6 +6,8 @@ import org.ong.dryforest.entity.Severity;
 import org.ong.dryforest.mapper.SeverityMapper;
 import org.ong.dryforest.repository.SeverityRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,12 +50,12 @@ public class SeverityServiceImpl implements SeverityService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SeverityDTO> findAllSeverities() {
+    public Page<SeverityDTO> findAllSeverities(Pageable pageable) {
 
-        List<Severity> severities =
-                severityRepository.findAllByIsDeletedFalse();
+        Page<Severity> severities =
+                severityRepository.findAllByIsDeletedFalse(pageable);
 
-        return SeverityMapper.toDTOList(severities);
+        return severities.map(SeverityMapper::toDTO);
     }
 
 

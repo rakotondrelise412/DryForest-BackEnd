@@ -1,6 +1,8 @@
 package org.ong.dryforest.repository;
 
 import org.ong.dryforest.entity.Severity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,19 +13,12 @@ import java.util.Optional;
 
 public interface SeverityRepository extends JpaRepository<Severity, Integer> {
 
-    /**
-     * Récupérer un severity non supprimé
-     */
     Optional<Severity> findByIdAndIsDeletedFalse(int id);
 
-    /**
-     * Récupérer tous les severity non supprimés
-     */
     List<Severity> findAllByIsDeletedFalse();
 
-    /**
-     * Vérifier si un nom existe déjà
-     */
+    Page<Severity> findAllByIsDeletedFalse(Pageable pageable);
+
     boolean existsByNameIgnoreCaseAndIsDeletedFalse(String name);
 
     /**

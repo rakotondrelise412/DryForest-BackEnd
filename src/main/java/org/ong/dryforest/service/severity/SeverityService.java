@@ -2,6 +2,8 @@ package org.ong.dryforest.service.severity;
 
 import org.ong.dryforest.dto.severity.SeverityDTO;
 import org.ong.dryforest.entity.Severity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +14,8 @@ public interface SeverityService {
 
     SeverityDTO findSeverityById(int id);
 
-    List<SeverityDTO> findAllSeverities();
+
+    Page<SeverityDTO> findAllSeverities(Pageable pageable);
 
     List<SeverityDTO> findAllSeveritiesUpdatedSince(
             LocalDateTime lastSync
