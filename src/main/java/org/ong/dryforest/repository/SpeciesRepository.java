@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.ong.dryforest.entity.Species;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +14,10 @@ import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface SpeciesRepository extends JpaRepository<Species, Integer> {
+
     List<Species> findAllByIsDeletedFalse();
+
+    Page<Species> findAllByIsDeletedFalse(Pageable pageable);
     
     Optional<Species> findByIdAndIsDeletedFalse(int id);
     

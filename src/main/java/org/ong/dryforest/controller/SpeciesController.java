@@ -3,6 +3,10 @@ package org.ong.dryforest.controller;
 import lombok.RequiredArgsConstructor;
 import org.ong.dryforest.dto.species.SpeciesDTO;
 import org.ong.dryforest.service.species.SpeciesService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +22,20 @@ public class SpeciesController {
     private final SpeciesService speciesService;
 
     @GetMapping
-    public ResponseEntity<List<SpeciesDTO>> getAll() {
+    public ResponseEntity<Page<SpeciesDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        return ResponseEntity.ok(
-                speciesService.findAllSpecies()
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
+
+        Page<SpeciesDTO> result =
+                speciesService.findAllSpecies(pageable);
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")

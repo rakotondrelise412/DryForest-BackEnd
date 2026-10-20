@@ -8,6 +8,8 @@ import org.ong.dryforest.mapper.SpeciesMapper;
 import org.ong.dryforest.repository.SpeciesRepository;
 import org.ong.dryforest.repository.SpeciesTypeRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +24,14 @@ public class SpeciesServiceImpl implements SpeciesService {
     private final SpeciesRepository speciesRepository;
     private final SpeciesTypeRepository speciesTypeRepository;
 
+
     @Override
     @Transactional(readOnly = true)
-    public List<SpeciesDTO> findAllSpecies() {
+    public Page<SpeciesDTO> findAllSpecies(Pageable pageable) {
 
-        return SpeciesMapper.toMobileDTOList(
-                speciesRepository.findAllByIsDeletedFalse()
-        );
+        return speciesRepository
+                .findAllByIsDeletedFalse(pageable)
+                .map(SpeciesMapper::toMobileDTO);
     }
 
     @Override

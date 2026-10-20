@@ -2,13 +2,15 @@ package org.ong.dryforest.service.species;
 
 import org.ong.dryforest.dto.species.SpeciesDTO;
 import org.ong.dryforest.entity.Species;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SpeciesService {
 
-    List<SpeciesDTO> findAllSpecies();
+    Page<SpeciesDTO> findAllSpecies(Pageable pageable);
 
     SpeciesDTO findSpeciesById(int id);
 
