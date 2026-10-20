@@ -5,6 +5,10 @@ import org.ong.dryforest.entity.TypeObservationPatrol;
 import org.ong.dryforest.mapper.TypeObservationPatrolMapper;
 import org.ong.dryforest.service.observationPatrol.TypeObservationPatrolService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,16 +22,25 @@ public class TypeObservationController {
     @Autowired
     private TypeObservationPatrolService typeObservationService;
 
+
     @GetMapping
-    public ResponseEntity<List<TypeObservationPatrolDTO>> findAll() {
+    public ResponseEntity<Page<TypeObservationPatrolDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<TypeObservationPatrol> typeObservation =
-                typeObservationService.findAll();
-
-        return ResponseEntity.ok(
-                TypeObservationPatrolMapper.toDTOList(typeObservation)
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
+
+        Page<TypeObservationPatrolDTO> result =
+                typeObservationService.findAll(pageable)
+                        .map(TypeObservationPatrolMapper::toObservationDTO);
+
+        return ResponseEntity.ok(result);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<TypeObservationPatrolDTO> findById(

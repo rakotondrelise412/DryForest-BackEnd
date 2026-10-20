@@ -4,7 +4,10 @@ import org.ong.dryforest.entity.TypeObservationPatrol;
 import org.ong.dryforest.repository.TypeObservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,6 +39,12 @@ public class TypeObservationPatrolServiceImpl
     public List<TypeObservationPatrol> findAll() {
 
         return typeObservationRepository.findAllByIsDeletedFalse();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TypeObservationPatrol> findAll(Pageable pageable) {
+        return typeObservationRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override
@@ -80,7 +89,6 @@ public class TypeObservationPatrolServiceImpl
             TypeObservationPatrol existing =
                     findById(typeObservationPatrol.getId());
 
-            // Soft delete pour la synchronisation mobile
             existing.setDeleted(true);
             existing.setUpdatedAt(LocalDateTime.now());
 
