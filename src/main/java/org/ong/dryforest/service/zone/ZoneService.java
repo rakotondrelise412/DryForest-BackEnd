@@ -6,12 +6,14 @@ import java.util.UUID;
 
 import org.ong.dryforest.dto.zone.ZoneDTO;
 import org.ong.dryforest.entity.Zone;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ZoneService {
 
     Zone createZone(Zone zone);
 
-    Zone createZone(ZoneDTO zoneDTO);
+    Page<Zone> findAll(Pageable pageable);
 
     List<Zone> findAll();
 

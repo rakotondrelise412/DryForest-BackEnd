@@ -1,9 +1,7 @@
 package org.ong.dryforest.controller;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.ong.dryforest.dto.zone.ZoneDTO;
 import org.ong.dryforest.dto.zone.ZoneWebDTO;
@@ -12,11 +10,14 @@ import org.ong.dryforest.mapper.ZoneMapper;
 import org.ong.dryforest.repository.ZoneRepository;
 import org.ong.dryforest.service.zone.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 
 @RestController
 @RequestMapping("/api/zone")
@@ -28,41 +29,43 @@ public class ZoneWebController {
     @Autowired
     private ZoneRepository zoneRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @GetMapping
-    public ResponseEntity<List<ZoneWebDTO>> findAll() {
+    public ResponseEntity<Page<ZoneWebDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<Object[]> rows =
-                zoneRepository.findAllWithGeomAsGeoJson();
+        Pageable pageable = PageRequest.of(page, size);
 
-        List<ZoneWebDTO> zones = rows.stream()
+        Page<ZoneWebDTO> zones = zoneRepository
+                .findAllWithGeomAsGeoJson(pageable)
                 .map(r -> {
 
                     ZoneWebDTO dto = new ZoneWebDTO();
 
-                    dto.setId_zone(
-                            ((Number) r[0]).intValue()
-                    );
+                    dto.setId_zone(((Number) r[0]).intValue());
+
                     if (r[1] != null) {
-                        dto.setUuid(
-                                UUID.fromString(r[1].toString())
-                        );
+                        dto.setUuid(UUID.fromString(r[1].toString()));
                     }
+
                     dto.setName((String) r[2]);
+
                     dto.setArea(
                             r[3] != null
                                     ? ((Number) r[3]).doubleValue()
                                     : 0.0
                     );
+
                     if (r[4] != null) {
                         try {
-                            Map<String, Object> geom =
-                                    objectMapper.readValue(
-                                            r[4].toString(),
-                                            new TypeReference<>() {
-                                            }
-                                    );
+                            Map<String, Object> geom = objectMapper.readValue(
+                                    r[4].toString(),
+                                    new TypeReference<>() {
+                                    }
+                            );
 
                             dto.setGeom(geom);
 
@@ -73,20 +76,18 @@ public class ZoneWebController {
                             );
                         }
                     }
+
                     if (r[5] != null) {
-                        dto.setId_type_zone(
-                                ((Number) r[5]).intValue()
-                        );
+                        dto.setId_type_zone(((Number) r[5]).intValue());
                     }
+
                     dto.set_synced(
                             r[6] != null
                                     && Boolean.parseBoolean(r[6].toString())
                     );
 
                     return dto;
-
-                })
-                .collect(Collectors.toList());
+                });
 
         return ResponseEntity.ok(zones);
     }
