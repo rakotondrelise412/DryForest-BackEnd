@@ -1,15 +1,17 @@
+
 package org.ong.dryforest.mapper;
-
-import org.ong.dryforest.entity.Site;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.ong.dryforest.dto.site.SiteMobileDTO;
 import org.ong.dryforest.dto.site.SiteWebDTO;
+import org.ong.dryforest.entity.Site;
+
+import java.util.List;
 
 public class SiteMapper {
-    
+
+    private SiteMapper() {
+    }
+
     public static SiteMobileDTO toMobileDTO(Site site) {
         SiteMobileDTO siteDTO = new SiteMobileDTO();
 
@@ -18,7 +20,6 @@ public class SiteMapper {
 
         return siteDTO;
     }
-
 
     public static SiteWebDTO toWebDTO(Site site) {
         SiteWebDTO siteDTO = new SiteWebDTO();
@@ -34,15 +35,9 @@ public class SiteMapper {
         return siteDTO;
     }
 
-
     public static List<SiteMobileDTO> toDTOList(List<Site> sites) {
-        List<SiteMobileDTO> sitesDTO;
-
-        sitesDTO = sites.stream()
-                   .map(SiteMapper::toMobileDTO)
-                   .collect(Collectors.toList());
-
-        return sitesDTO;
+        return sites.stream()
+                .map(SiteMapper::toMobileDTO)
+                .toList();
     }
-
 }

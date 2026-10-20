@@ -9,8 +9,8 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.ong.dryforest.dto.site.SiteMobileDTO;
 import org.ong.dryforest.dto.site.SiteWebDTO;
 import org.ong.dryforest.entity.Site;
-import org.ong.dryforest.mapper.SiteMapper;
 import org.ong.dryforest.repository.SiteRepository;
+import org.ong.dryforest.mapper.SiteMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class SiteServiceImpl implements SiteService {
     @Override
     @Transactional(readOnly = true)
     public Page<SiteWebDTO> findAllSites(Pageable pageable) {
-        return siteRepository.findAll(pageable)
+        return siteRepository.findAllActive(pageable)
                 .map(SiteMapper::toWebDTO);
     }
 
@@ -42,7 +42,7 @@ public class SiteServiceImpl implements SiteService {
     @Override
     @Transactional(readOnly = true)
     public Page<SiteMobileDTO> findAllSitesMobile(Pageable pageable) {
-        return siteRepository.findAll(pageable)
+        return siteRepository.findAllActive(pageable)
                 .map(SiteMapper::toMobileDTO);
     }
 
@@ -88,11 +88,13 @@ public class SiteServiceImpl implements SiteService {
             );
         }
 
-        siteRepository.delete(site);
+        site.setDeleted(true);
+
+        siteRepository.save(site);
     }
 
     private Site getSiteOrThrow(int id) {
-        return siteRepository.findById(id)
+        return siteRepository.findActiveById(id)
                 .orElseThrow(() ->
                         new RuntimeException(
                                 "Site '" + id + "' introuvable"
@@ -106,6 +108,7 @@ public class SiteServiceImpl implements SiteService {
         );
 
         point.setSRID(4326);
+
         return point;
     }
 }

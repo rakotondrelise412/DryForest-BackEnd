@@ -1,3 +1,4 @@
+
 package org.ong.dryforest.controller;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,8 @@ public class SiteController {
 
         Pageable pageable = PageRequest.of(
                 page,
-                size
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
         return ResponseEntity.ok(
@@ -53,12 +55,16 @@ public class SiteController {
     @GetMapping("/{id}")
     public ResponseEntity<SiteWebDTO> getSiteById(
             @PathVariable int id) {
-        return ResponseEntity.ok(siteService.findSiteById(id));
+
+        return ResponseEntity.ok(
+                siteService.findSiteById(id)
+        );
     }
 
     @GetMapping("/mobile/{id}")
     public ResponseEntity<SiteMobileDTO> getSiteByIdMobile(
             @PathVariable int id) {
+
         return ResponseEntity.ok(
                 siteService.findSiteByIdMobile(id)
         );
@@ -67,6 +73,7 @@ public class SiteController {
     @PostMapping
     public ResponseEntity<SiteWebDTO> createSite(
             @RequestBody SiteWebDTO dto) {
+
         SiteWebDTO createdSite = siteService.createSite(dto);
 
         return ResponseEntity
@@ -78,6 +85,7 @@ public class SiteController {
     public ResponseEntity<SiteWebDTO> updateSite(
             @PathVariable int id,
             @RequestBody SiteWebDTO dto) {
+
         return ResponseEntity.ok(
                 siteService.updateSite(id, dto)
         );
@@ -86,8 +94,9 @@ public class SiteController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSite(
             @PathVariable int id) {
+
         siteService.deleteSite(id);
+
         return ResponseEntity.noContent().build();
     }
 }
-
