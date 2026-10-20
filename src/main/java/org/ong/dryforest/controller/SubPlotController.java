@@ -7,6 +7,10 @@ import org.ong.dryforest.dto.subPlot.SubPlotMobileDTO;
 import org.ong.dryforest.entity.SubPlot;
 import org.ong.dryforest.mapper.SubPlotMapper;
 import org.ong.dryforest.service.subPlot.SubPlotService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,18 +27,22 @@ public class SubPlotController {
 
 
     @GetMapping
-    public ResponseEntity<List<SubPlotMobileDTO>> findAll() {
+    public ResponseEntity<Page<SubPlotMobileDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<SubPlotMobileDTO> result =
-                subPlotService
-                        .findAll()
-                        .stream()
-                        .map(SubPlotMapper::toSubPlotMobileDTO)
-                        .toList();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<SubPlotMobileDTO> result =
+                subPlotService.findAll(pageable)
+                        .map(SubPlotMapper::toSubPlotMobileDTO);
 
         return ResponseEntity.ok(result);
     }
-
 
 
     @GetMapping("/all")

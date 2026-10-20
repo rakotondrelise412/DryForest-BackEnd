@@ -2,6 +2,8 @@ package org.ong.dryforest.service.subPlot;
 
 import org.ong.dryforest.dto.subPlot.SubPlotDTO;
 import org.ong.dryforest.entity.SubPlot;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,8 @@ import java.util.UUID;
 public interface SubPlotService {
 
     List<SubPlot> findAll();
+
+    Page<SubPlot> findAll(Pageable pageable);
 
     SubPlot findById(int id);
 
