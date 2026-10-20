@@ -1,7 +1,9 @@
+
 package org.ong.dryforest.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
@@ -19,15 +21,21 @@ import jakarta.persistence.GenerationType;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "users")
-public class Users {
+public class Users extends SyncEntity {
+
     @Id
     @Column(name = "id_user")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    
+
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_person", referencedColumnName = "id_person", nullable = false)
+    @JoinColumn(
+            name = "id_person",
+            referencedColumnName = "id_person",
+            nullable = false
+    )
     private Person person;
 
     @Column(name = "username", nullable = false, unique = true)

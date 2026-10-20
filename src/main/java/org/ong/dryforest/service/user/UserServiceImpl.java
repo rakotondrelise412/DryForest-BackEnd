@@ -10,11 +10,13 @@ import org.ong.dryforest.repository.UsersRepository;
 import org.ong.dryforest.service.person.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
-import java.util.List;
 import java.util.regex.Pattern;
 
 @Service
@@ -31,9 +33,15 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Users findUsersById(int id_user) {
+    @Transactional(readOnly = true)
+    public Page<Users> findAllUsers(Pageable pageable) {
+        return usersRepository.findAllByIsDeletedFalse(pageable);
+    }
 
-        return usersRepository.findById(id_user)
+    @Override
+    @Transactional(readOnly = true)
+    public Users findUsersById(int id_user) {
+        return usersRepository.findByIdAndIsDeletedFalse(id_user)
                 .orElseThrow(() ->
                         new RuntimeException(
                                 "Utilisateur '" + id_user + "' introuvable"
@@ -41,11 +49,10 @@ public class UserServiceImpl implements UserService {
                 );
     }
 
-
     @Override
+    @Transactional(readOnly = true)
     public Users findUsersByUsername(String username) {
-
-        return usersRepository.findByUsername(username)
+        return usersRepository.findByUsernameAndIsDeletedFalse(username)
                 .orElseThrow(() ->
                         new RuntimeException(
                                 "Utilisateur '" + username + "' introuvable"
@@ -53,13 +60,13 @@ public class UserServiceImpl implements UserService {
                 );
     }
 
-
     @Override
-    public List<Users> findAllUsers() {
-
-        return usersRepository.findAll();
+    @Transactional
+    public void deleteUsers(Users user) {
+        Users existing = findUsersById(user.getId());
+        existing.setDeleted(true);
+        usersRepository.save(existing);
     }
-
 
     @Override
     public String generateUsername(String role) {
@@ -207,21 +214,4 @@ public class UserServiceImpl implements UserService {
         usersRepository.save(user);
     }
 
-
-    @Override
-    public void deleteUsers(Users user) {
-
-        findUsersById(user.getId());
-
-        try {
-
-            usersRepository.delete(user);
-
-        } catch (DataIntegrityViolationException e) {
-
-            throw new IllegalStateException(
-                    "Impossible de supprimer cet utilisateur"
-            );
-        }
-    }
 }

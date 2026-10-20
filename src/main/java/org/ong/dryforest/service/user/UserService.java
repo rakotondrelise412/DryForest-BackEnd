@@ -4,8 +4,8 @@ import org.ong.dryforest.dto.auth.PasswordUpdateRequestDTO;
 import org.ong.dryforest.dto.auth.RegisterRequestDTO;
 import org.ong.dryforest.dto.user.UserUpdateDTO;
 import org.ong.dryforest.entity.Users;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
 
@@ -13,7 +13,7 @@ public interface UserService {
 
     Users findUsersByUsername(String username);
 
-    List<Users> findAllUsers();
+    Page<Users> findAllUsers(Pageable pageable);
 
     String generateUsername(String role);
 

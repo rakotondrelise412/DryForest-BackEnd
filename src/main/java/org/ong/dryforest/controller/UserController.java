@@ -9,10 +9,13 @@ import org.ong.dryforest.service.blacklistedToken.BlacklistedTokenService;
 import org.ong.dryforest.service.user.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -24,16 +27,25 @@ public class UserController {
     @Autowired
     private BlacklistedTokenService blacklistedTokenService;
 
+
     @GetMapping
-    public ResponseEntity<List<UsersDTO>> getAllUsers() {
+    public ResponseEntity<Page<UsersDTO>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<UsersDTO> users = userService.findAllUsers()
-                .stream()
-                .map(UsersMapper::toDTO)
-                .toList();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "id")
+        );
 
-        return ResponseEntity.ok(users);
+        Page<UsersDTO> result = userService.findAllUsers(pageable)
+                .map(UsersMapper::toDTO);
+
+        return ResponseEntity.ok(result);
     }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<UsersDTO> getUserById(
