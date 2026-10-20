@@ -7,7 +7,10 @@ import org.ong.dryforest.entity.TypeIncidentPatrol;
 import org.ong.dryforest.repository.TypeIncidentPatrolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TypeIncidentPatrolServiceImpl implements TypeIncidentPatrolService{
@@ -16,6 +19,13 @@ public class TypeIncidentPatrolServiceImpl implements TypeIncidentPatrolService{
 
     @Override
     public List<TypeIncidentPatrol> findAll(){ return typeIncidentPatrolRepository.findAllByIsDeletedFalse(); }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TypeIncidentPatrol> findAll(Pageable pageable) {
+        return typeIncidentPatrolRepository
+                .findAllByIsDeletedFalse(pageable);
+    }
 
     @Override
     public List<TypeIncidentPatrol> findAllTypeIncidentPatrolsUpdatedSince(LocalDateTime last_sync){

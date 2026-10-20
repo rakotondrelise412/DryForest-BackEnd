@@ -5,12 +5,15 @@ import org.ong.dryforest.entity.TypeIncidentPatrol;
 import org.ong.dryforest.mapper.TypeIncidentPatrolMapper;
 import org.ong.dryforest.service.incidentPatrol.TypeIncidentPatrolService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,24 +24,22 @@ public class TypeIncidentPatrolController {
     @Autowired
     TypeIncidentPatrolService typeIncidentPatrolService;
 
-
     @GetMapping
-    public ResponseEntity<List<TypeIncidentPatrolDTO>> findAll() {
+    public ResponseEntity<Page<TypeIncidentPatrolDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<TypeIncidentPatrolDTO> typeIncidentPatrolDTO =
-                new ArrayList<>();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
 
-        List<TypeIncidentPatrol> typeIncidentPatrols =
-                typeIncidentPatrolService.findAll();
+        Page<TypeIncidentPatrolDTO> result =
+                typeIncidentPatrolService.findAll(pageable)
+                        .map(TypeIncidentPatrolMapper::toTypeIncidentPatrolDTO);
 
-        if (typeIncidentPatrols != null && !typeIncidentPatrols.isEmpty()) {
-
-            typeIncidentPatrolDTO = typeIncidentPatrols.stream()
-                    .map(TypeIncidentPatrolMapper::toTypeIncidentPatrolDTO)
-                    .collect(Collectors.toList());
-        }
-
-        return ResponseEntity.ok(typeIncidentPatrolDTO);
+        return ResponseEntity.ok(result);
     }
 
 
