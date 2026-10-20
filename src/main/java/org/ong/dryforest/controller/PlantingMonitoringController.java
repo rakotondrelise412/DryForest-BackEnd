@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
@@ -26,6 +25,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/planting_monitoring")
@@ -36,19 +40,23 @@ public class PlantingMonitoringController {
 
     @Autowired
     private ImageStorageService imageStorageService;
-
     @GetMapping
-    public ResponseEntity<List<PlantingMonitoringDTO>> getAll() {
+    public ResponseEntity<Page<PlantingMonitoringDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<PlantingMonitoringDTO> result =
-                plantingMonitoringService.findAll()
-                        .stream()
-                        .map(PlantingMonitoringMapper::toMonitoringDTO)
-                        .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<PlantingMonitoringDTO> result =
+                plantingMonitoringService.findAll(pageable)
+                        .map(PlantingMonitoringMapper::toMonitoringDTO);
 
         return ResponseEntity.ok(result);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<PlantingMonitoringDTO> getById(

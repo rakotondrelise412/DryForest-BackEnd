@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.ong.dryforest.entity.PlantingMonitoring;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +19,6 @@ public interface PlantingMonitoringRepository extends JpaRepository<PlantingMoni
     List<PlantingMonitoring> findAllByIsDeletedFalse();
 
     Optional<PlantingMonitoring> findByIdAndIsDeletedFalse(int id);
+
+    Page<PlantingMonitoring> findAllByIsDeletedFalse(Pageable pageable);
 }

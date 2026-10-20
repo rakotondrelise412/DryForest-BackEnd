@@ -8,6 +8,8 @@ import java.util.UUID;
 import org.ong.dryforest.dto.PlantingMonitoringDTO;
 import org.ong.dryforest.dto.species.SpeciesStatDTO;
 import org.ong.dryforest.entity.PlantingMonitoring;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PlantingMonitoringService {
     PlantingMonitoring create(PlantingMonitoringDTO plantingMonitoringDTO);
@@ -19,6 +21,8 @@ public interface PlantingMonitoringService {
     PlantingMonitoring findByUuid(UUID uuid);
 
     List<PlantingMonitoring> findAll();
+
+    Page<PlantingMonitoring> findAll(Pageable pageable);
 
     PlantingMonitoring updatePlantingMonitoring(PlantingMonitoring plantingMonitoring);
 

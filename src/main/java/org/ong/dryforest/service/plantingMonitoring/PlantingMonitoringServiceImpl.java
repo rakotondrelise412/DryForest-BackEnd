@@ -10,6 +10,8 @@ import org.ong.dryforest.repository.PlantingMonitoringRepository;
 import org.ong.dryforest.service.biomass.PlantBiomassService;
 import org.ong.dryforest.service.plantation.PlantationService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -320,6 +322,13 @@ public class PlantingMonitoringServiceImpl
     @Transactional(readOnly = true)
     public List<PlantingMonitoring> findAll() {
         return plantingMonitoringRepository.findAllByIsDeletedFalse();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PlantingMonitoring> findAll(Pageable pageable) {
+        return plantingMonitoringRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override
