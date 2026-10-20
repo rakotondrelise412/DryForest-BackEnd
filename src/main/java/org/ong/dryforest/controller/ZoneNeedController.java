@@ -1,6 +1,5 @@
 package org.ong.dryforest.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.ong.dryforest.dto.zone.ZoneNeedDTO;
@@ -11,9 +10,15 @@ import org.ong.dryforest.service.zone.ZoneNeedService;
 
 import org.ong.dryforest.service.zone.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/api/zone-needs")
@@ -53,17 +58,25 @@ public class ZoneNeedController {
                 .body(zoneNeedMapper.toDTO(created));
     }
 
-    @GetMapping
-    public ResponseEntity<List<ZoneNeedDTO>> findAll() {
 
-        List<ZoneNeedDTO> result =
-                zoneNeedService.findAll()
-                        .stream()
-                        .map(zoneNeedMapper::toDTO)
-                        .toList();
+    @GetMapping
+    public ResponseEntity<Page<ZoneNeedDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<ZoneNeedDTO> result =
+                zoneNeedService.findAll(pageable)
+                        .map(zoneNeedMapper::toDTO);
 
         return ResponseEntity.ok(result);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ZoneNeedDTO> findById(

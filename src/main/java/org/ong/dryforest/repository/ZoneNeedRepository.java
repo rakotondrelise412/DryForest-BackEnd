@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.ong.dryforest.entity.ZoneNeed;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +17,8 @@ public interface ZoneNeedRepository extends JpaRepository<ZoneNeed, Integer> {
     Optional<ZoneNeed> findByUuidAndIsDeletedFalse(UUID uuid);
 
     List<ZoneNeed> findAllByIsDeletedFalse();
+
+    Page<ZoneNeed> findAllByIsDeletedFalse(Pageable pageable);
 
     Optional<ZoneNeed> findByIdAndIsDeletedFalse(int id);
 }

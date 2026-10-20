@@ -1,16 +1,17 @@
 package org.ong.dryforest.service.zone;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.ong.dryforest.entity.ZoneNeed;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ZoneNeedService {
 
     ZoneNeed createZoneNeed(ZoneNeed zone_need);
 
-    List<ZoneNeed> findAll();
+    Page<ZoneNeed> findAll(Pageable pageable);
 
     ZoneNeed findById(int id);
 

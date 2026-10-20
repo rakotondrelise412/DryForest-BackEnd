@@ -7,9 +7,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ZoneNeedServiceImpl implements ZoneNeedService {
@@ -40,8 +41,8 @@ public class ZoneNeedServiceImpl implements ZoneNeedService {
     }
 
     @Override
-    public List<ZoneNeed> findAll() {
-        return zoneNeedRepository.findAllByIsDeletedFalse();
+    public Page<ZoneNeed> findAll(Pageable pageable) {
+        return zoneNeedRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override
