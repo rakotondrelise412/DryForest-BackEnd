@@ -1,11 +1,14 @@
 package org.ong.dryforest.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.ong.dryforest.dto.species.SpeciesZoneNeedDTO;
 import org.ong.dryforest.entity.SpeciesZoneNeed;
 import org.ong.dryforest.service.zone.SpeciesZoneNeedService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,14 +22,23 @@ public class SpeciesZoneNeedController {
 
     private final SpeciesZoneNeedService speciesZoneNeedService;
 
-
     @GetMapping
-    public ResponseEntity<List<SpeciesZoneNeedDTO>> findAll() {
+    public ResponseEntity<Page<SpeciesZoneNeedDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        return ResponseEntity.ok(
-                speciesZoneNeedService.findAllDTO()
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
+
+        Page<SpeciesZoneNeedDTO> result =
+                speciesZoneNeedService.findAllDTO(pageable);
+
+        return ResponseEntity.ok(result);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<SpeciesZoneNeedDTO> findById(

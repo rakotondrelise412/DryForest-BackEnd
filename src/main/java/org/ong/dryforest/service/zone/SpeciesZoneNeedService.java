@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.ong.dryforest.dto.species.SpeciesZoneNeedDTO;
 import org.ong.dryforest.entity.SpeciesZoneNeed;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface SpeciesZoneNeedService {
 
@@ -15,6 +17,8 @@ public interface SpeciesZoneNeedService {
     // =========================================================
 
     List<SpeciesZoneNeed> findAll();
+
+    Page<SpeciesZoneNeedDTO> findAllDTO(Pageable pageable);
 
     SpeciesZoneNeed findById(int id);
 
@@ -43,8 +47,6 @@ public interface SpeciesZoneNeedService {
     // MÉTHODES DTO
     // Utilisées par le Controller REST
     // =========================================================
-
-    List<SpeciesZoneNeedDTO> findAllDTO();
 
     SpeciesZoneNeedDTO findDTOById(int id);
 

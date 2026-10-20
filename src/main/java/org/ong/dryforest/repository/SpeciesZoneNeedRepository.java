@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.ong.dryforest.entity.SpeciesZoneNeed;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +19,8 @@ public interface SpeciesZoneNeedRepository
     Optional<SpeciesZoneNeed> findByUuidAndIsDeletedFalse(UUID uuid);
 
     List<SpeciesZoneNeed> findAllByIsDeletedFalse();
+
+    Page<SpeciesZoneNeed> findAllByIsDeletedFalse(Pageable pageable);
 
     Optional<SpeciesZoneNeed> findByIdAndIsDeletedFalse(int id);
 }

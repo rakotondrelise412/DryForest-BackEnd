@@ -13,6 +13,8 @@ import org.ong.dryforest.mapper.SpeciesZoneNeedMapper;
 import org.ong.dryforest.repository.SpeciesZoneNeedRepository;
 import org.ong.dryforest.service.species.SpeciesService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +48,15 @@ public class SpeciesZoneNeedServiceImpl
                 .findAllByIsDeletedFalse();
     }
 
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<SpeciesZoneNeedDTO> findAllDTO(Pageable pageable) {
+
+        return speciesZoneNeedRepository
+                .findAllByIsDeletedFalse(pageable)
+                .map(speciesZoneNeedMapper::toDTO);
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -237,18 +248,6 @@ public class SpeciesZoneNeedServiceImpl
     // DTO METHODS
     // Utilisées par le Controller REST
     // =========================================================
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<SpeciesZoneNeedDTO> findAllDTO() {
-
-        return speciesZoneNeedRepository
-                .findAllByIsDeletedFalse()
-                .stream()
-                .map(speciesZoneNeedMapper::toDTO)
-                .toList();
-    }
 
 
     @Override
