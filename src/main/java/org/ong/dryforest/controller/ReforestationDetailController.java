@@ -1,7 +1,6 @@
 
 package org.ong.dryforest.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.ong.dryforest.dto.reforestation.ReforestationDetailDTO;
@@ -10,6 +9,10 @@ import org.ong.dryforest.mapper.ReforestationDetailMapper;
 
 import org.ong.dryforest.service.reforestationDetail.ReforestationDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,15 +27,20 @@ public class ReforestationDetailController {
     @Autowired
     private ReforestationDetailMapper detailMapper;
 
-
     @GetMapping
-    public ResponseEntity<List<ReforestationDetailDTO>> getAll() {
+    public ResponseEntity<Page<ReforestationDetailDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<ReforestationDetailDTO> result =
-                detailService.findAll()
-                        .stream()
-                        .map(detailMapper::toDTO)
-                        .toList();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<ReforestationDetailDTO> result =
+                detailService.findAll(pageable)
+                        .map(detailMapper::toDTO);
 
         return ResponseEntity.ok(result);
     }

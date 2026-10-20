@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.ong.dryforest.dto.reforestation.ReforestationDetailDTO;
 import org.ong.dryforest.entity.ReforestationDetail;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ReforestationDetailService {
 
@@ -13,6 +15,8 @@ public interface ReforestationDetailService {
             ReforestationDetailDTO dto);
 
     List<ReforestationDetail> findAll();
+
+    Page<ReforestationDetail> findAll(Pageable pageable);
 
     ReforestationDetail findById(int id);
 

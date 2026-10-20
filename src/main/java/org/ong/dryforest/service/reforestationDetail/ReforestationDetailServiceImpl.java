@@ -13,6 +13,8 @@ import org.ong.dryforest.service.species.SpeciesService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,6 +85,13 @@ public class ReforestationDetailServiceImpl
     public List<ReforestationDetail> findAll() {
         return reforestationDetailRepository
                 .findAllByIsDeletedFalse();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ReforestationDetail> findAll(Pageable pageable) {
+        return reforestationDetailRepository
+                .findAllByIsDeletedFalse(pageable);
     }
 
     @Override

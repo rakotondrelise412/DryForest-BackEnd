@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.ong.dryforest.entity.ReforestationDetail;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +17,8 @@ public interface ReforestationDetailRepository extends JpaRepository<Reforestati
     Optional<ReforestationDetail> findByUuidAndIsDeletedFalse(UUID uuid);
 
     List<ReforestationDetail> findAllByIsDeletedFalse();
+
+    Page<ReforestationDetail> findAllByIsDeletedFalse(Pageable pageable);
 
     Optional<ReforestationDetail> findByIdAndIsDeletedFalse(int id);
 }
