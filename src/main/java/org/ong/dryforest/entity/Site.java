@@ -26,7 +26,7 @@ import jakarta.persistence.GenerationType;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "site")
-public class Site {
+public class Site{
     @Id
     @Column(name = "id_site")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class SpeciesController {
     private final SpeciesService speciesService;
 
     @GetMapping
-    public ResponseEntity<Page<SpeciesDTO>> getAll(
+    public ResponseEntity<PagedModel<SpeciesDTO>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
@@ -35,7 +36,7 @@ public class SpeciesController {
         Page<SpeciesDTO> result =
                 speciesService.findAllSpecies(pageable);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(new PagedModel<>(result));
     }
 
     @GetMapping("/{id}")

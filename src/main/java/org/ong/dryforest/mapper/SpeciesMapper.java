@@ -1,7 +1,6 @@
 package org.ong.dryforest.mapper;
 
 import org.ong.dryforest.dto.species.SpeciesDTO;
-import org.ong.dryforest.dto.species.SpeciesWebDTO;
 import org.ong.dryforest.entity.Species;
 import org.ong.dryforest.entity.SpeciesType;
 
@@ -36,22 +35,6 @@ public class SpeciesMapper {
         return dto;
     }
 
-    public static SpeciesWebDTO toWebDTO(Species species) {
-
-        if (species == null) {
-            return null;
-        }
-
-        SpeciesWebDTO dto = new SpeciesWebDTO();
-
-        dto.setId(species.getId());
-        dto.setMg_name(species.getMg_name());
-        dto.setFr_name(species.getFr_name());
-        dto.setEn_name(species.getEn_name());
-        dto.setScientific_name(species.getScientific_name());
-
-        return dto;
-    }
 
     public static Species toEntity(
             SpeciesDTO dto,
@@ -97,12 +80,4 @@ public class SpeciesMapper {
                 .toList();
     }
 
-    public static List<SpeciesWebDTO> toWebDTOList(
-            List<Species> species
-    ) {
-
-        return species.stream()
-                .map(SpeciesMapper::toWebDTO)
-                .toList();
-    }
 }

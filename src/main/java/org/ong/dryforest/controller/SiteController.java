@@ -26,8 +26,7 @@ public class SiteController {
 
         Pageable pageable = PageRequest.of(
                 page,
-                size,
-                Sort.by(Sort.Direction.DESC, "createdAt")
+                size
         );
 
         return ResponseEntity.ok(
