@@ -45,33 +45,11 @@ public interface PlantationService {
 
     boolean existsByUuid(UUID uuid);
 
-
     Plantation mapToEntity(
             Map<String, Object> plantationMapping
     );
 
-
     List<PlantationViewDTO> getAllPlantations();
-
-    List<PlantationViewDTO>
-    getPlantationsByIdPlantationBlock(
-            int blockId
-    );
-
-    List<PlantationViewDTO>
-    getPlantationsByBlockAndSubPlot(
-            int blockId,
-            int subPlotId
-    );
-
-    List<PlantationViewDTO>
-    getPlantationsByCriteria(
-            Integer idPlantationBlock,
-            Integer idSubPlot,
-            Integer idSpecies,
-            Date datePlantation
-    );
-
 
     List<Map<String, Integer>>
     getTotalPlantationByBlock();
@@ -100,4 +78,25 @@ public interface PlantationService {
 
     List<PlantationBlockSurvivalRateDTO>
     getSurvivalRateBySpeciesBySubPlotAndBlock();
+
+    Page<PlantationViewDTO> getAllPlantations(Pageable pageable);
+
+    Page<PlantationViewDTO> getPlantationsByCriteria(
+            Integer idPlantationBlock,
+            Integer idSubPlot,
+            Integer idSpecies,
+            Date datePlantation,
+            Pageable pageable
+    );
+
+    Page<PlantationViewDTO> getPlantationsByIdPlantationBlock(
+            int blockId,
+            Pageable pageable
+    );
+
+    Page<PlantationViewDTO> getPlantationsByBlockAndSubPlot(
+            int blockId,
+            int subPlotId,
+            Pageable pageable
+    );
 }

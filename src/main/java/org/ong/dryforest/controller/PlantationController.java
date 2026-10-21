@@ -43,6 +43,23 @@ public class PlantationController {
     private ImageStorageService imageStorageService;
 
 
+    private Pageable createPageable(int page, int size) {
+        if (page < 0) {
+            throw new IllegalArgumentException(
+                    "Le numéro de page doit être supérieur ou égal à 0."
+            );
+        }
+
+        if (size < 1 || size > 100) {
+            throw new IllegalArgumentException(
+                    "La taille de page doit être comprise entre 1 et 100."
+            );
+        }
+
+        return PageRequest.of(page, size);
+    }
+
+
     @GetMapping
     public ResponseEntity<Page<PlantationMobileDTO>> findAll(
             @RequestParam(defaultValue = "0") int page,
@@ -97,58 +114,41 @@ public class PlantationController {
 
 
     @GetMapping("/plantationsByPlantationBlock")
-    public ResponseEntity<List<PlantationViewDTO>>
-    getAllByPlantationBlock() {
+    public ResponseEntity<Page<PlantationViewDTO>> getAllByPlantationBlock(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity.ok(
-                plantationService.getAllPlantations()
+                plantationService.getAllPlantations(
+                        createPageable(page, size)
+                )
         );
     }
 
     @GetMapping("/plantationsByCriteria")
-    public ResponseEntity<List<PlantationViewDTO>>
-    getAllByCriteria(
-
-            @RequestParam(
-                    name = "id_plantation_block",
-                    required = false
-            )
+    public ResponseEntity<Page<PlantationViewDTO>> getAllByCriteria(
+            @RequestParam(name = "id_plantation_block", required = false)
             Integer idPlantationBlock,
 
-            @RequestParam(
-                    name = "id_sub_plot",
-                    required = false
-            )
+            @RequestParam(name = "id_sub_plot", required = false)
             Integer idSubPlot,
 
-            @RequestParam(
-                    name = "id_species",
-                    required = false
-            )
+            @RequestParam(name = "id_species", required = false)
             Integer idSpecies,
 
-            @RequestParam(
-                    name = "date_plantation",
-                    required = false
-            )
-            String datePlantation
-    ) {
+            @RequestParam(name = "date_plantation", required = false)
+            String datePlantation,
+
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         Date sqlDate = null;
 
-        if (datePlantation != null &&
-                !datePlantation.isBlank()) {
-
+        if (datePlantation != null && !datePlantation.isBlank()) {
             try {
-
-                sqlDate =
-                        Date.valueOf(datePlantation);
-
+                sqlDate = Date.valueOf(datePlantation);
             } catch (IllegalArgumentException e) {
-
-                return ResponseEntity
-                        .badRequest()
-                        .body(List.of());
+                return ResponseEntity.badRequest().build();
             }
         }
 
@@ -157,41 +157,41 @@ public class PlantationController {
                         idPlantationBlock,
                         idSubPlot,
                         idSpecies,
-                        sqlDate
+                        sqlDate,
+                        createPageable(page, size)
                 )
         );
     }
 
     @GetMapping("/plantationsByPlantationBlockById/{blockId}")
-    public ResponseEntity<List<PlantationViewDTO>>
-    getAllByIdBlock(
-            @PathVariable int blockId
-    ) {
+    public ResponseEntity<Page<PlantationViewDTO>> getAllByIdBlock(
+            @PathVariable int blockId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity.ok(
-                plantationService
-                        .getPlantationsByIdPlantationBlock(
-                                blockId
-                        )
+                plantationService.getPlantationsByIdPlantationBlock(
+                        blockId,
+                        createPageable(page, size)
+                )
         );
     }
 
     @GetMapping("/plantationsByPlantationBlock/{blockId}/subPlot/{subPlotId}")
-    public ResponseEntity<List<PlantationViewDTO>>
-    getByBlockAndSubPlot(
+    public ResponseEntity<Page<PlantationViewDTO>> getByBlockAndSubPlot(
             @PathVariable int blockId,
-            @PathVariable int subPlotId
-    ) {
+            @PathVariable int subPlotId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity.ok(
-                plantationService
-                        .getPlantationsByBlockAndSubPlot(
-                                blockId,
-                                subPlotId
-                        )
+                plantationService.getPlantationsByBlockAndSubPlot(
+                        blockId,
+                        subPlotId,
+                        createPageable(page, size)
+                )
         );
     }
-
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PlantationMobileDTO> create(

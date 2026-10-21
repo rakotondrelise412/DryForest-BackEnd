@@ -569,65 +569,6 @@ public class PlantationServiceImpl
 
     @Override
     @Transactional(readOnly = true)
-    public List<PlantationViewDTO>
-    getPlantationsByCriteria(
-            Integer idPlantationBlock,
-            Integer idSubPlot,
-            Integer idSpecies,
-            Date datePlantation
-    ) {
-
-        return PlantationMapper
-                .toPlantationViewDTOList(
-                        plantationRepository
-                                .searchPlantationsByCriteria(
-                                        idPlantationBlock,
-                                        idSubPlot,
-                                        idSpecies,
-                                        datePlantation
-                                )
-                );
-    }
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<PlantationViewDTO>
-    getPlantationsByIdPlantationBlock(
-            int blockId
-    ) {
-
-        return PlantationMapper
-                .toPlantationViewDTOList(
-                        plantationRepository
-                                .findPlantationsByBlockId(
-                                        blockId
-                                )
-                );
-    }
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<PlantationViewDTO>
-    getPlantationsByBlockAndSubPlot(
-            int blockId,
-            int subPlotId
-    ) {
-
-        return PlantationMapper
-                .toPlantationViewDTOList(
-                        plantationRepository
-                                .findPlantationsByBlockAndSubPlot(
-                                        blockId,
-                                        subPlotId
-                                )
-                );
-    }
-
-
-    @Override
-    @Transactional(readOnly = true)
     public List<Map<String, Integer>>
     getTotalPlantationByBlock() {
 
@@ -736,6 +677,65 @@ public class PlantationServiceImpl
                                 .plantationStatusByYear()
                 );
     }
+
+    //-------------------------------------------------
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PlantationViewDTO> getAllPlantations(
+            Pageable pageable
+    ) {
+        return plantationRepository
+                .findAllPlantationsView(pageable)
+                .map(PlantationMapper::toPlantationViewDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PlantationViewDTO> getPlantationsByCriteria(
+            Integer idPlantationBlock,
+            Integer idSubPlot,
+            Integer idSpecies,
+            Date datePlantation,
+            Pageable pageable
+    ) {
+        return plantationRepository.searchPlantationsByCriteria(
+                idPlantationBlock,
+                idSubPlot,
+                idSpecies,
+                datePlantation,
+                pageable
+        ).map(PlantationMapper::toPlantationViewDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PlantationViewDTO> getPlantationsByIdPlantationBlock(
+            int blockId,
+            Pageable pageable
+    ) {
+        return plantationRepository
+                .findPlantationsByBlockId(blockId, pageable)
+                .map(PlantationMapper::toPlantationViewDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PlantationViewDTO> getPlantationsByBlockAndSubPlot(
+            int blockId,
+            int subPlotId,
+            Pageable pageable
+    ) {
+        return plantationRepository
+                .findPlantationsByBlockAndSubPlot(
+                        blockId,
+                        subPlotId,
+                        pageable
+                )
+                .map(PlantationMapper::toPlantationViewDTO);
+    }
+
 
 
     @Override
