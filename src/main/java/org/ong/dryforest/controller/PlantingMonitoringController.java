@@ -6,6 +6,7 @@ import org.ong.dryforest.dto.species.SpeciesStatDTO;
 import org.ong.dryforest.entity.PlantingMonitoring;
 import org.ong.dryforest.mapper.PlantingMonitoringMapper;
 import org.ong.dryforest.service.ImageStorageService;
+import org.ong.dryforest.service.PageResponse;
 import org.ong.dryforest.service.plantingMonitoring.PlantingMonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +40,8 @@ public class PlantingMonitoringController {
 
     @Autowired
     private ImageStorageService imageStorageService;
+
+
     @GetMapping
     public ResponseEntity<Page<PlantingMonitoringDTO>> getAll(
             @RequestParam(defaultValue = "0") int page,
@@ -93,34 +95,47 @@ public class PlantingMonitoringController {
 
 
     @GetMapping("/speciesStat")
-    public ResponseEntity<List<SpeciesStatDTO>>
-    getSpeciesStat() {
+    public ResponseEntity<PageResponse<SpeciesStatDTO>> getSpeciesStat(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        return ResponseEntity.ok(
-                plantingMonitoringService
-                        .statisticSpeciesAverageBySpeciesAndReforestationDate()
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "date_reforestation")
         );
+
+        PageResponse<SpeciesStatDTO> result =
+                plantingMonitoringService
+                        .statisticSpeciesAverageBySpeciesAndReforestationDate(pageable);
+
+        return ResponseEntity.ok(result);
     }
 
-
-    @GetMapping(
-            "/species/statistics/by-reforestation-date"
-    )
-    public ResponseEntity<List<SpeciesStatDTO>>
+    @GetMapping("/species/statistics/by-reforestation-date")
+    public ResponseEntity<PageResponse<SpeciesStatDTO>>
     getSpeciesStatisticsByReforestationDateRange(
             @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate
-    ) {
+            @RequestParam LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        return ResponseEntity.ok(
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "date_reforestation")
+        );
+
+        PageResponse<SpeciesStatDTO> result =
                 plantingMonitoringService
                         .statisticSpeciesAverageByReforestationDateRange(
                                 startDate,
-                                endDate
-                        )
-        );
-    }
+                                endDate,
+                                pageable
+                        );
 
+        return ResponseEntity.ok(result);
+    }
 
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

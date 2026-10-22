@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.ong.dryforest.dto.PlantingMonitoringDTO;
 import org.ong.dryforest.dto.species.SpeciesStatDTO;
 import org.ong.dryforest.entity.PlantingMonitoring;
+import org.ong.dryforest.service.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -34,7 +35,15 @@ public interface PlantingMonitoringService {
 
     List<SpeciesStatDTO> statisticSpecies();
 
-    List<SpeciesStatDTO> statisticSpeciesAverageBySpeciesAndReforestationDate();
+    PageResponse<SpeciesStatDTO>
+    statisticSpeciesAverageBySpeciesAndReforestationDate(Pageable pageable);
 
-    List<SpeciesStatDTO> statisticSpeciesAverageByReforestationDateRange(LocalDate startDate, LocalDate endDate);
+    PageResponse<SpeciesStatDTO>
+    statisticSpeciesAverageByReforestationDateRange(
+            LocalDate startDate,
+            LocalDate endDate,
+            Pageable pageable
+    );
+
+
 }

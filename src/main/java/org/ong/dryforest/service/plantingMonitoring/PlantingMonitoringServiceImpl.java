@@ -7,6 +7,7 @@ import org.ong.dryforest.dto.species.SpeciesStatDTO;
 import org.ong.dryforest.entity.Plantation;
 import org.ong.dryforest.entity.PlantingMonitoring;
 import org.ong.dryforest.repository.PlantingMonitoringRepository;
+import org.ong.dryforest.service.PageResponse;
 import org.ong.dryforest.service.biomass.PlantBiomassService;
 import org.ong.dryforest.service.plantation.PlantationService;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,10 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -429,37 +427,37 @@ public class PlantingMonitoringServiceImpl
 
     @Override
     @Transactional(readOnly = true)
-    public List<SpeciesStatDTO>
-    statisticSpeciesAverageBySpeciesAndReforestationDate() {
-
+    public PageResponse<SpeciesStatDTO>
+    statisticSpeciesAverageBySpeciesAndReforestationDate(
+            Pageable pageable
+    ) {
         List<SpeciesStatDTO> stats = statisticSpecies();
 
         if (stats.isEmpty()) {
-            return new ArrayList<>();
+            return paginateStats(stats, pageable);
         }
 
         Map<String, List<SpeciesStatDTO>> grouped =
-                stats.stream().collect(
-                        Collectors.groupingBy(dto ->
-                                dto.getId_species() + "_" +
-                                        (dto.getDate_reforestation() != null
-                                                ? dto.getDate_reforestation()
-                                                : "null")
-                        )
-                );
+                stats.stream().collect(Collectors.groupingBy(dto ->
+                        dto.getId_species() + "_" +
+                                (dto.getDate_reforestation() != null
+                                        ? dto.getDate_reforestation()
+                                        : "null")
+                ));
 
-        return calculateAverages(grouped);
+        List<SpeciesStatDTO> averages = calculateAverages(grouped);
+
+        return paginateStats(averages, pageable);
     }
-
 
     @Override
     @Transactional(readOnly = true)
-    public List<SpeciesStatDTO>
+    public PageResponse<SpeciesStatDTO>
     statisticSpeciesAverageByReforestationDateRange(
             LocalDate startDate,
-            LocalDate endDate
+            LocalDate endDate,
+            Pageable pageable
     ) {
-
         if (startDate == null || endDate == null) {
             throw new IllegalArgumentException(
                     "Les dates de début et de fin sont obligatoires."
@@ -482,14 +480,14 @@ public class PlantingMonitoringServiceImpl
                             return !date.isBefore(startDate)
                                     && !date.isAfter(endDate);
                         })
-                        .collect(
-                                Collectors.groupingBy(dto ->
-                                        dto.getId_species() + "_" +
-                                                dto.getDate_reforestation()
-                                )
-                        );
+                        .collect(Collectors.groupingBy(dto ->
+                                dto.getId_species() + "_" +
+                                        dto.getDate_reforestation()
+                        ));
 
-        return calculateAverages(grouped);
+        List<SpeciesStatDTO> averages = calculateAverages(grouped);
+
+        return paginateStats(averages, pageable);
     }
 
 
@@ -540,5 +538,44 @@ public class PlantingMonitoringServiceImpl
         }
 
         return result;
+    }
+
+    private PageResponse<SpeciesStatDTO> paginateStats(
+            List<SpeciesStatDTO> stats,
+            Pageable pageable
+    ) {
+        int size = pageable.getPageSize();
+        int page = pageable.getPageNumber();
+
+        List<SpeciesStatDTO> sortedStats = stats.stream()
+                .sorted(Comparator.comparing(
+                        SpeciesStatDTO::getDate_reforestation,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
+                .toList();
+
+        long totalElements = sortedStats.size();
+
+        int totalPages = (int) Math.ceil(
+                (double) totalElements / size
+        );
+
+        int start = (int) Math.min(
+                pageable.getOffset(),
+                totalElements
+        );
+
+        int end = Math.min(start + size, sortedStats.size());
+
+        List<SpeciesStatDTO> content =
+                new ArrayList<>(sortedStats.subList(start, end));
+
+        return new PageResponse<>(
+                content,
+                size,
+                page,
+                totalElements,
+                totalPages
+        );
     }
 }
