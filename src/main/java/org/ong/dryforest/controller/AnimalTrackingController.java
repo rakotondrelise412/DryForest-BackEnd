@@ -32,9 +32,7 @@ public class AnimalTrackingController {
     ) {
         Pageable pageable = PageRequest.of(
                 page,
-                size,
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
+                size);
 
         return ResponseEntity.ok(
                 animalTrackingService.getObservedAnimalsByZone(pageable)

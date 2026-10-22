@@ -1,3 +1,4 @@
+
 package org.ong.dryforest.repository;
 
 import java.util.List;
@@ -13,7 +14,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AnimalTrackingRepository extends JpaRepository<AnimalTracking, Integer> {
+public interface AnimalTrackingRepository
+        extends JpaRepository<AnimalTracking, Integer> {
+
     boolean existsByUuidAndIsDeletedFalse(UUID uuid);
 
     Optional<AnimalTracking> findByUuidAndIsDeletedFalse(UUID uuid);
@@ -26,28 +29,48 @@ public interface AnimalTrackingRepository extends JpaRepository<AnimalTracking, 
             Pageable pageable
     );
 
-    @Query("""
-        SELECT new org.ong.dryforest.dto.animaltracking.AnimalObservedByZoneDTO(
-            z.id,
-            z.name,
-            a.id,
-            a.name,
-            COUNT(atd.id)
-        )
-        FROM AnimalTrackingDetail atd
-        JOIN atd.animalTracking at
-        JOIN at.plantationBlock pb
-        JOIN pb.zone z
-        JOIN atd.animal a
-        WHERE atd.isDeleted = false
-            AND at.isDeleted = false
-            AND pb.isDeleted = false
-            AND z.isDeleted = false
-            AND a.isDeleted = false
-            AND atd.have_seen = true
-        GROUP BY z.id, z.name, a.id, a.name
-        ORDER BY z.name, a.name
-    """)
+    @Query(
+            value = """
+            SELECT new org.ong.dryforest.dto.animaltracking.AnimalObservedByZoneDTO(
+                z.id,
+                z.name,
+                a.id,
+                a.name,
+                COUNT(atd.id)
+            )
+            FROM AnimalTrackingDetail atd
+            JOIN atd.animalTracking at
+            JOIN at.plantationBlock pb
+            JOIN pb.zone z
+            JOIN atd.animal a
+            WHERE atd.isDeleted = false
+                AND at.isDeleted = false
+                AND pb.isDeleted = false
+                AND z.isDeleted = false
+                AND a.isDeleted = false
+                AND atd.have_seen = true
+            GROUP BY z.id, z.name, a.id, a.name
+            ORDER BY z.name ASC, a.name ASC
+            """,
+            countQuery = """
+            SELECT COUNT(DISTINCT CONCAT(
+                CAST(z.id AS string),
+                '-',
+                CAST(a.id AS string)
+            ))
+            FROM AnimalTrackingDetail atd
+            JOIN atd.animalTracking at
+            JOIN at.plantationBlock pb
+            JOIN pb.zone z
+            JOIN atd.animal a
+            WHERE atd.isDeleted = false
+                AND at.isDeleted = false
+                AND pb.isDeleted = false
+                AND z.isDeleted = false
+                AND a.isDeleted = false
+                AND atd.have_seen = true
+            """
+    )
     Page<AnimalObservedByZoneDTO> findObservedAnimalsByZone(
             Pageable pageable
     );
