@@ -318,14 +318,22 @@ public class PlantationController {
     }
 
     @GetMapping("/survival_rate_by_block_subplot_species")
-    public ResponseEntity<
-            List<PlantationBlockSurvivalRateDTO>
-            >
-    getSurvivalRateByBlockSubPlotAndSpecies() {
+    public ResponseEntity<Page<PlantationBlockSurvivalRateDTO>>
+    getSurvivalRateByBlockSubPlotAndSpecies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        if (page < 0 || size < 1 || size > 100) {
+            throw new IllegalArgumentException(
+                    "La page doit être positive et la taille comprise entre 1 et 100."
+            );
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
 
         return ResponseEntity.ok(
                 plantationService
-                        .getSurvivalRateBySpeciesBySubPlotAndBlock()
+                        .getSurvivalRateBySpeciesBySubPlotAndBlock(pageable)
         );
     }
 }

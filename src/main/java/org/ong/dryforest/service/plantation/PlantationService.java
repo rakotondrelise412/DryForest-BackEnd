@@ -51,6 +51,10 @@ public interface PlantationService {
 
     List<PlantationViewDTO> getAllPlantations();
 
+
+    Page<PlantationBlockSurvivalRateDTO>
+    getSurvivalRateBySpeciesBySubPlotAndBlock(Pageable pageable);
+
     List<Map<String, Integer>>
     getTotalPlantationByBlock();
 
@@ -75,9 +79,6 @@ public interface PlantationService {
 
     SurvivalRateDTO
     survivalRateGlobal();
-
-    List<PlantationBlockSurvivalRateDTO>
-    getSurvivalRateBySpeciesBySubPlotAndBlock();
 
     Page<PlantationViewDTO> getAllPlantations(Pageable pageable);
 

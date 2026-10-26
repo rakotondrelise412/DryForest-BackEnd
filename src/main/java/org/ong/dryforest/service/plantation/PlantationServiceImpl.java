@@ -21,6 +21,7 @@ import org.ong.dryforest.service.subPlot.SubPlotService;
 import org.ong.dryforest.service.util.BlockStats;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1078,75 +1079,97 @@ public class PlantationServiceImpl
         );
     }
 
-
     @Override
     @Transactional(readOnly = true)
-    public List<PlantationBlockSurvivalRateDTO>
-    getSurvivalRateBySpeciesBySubPlotAndBlock() {
+    public Page<PlantationBlockSurvivalRateDTO>
+    getSurvivalRateBySpeciesBySubPlotAndBlock(Pageable pageable) {
 
         List<Plantation> plantations =
-                plantationRepository
-                        .findAllByIsDeletedFalse();
-
-        if (plantations == null ||
-                plantations.isEmpty()) {
-
-            return Collections.emptyList();
-        }
+                plantationRepository.findAllByIsDeletedFalse();
 
         Map<Integer, BlockStats> blockMap =
-                new LinkedHashMap<>();
+                buildBlockStatsMap(plantations);
 
-        for (Plantation plantation :
-                plantations) {
+        List<PlantationBlockSurvivalRateDTO> allBlocks =
+                blockMap.values()
+                        .stream()
+                        .map(BlockStats::toDTO)
+                        .collect(Collectors.toList());
 
-            if (plantation == null ||
-                    plantation.getSpecies() == null ||
-                    plantation.getSubPlot() == null) {
+        int totalElements = allBlocks.size();
+        int start = (int) pageable.getOffset();
+
+        if (start >= totalElements) {
+            return new PageImpl<>(
+                    Collections.emptyList(),
+                    pageable,
+                    totalElements
+            );
+        }
+
+        int end = Math.min(
+                start + pageable.getPageSize(),
+                totalElements
+        );
+
+        List<PlantationBlockSurvivalRateDTO> pageContent =
+                allBlocks.subList(start, end);
+
+        return new PageImpl<>(
+                pageContent,
+                pageable,
+                totalElements
+        );
+    }
+
+
+    private Map<Integer, BlockStats> buildBlockStatsMap(
+            List<Plantation> plantations) {
+
+        Map<Integer, BlockStats> blockMap = new LinkedHashMap<>();
+
+        if (plantations == null || plantations.isEmpty()) {
+            return blockMap;
+        }
+
+        for (Plantation plantation : plantations) {
+
+            if (plantation == null
+                    || plantation.getSpecies() == null
+                    || plantation.getSubPlot() == null) {
                 continue;
             }
 
-            SubPlot subPlot =
-                    plantation.getSubPlot();
-
-            PlantationBlock block =
-                    subPlot.getPlantationBlock();
+            SubPlot subPlot = plantation.getSubPlot();
+            PlantationBlock block = subPlot.getPlantationBlock();
 
             if (block == null) {
                 continue;
             }
 
-            if (block.getId() <= 0 ||
-                    subPlot.getId() <= 0 ||
-                    plantation.getSpecies().getId() <= 0) {
+            if (block.getId() <= 0
+                    || subPlot.getId() <= 0
+                    || plantation.getSpecies().getId() <= 0) {
                 continue;
             }
 
-            boolean alive =
-                    plantation.isStatus();
-
-            BlockStats blockStats =
-                    blockMap.computeIfAbsent(
+            BlockStats blockStats = blockMap.computeIfAbsent(
+                    block.getId(),
+                    id -> new BlockStats(
                             block.getId(),
-                            id ->
-                                    new BlockStats(
-                                            block.getId(),
-                                            block.getName()
-                                    )
-                    );
+                            block.getName()
+                    )
+            );
 
             blockStats.addPlantation(
                     subPlot.getId(),
                     subPlot.getName(),
                     plantation.getSpecies().getId(),
                     plantation.getSpecies().getMg_name(),
-                    alive
+                    plantation.isStatus()
             );
         }
 
-        return blockMap.values()
-                .stream()
-                .map(BlockStats::toDTO)
-                .collect(Collectors.toList());
+        return blockMap;
     }
 }
