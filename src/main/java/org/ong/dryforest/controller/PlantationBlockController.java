@@ -26,7 +26,6 @@ public class PlantationBlockController {
     @Autowired
     private PlantationBlockService plantationBlockService;
 
-
     @GetMapping
     public ResponseEntity<Page<PlantationBlockMobileDTO>> findAll(
             @RequestParam(defaultValue = "0") int page,
@@ -49,47 +48,46 @@ public class PlantationBlockController {
         return ResponseEntity.ok(result);
     }
 
-
-
     @GetMapping("/all")
-    public ResponseEntity<List<PlantationBlockDTO>>
-    getAllPlantationBlock() {
+    public ResponseEntity<Page<PlantationBlockDTO>> getAllPlantationBlock(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<PlantationBlock> plantationBlocks =
-                plantationBlockService.findAll();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
 
-        List<PlantationBlockDTO> result =
-                plantationBlocks
-                        .stream()
-                        .map(
-                                PlantationBlockMapper
-                                        ::toPlantationBlockDTO
-                        )
-                        .collect(
-                                Collectors.toList()
-                        );
+        Page<PlantationBlock> plantationBlocks =
+                plantationBlockService.findAll(pageable);
+
+        Page<PlantationBlockDTO> result =
+                plantationBlocks.map(
+                        PlantationBlockMapper::toPlantationBlockDTO
+                );
 
         return ResponseEntity.ok(result);
     }
 
-
     @GetMapping("/filterPlantationBlock")
-    public ResponseEntity<List<PlantationBlockWebDTO>>
-    getAll() {
+    public ResponseEntity<Page<PlantationBlockWebDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<PlantationBlock> plantationBlocks =
-                plantationBlockService.findAll();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
 
-        List<PlantationBlockWebDTO> result =
-                plantationBlocks
-                        .stream()
-                        .map(
-                                PlantationBlockMapper
-                                        ::toPlantationBlockWebDTO
-                        )
-                        .collect(
-                                Collectors.toList()
-                        );
+        Page<PlantationBlock> plantationBlocks =
+                plantationBlockService.findAll(pageable);
+
+        Page<PlantationBlockWebDTO> result =
+                plantationBlocks.map(
+                        PlantationBlockMapper::toPlantationBlockWebDTO
+                );
 
         return ResponseEntity.ok(result);
     }
