@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -44,31 +43,38 @@ public class SubPlotController {
         return ResponseEntity.ok(result);
     }
 
-
     @GetMapping("/all")
-    public ResponseEntity<List<SubPlotDTO>> getAllSubPlot() {
+    public ResponseEntity<Page<SubPlotDTO>> getAllSubPlot(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<SubPlotDTO> result =
-                subPlotService
-                        .findAll()
-                        .stream()
-                        .map(SubPlotMapper::toSubPlotDTO)
-                        .toList();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<SubPlotDTO> result = subPlotService
+                .findAll(pageable)
+                .map(SubPlotMapper::toSubPlotDTO);
 
         return ResponseEntity.ok(result);
     }
 
-
-
     @GetMapping("/subPlotWebFilter")
-    public ResponseEntity<List<SubPlotFilterWebDTO>> getAllWebFilter() {
+    public ResponseEntity<Page<SubPlotFilterWebDTO>> getAllWebFilter(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<SubPlotFilterWebDTO> result =
-                subPlotService
-                        .findAll()
-                        .stream()
-                        .map(SubPlotMapper::toWebFilterDTO)
-                        .toList();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<SubPlotFilterWebDTO> result = subPlotService
+                .findAll(pageable)
+                .map(SubPlotMapper::toWebFilterDTO);
 
         return ResponseEntity.ok(result);
     }
