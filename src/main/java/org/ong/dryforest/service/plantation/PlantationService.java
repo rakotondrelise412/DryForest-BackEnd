@@ -1,9 +1,6 @@
 package org.ong.dryforest.service.plantation;
 
-import org.ong.dryforest.dto.plantation.PlantationDTO;
-import org.ong.dryforest.dto.plantation.PlantationStatusByYearDTO;
-import org.ong.dryforest.dto.plantation.PlantationViewDTO;
-import org.ong.dryforest.dto.plantation.SurvivalRateDTO;
+import org.ong.dryforest.dto.plantation.*;
 import org.ong.dryforest.dto.plantationBlock.PlantationBlockSurvivalRateDTO;
 import org.ong.dryforest.dto.species.SpeciesCarbonDTO;
 import org.ong.dryforest.entity.Plantation;
@@ -79,6 +76,9 @@ public interface PlantationService {
 
     SurvivalRateDTO
     survivalRateGlobal();
+
+    List<PlantationBySiteStatisticsDTO>
+    getPlantationStatisticsBySite();
 
     Page<PlantationViewDTO> getAllPlantations(Pageable pageable);
 

@@ -1,10 +1,7 @@
 package org.ong.dryforest.service.plantation;
 
 import lombok.RequiredArgsConstructor;
-import org.ong.dryforest.dto.plantation.PlantationDTO;
-import org.ong.dryforest.dto.plantation.PlantationStatusByYearDTO;
-import org.ong.dryforest.dto.plantation.PlantationViewDTO;
-import org.ong.dryforest.dto.plantation.SurvivalRateDTO;
+import org.ong.dryforest.dto.plantation.*;
 import org.ong.dryforest.dto.plantationBlock.PlantationBlockSurvivalRateDTO;
 import org.ong.dryforest.dto.species.SpeciesCarbonDTO;
 import org.ong.dryforest.entity.Plantation;
@@ -55,6 +52,18 @@ public class PlantationServiceImpl
     private static final double AGB_EXPONENT = 0.976;
 
     private static final String PLANT_NUMBER_PREFIX = "Plt_";
+
+    private double calculatePercentage(long count, long total) {
+
+        if (total <= 0) {
+            return 0.0;
+        }
+
+        double percentage =
+                ((double) count / total) * 100.0;
+
+        return Math.round(percentage * 100.0) / 100.0;
+    }
 
     // ============================================================
     // DEPENDANCES
@@ -1171,5 +1180,118 @@ public class PlantationServiceImpl
         }
 
         return blockMap;
+    }
+
+    // ============================================================
+// STATISTIQUES DES PLANTATIONS PAR SITE
+// ============================================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PlantationBySiteStatisticsDTO>
+    getPlantationStatisticsBySite() {
+
+        List<Object[]> globalRows =
+                plantationRepository
+                        .getGlobalPlantationStatisticsBySite();
+
+        List<Object[]> yearlyRows =
+                plantationRepository
+                        .getYearlyPlantationStatisticsBySite();
+
+        Map<Integer, List<PlantationYearlyStatisticsDTO>>
+                yearlyStatisticsMap = new HashMap<>();
+
+        for (Object[] row : yearlyRows) {
+
+            if (row == null || row.length < 6) {
+                continue;
+            }
+
+            int siteId = ((Number) row[0]).intValue();
+
+            int year = ((Number) row[1]).intValue();
+
+            long total = ((Number) row[2]).longValue();
+
+            long alive = ((Number) row[3]).longValue();
+
+            long dead = ((Number) row[4]).longValue();
+
+            long unknown = ((Number) row[5]).longValue();
+
+            double survivalRate =
+                    calculatePercentage(alive, total);
+
+            double mortalityRate =
+                    calculatePercentage(dead, total);
+
+            PlantationYearlyStatisticsDTO yearlyDTO =
+                    new PlantationYearlyStatisticsDTO(
+                            year,
+                            total,
+                            alive,
+                            dead,
+                            unknown,
+                            survivalRate,
+                            mortalityRate
+                    );
+
+            yearlyStatisticsMap
+                    .computeIfAbsent(
+                            siteId,
+                            key -> new ArrayList<>()
+                    )
+                    .add(yearlyDTO);
+        }
+
+        List<PlantationBySiteStatisticsDTO> result =
+                new ArrayList<>();
+
+        for (Object[] row : globalRows) {
+
+            if (row == null || row.length < 6) {
+                continue;
+            }
+
+            int siteId = ((Number) row[0]).intValue();
+
+            String siteName = (String) row[1];
+
+            long total = ((Number) row[2]).longValue();
+
+            long alive = ((Number) row[3]).longValue();
+
+            long dead = ((Number) row[4]).longValue();
+
+            long unknown = ((Number) row[5]).longValue();
+
+            PlantationStatisticsDTO globalDTO =
+                    new PlantationStatisticsDTO(
+                            total,
+                            alive,
+                            dead,
+                            unknown,
+                            calculatePercentage(alive, total),
+                            calculatePercentage(dead, total)
+                    );
+
+            List<PlantationYearlyStatisticsDTO> yearlyStatistics =
+                    yearlyStatisticsMap.getOrDefault(
+                            siteId,
+                            Collections.emptyList()
+                    );
+            PlantationBySiteStatisticsDTO siteDTO =
+                    new PlantationBySiteStatisticsDTO(
+                            siteId,
+                            siteName,
+                            globalDTO,
+                            yearlyStatistics
+                    );
+
+            result.add(siteDTO);
+        }
+
+        return result;
     }
 }

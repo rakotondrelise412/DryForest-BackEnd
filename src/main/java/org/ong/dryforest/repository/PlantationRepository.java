@@ -300,5 +300,117 @@ public interface PlantationRepository
             Pageable pageable
     );
 
+    // ============================================================
+// STATISTIQUES DES PLANTATIONS PAR SITE
+// ============================================================
 
+    @Query(
+            value = """
+        SELECT
+            s.id_site,
+            s.name AS site_name,
+
+            COUNT(p.id_plantation) AS total_plantations,
+
+            COUNT(p.id_plantation) FILTER (
+                WHERE p.status = TRUE
+            ) AS total_alive,
+
+            COUNT(p.id_plantation) FILTER (
+                WHERE p.status = FALSE
+            ) AS total_dead,
+
+            COUNT(p.id_plantation) FILTER (
+                WHERE p.status IS NULL
+            ) AS total_unknown
+
+        FROM site s
+
+        LEFT JOIN zone z
+            ON z.id_site = s.id_site
+            AND COALESCE(z.is_deleted, FALSE) = FALSE
+
+        LEFT JOIN plantation_block pb
+            ON pb.id_zone = z.id_zone
+            AND COALESCE(pb.is_deleted, FALSE) = FALSE
+
+        LEFT JOIN sub_plot sp
+            ON sp.id_plantation_block = pb.id_plantation_block
+            AND COALESCE(sp.is_deleted, FALSE) = FALSE
+
+        LEFT JOIN plantation p
+            ON p.id_sub_plot = sp.id_sub_plot
+            AND COALESCE(p.is_deleted, FALSE) = FALSE
+
+        WHERE COALESCE(s.is_deleted, FALSE) = FALSE
+
+        GROUP BY
+            s.id_site,
+            s.name
+
+        ORDER BY s.name ASC
+        """,
+            nativeQuery = true
+    )
+    List<Object[]> getGlobalPlantationStatisticsBySite();
+
+
+// ============================================================
+// STATISTIQUES ANNUELLES DES PLANTATIONS PAR SITE
+// ============================================================
+
+    @Query(
+            value = """
+        SELECT
+            s.id_site,
+
+            EXTRACT(YEAR FROM p.date_plantation)::INTEGER
+                AS plantation_year,
+
+            COUNT(p.id_plantation) AS total_plantations,
+
+            COUNT(p.id_plantation) FILTER (
+                WHERE p.status = TRUE
+            ) AS total_alive,
+
+            COUNT(p.id_plantation) FILTER (
+                WHERE p.status = FALSE
+            ) AS total_dead,
+
+            COUNT(p.id_plantation) FILTER (
+                WHERE p.status IS NULL
+            ) AS total_unknown
+
+        FROM site s
+
+        INNER JOIN zone z
+            ON z.id_site = s.id_site
+            AND COALESCE(z.is_deleted, FALSE) = FALSE
+
+        INNER JOIN plantation_block pb
+            ON pb.id_zone = z.id_zone
+            AND COALESCE(pb.is_deleted, FALSE) = FALSE
+
+        INNER JOIN sub_plot sp
+            ON sp.id_plantation_block = pb.id_plantation_block
+            AND COALESCE(sp.is_deleted, FALSE) = FALSE
+
+        INNER JOIN plantation p
+            ON p.id_sub_plot = sp.id_sub_plot
+            AND COALESCE(p.is_deleted, FALSE) = FALSE
+
+        WHERE COALESCE(s.is_deleted, FALSE) = FALSE
+          AND p.date_plantation IS NOT NULL
+
+        GROUP BY
+            s.id_site,
+            EXTRACT(YEAR FROM p.date_plantation)
+
+        ORDER BY
+            s.id_site,
+            plantation_year ASC
+        """,
+            nativeQuery = true
+    )
+    List<Object[]> getYearlyPlantationStatisticsBySite();
 }

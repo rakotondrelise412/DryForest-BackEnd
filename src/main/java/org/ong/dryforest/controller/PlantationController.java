@@ -32,6 +32,7 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/plantation")
 @RequiredArgsConstructor
@@ -76,6 +77,16 @@ public class PlantationController {
                         .map(PlantationMapper::toPlantationMobileDTO);
 
         return ResponseEntity.ok(result);
+    }
+
+
+    @GetMapping("/statistics/by-site")
+    public ResponseEntity<List<PlantationBySiteStatisticsDTO>>
+    getPlantationStatisticsBySite() {
+
+        return ResponseEntity.ok(
+                plantationService.getPlantationStatisticsBySite()
+        );
     }
 
 
