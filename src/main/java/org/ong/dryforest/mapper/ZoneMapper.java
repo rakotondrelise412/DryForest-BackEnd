@@ -39,6 +39,10 @@ public class ZoneMapper {
             );
         }
 
+        if (zone.getSite() != null) {
+            dto.setId_site(zone.getSite().getId());
+        }
+
         return dto;
     }
 
@@ -55,6 +59,10 @@ public class ZoneMapper {
 
         dto.setId_zone(zone.getId());
         dto.setName(zone.getName());
+
+        if (zone.getSite() != null) {
+            dto.setId_site(zone.getSite().getId());
+        }
 
         return dto;
     }

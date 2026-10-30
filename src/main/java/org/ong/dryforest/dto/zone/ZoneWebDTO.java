@@ -27,4 +27,6 @@ public class ZoneWebDTO {
     private int id_type_zone;
 
     private boolean is_synced;
+
+    private Integer id_site;
 }

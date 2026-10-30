@@ -44,4 +44,7 @@ public class Site extends SyncEntity {
             inverseJoinColumns = @JoinColumn(name = "id_species")
     )
     private List<Species> speciesList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "site")
+    private List<Zone> zones = new ArrayList<>();
 }

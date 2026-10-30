@@ -21,7 +21,7 @@ public class ZoneDTO {
     private double area;
     private Map<String, Object> geom;
     private int id_type_zone;
-
+    private Integer id_site;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
     private boolean is_synced;

@@ -54,4 +54,11 @@ public class Zone extends SyncEntity {
 
     @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlantationBlock> plantationBlocks = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(
+            name = "id_site",
+            referencedColumnName = "id_site"
+    )
+    private Site site;
 }

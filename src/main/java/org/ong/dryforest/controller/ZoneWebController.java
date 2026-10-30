@@ -86,6 +86,10 @@ public class ZoneWebController {
                                     && Boolean.parseBoolean(r[6].toString())
                     );
 
+                    if (r[7] != null) {
+                        dto.setId_site(((Number) r[7]).intValue());
+                    }
+
                     return dto;
                 });
 
@@ -144,22 +148,25 @@ public class ZoneWebController {
             existing.setUuid(zoneDTO.getUuid());
         }
 
-        if (zoneDTO.getGeom() != null) {
-            Zone mappedZone = zoneService.mapToEntity(zoneDTO);
+        Zone mappedZone = zoneService.mapToEntity(zoneDTO);
 
+        if (zoneDTO.getGeom() != null) {
             existing.setGeom(mappedZone.getGeom());
         }
 
         if (zoneDTO.getId_type_zone() > 0) {
-            Zone mappedZone = zoneService.mapToEntity(zoneDTO);
             existing.setTypeZone(mappedZone.getTypeZone());
+        }
+
+        if (zoneDTO.getId_site() != null) {
+            existing.setSite(mappedZone.getSite());
         }
 
         Zone updatedZone = zoneService.updateZone(existing);
 
-        ZoneWebDTO response = ZoneMapper.toZoneWebDTO(updatedZone);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ZoneMapper.toZoneWebDTO(updatedZone)
+        );
     }
 
     @DeleteMapping("/{id}")

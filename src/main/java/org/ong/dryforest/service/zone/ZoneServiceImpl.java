@@ -12,7 +12,9 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 import org.ong.dryforest.dto.zone.ZoneDTO;
+import org.ong.dryforest.entity.Site;
 import org.ong.dryforest.entity.Zone;
+import org.ong.dryforest.repository.SiteRepository;
 import org.ong.dryforest.repository.ZoneRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +33,13 @@ public class ZoneServiceImpl implements ZoneService {
     @Autowired
     private TypeZoneService typeZoneService;
 
+    @Autowired
+    private SiteRepository siteRepository;
 
     @Override
     public List<Zone> findAll() {
         return zoneRepository.findAllByIsDeletedFalse();
     }
-
 
     @Override
     public double totalAreaProtected() {
@@ -71,6 +74,21 @@ public class ZoneServiceImpl implements ZoneService {
                     e
             );
         }
+    }
+
+
+    private Site getActiveSiteOrThrow(Integer id) {
+
+        if (id == null) {
+            return null;
+        }
+
+        return siteRepository.findActiveById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Site introuvable ou supprimé : " + id
+                        )
+                );
     }
 
 
@@ -127,6 +145,10 @@ public class ZoneServiceImpl implements ZoneService {
 
         if (zone.getTypeZone() != null) {
             existingZone.setTypeZone(zone.getTypeZone());
+        }
+
+        if (zone.getSite() != null) {
+            existingZone.setSite(zone.getSite());
         }
 
         existingZone.set_synced(zone.is_synced());
@@ -240,6 +262,16 @@ public class ZoneServiceImpl implements ZoneService {
             );
         }
 
+        Object siteId = zoneMapping.get("id_site");
+
+        if (siteId != null) {
+            zone.setSite(
+                    getActiveSiteOrThrow(
+                            ((Number) siteId).intValue()
+                    )
+            );
+        }
+
         return zone;
     }
 
@@ -308,6 +340,10 @@ public class ZoneServiceImpl implements ZoneService {
                     )
             );
         }
+
+        zone.setSite(
+                getActiveSiteOrThrow(zoneDTO.getId_site())
+        );
 
         return zone;
     }

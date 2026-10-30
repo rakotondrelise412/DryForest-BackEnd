@@ -88,6 +88,14 @@ public class SiteServiceImpl implements SiteService {
             );
         }
 
+        if (site.getZones() != null
+                && !site.getZones().isEmpty()) {
+            throw new IllegalStateException(
+                    "Impossible de supprimer ce site : "
+                            + "des zones y sont associées."
+            );
+        }
+
         site.setDeleted(true);
 
         siteRepository.save(site);

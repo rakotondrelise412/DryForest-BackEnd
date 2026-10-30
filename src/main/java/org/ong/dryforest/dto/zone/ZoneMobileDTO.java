@@ -12,5 +12,5 @@ import lombok.Setter;
 public class ZoneMobileDTO {
     private int id_zone;
     private String name;
-
+    private Integer id_site;
 }
